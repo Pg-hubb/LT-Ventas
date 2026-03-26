@@ -474,6 +474,14 @@ input,select,textarea{font-family:var(--font)}
 .toast.info .toast-icon{color:#60a5fa}
 .toast-icon svg{width:16px;height:16px}
 
+/* SETTINGS */
+.settings-card{background:var(--surface);border:1.5px solid var(--gray-200);border-radius:var(--radius);padding:24px 28px}
+.settings-card-header{display:flex;align-items:flex-start;gap:14px}
+.settings-card-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.settings-card-title{font-size:15px;font-weight:700;color:var(--black);margin-bottom:3px}
+.settings-card-sub{font-size:13px;color:var(--gray-400)}
+.settings-field-error{font-size:12px;color:var(--red);margin-top:5px;min-height:16px;transition:opacity .2s}
+
 @media(max-width:900px){.sidebar{width:220px}.detail-panel{width:100%}.form-grid{grid-template-columns:1fr}.content{padding:20px 16px}.topbar{padding:14px 16px}}
 @media(max-width:700px){.sidebar{display:none}.stats-grid{grid-template-columns:1fr 1fr}}
 </style>
@@ -556,6 +564,12 @@ input,select,textarea{font-family:var(--font)}
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
         Usuario o contraseña incorrectos
       </div>
+
+      <div style="text-align:center;margin-top:20px">
+        <button onclick="openForgotPassword()" style="background:none;border:none;font-size:12.5px;color:rgba(255,255,255,.3);cursor:pointer;font-family:var(--font);letter-spacing:.2px;transition:color .2s;padding:4px 0" onmouseover="this.style.color='rgba(255,255,255,.6)'" onmouseout="this.style.color='rgba(255,255,255,.3)'">
+          ¿Olvidaste tu contraseña?
+        </button>
+      </div>
     </div>
 
     <div class="login-footer-outside">
@@ -563,6 +577,68 @@ input,select,textarea{font-family:var(--font)}
     </div>
   </div>
 
+</div>
+
+<!-- MODAL: RECUPERAR CONTRASEÑA -->
+<div class="modal-overlay" id="modalForgot">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <div class="modal-header-icon" style="background:#1d4ed8">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div>
+        <div class="modal-title">Recuperar contraseña</div>
+        <div class="modal-subtitle">Creá una nueva contraseña para tu cuenta</div>
+      </div>
+      <button class="modal-close" onclick="closeForgotModal()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div id="forgotStep1" class="modal-body">
+      <div class="form-group" style="margin-bottom:16px">
+        <label class="form-label">Usuario</label>
+        <select class="form-select" id="forgotUser">
+          <option value="">Seleccionar usuario</option>
+          <option value="Carolina">Carolina</option><option value="Claudia">Claudia</option>
+          <option value="Fernando">Fernando</option><option value="Lucas">Lucas</option>
+          <option value="Luciana">Luciana</option><option value="Lujan">Lujan</option>
+          <option value="Pilar">Pilar</option><option value="Silvia">Silvia</option>
+          <option value="Xiomara">Xiomara</option>
+        </select>
+        <div class="settings-field-error" id="errForgotUser"></div>
+      </div>
+      <div style="background:var(--gray-100);border-radius:8px;padding:12px 14px;font-size:12.5px;color:var(--gray-600);line-height:1.6">
+        Seleccioná tu usuario y podrás crear una nueva contraseña directamente.
+      </div>
+    </div>
+    <div id="forgotStep2" class="modal-body" style="display:none">
+      <div class="form-group" style="margin-bottom:16px">
+        <label class="form-label">Nueva contraseña</label>
+        <input type="password" class="form-input" id="forgotNewPass" placeholder="Mínimo 6 caracteres">
+        <div style="margin-top:8px;display:flex;gap:4px">
+          <div style="height:3px;flex:1;border-radius:2px;background:var(--gray-200);transition:background .3s" id="fsb1"></div>
+          <div style="height:3px;flex:1;border-radius:2px;background:var(--gray-200);transition:background .3s" id="fsb2"></div>
+          <div style="height:3px;flex:1;border-radius:2px;background:var(--gray-200);transition:background .3s" id="fsb3"></div>
+          <div style="height:3px;flex:1;border-radius:2px;background:var(--gray-200);transition:background .3s" id="fsb4"></div>
+        </div>
+        <div class="settings-field-error" id="errForgotNew"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirmar contraseña</label>
+        <input type="password" class="form-input" id="forgotConfirmPass" placeholder="••••••••••">
+        <div class="settings-field-error" id="errForgotConfirm"></div>
+      </div>
+    </div>
+    <div id="forgotStep3" class="modal-body" style="display:none;text-align:center;padding:40px 28px">
+      <div style="width:56px;height:56px;background:#F0FDF4;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+        <svg fill="none" viewBox="0 0 24 24" stroke="#15803d" stroke-width="2.5" width="26" height="26"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <div style="font-size:16px;font-weight:700;color:var(--black);margin-bottom:6px">Contraseña actualizada</div>
+      <div style="font-size:13px;color:var(--gray-400);line-height:1.6">Tu contraseña fue cambiada correctamente.<br>Ingresá con tu nueva contraseña.</div>
+    </div>
+    <div class="modal-footer" id="forgotFooter">
+      <button class="btn-modal-cancel" onclick="closeForgotModal()">Cancelar</button>
+      <button class="btn-modal-primary" id="btnForgotNext" onclick="forgotNext()">Continuar</button>
+    </div>
+  </div>
 </div>
 
 <!-- APP -->
@@ -598,6 +674,13 @@ input,select,textarea{font-family:var(--font)}
       <div class="nav-item" onclick="switchView('usuarios')">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/><circle cx="9" cy="7" r="4"/></svg>
         Usuarios
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Cuenta</div>
+      <div class="nav-item" onclick="switchView('ajustes')">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+        Ajustes
       </div>
     </div>
     <div class="sidebar-user">
@@ -702,6 +785,99 @@ input,select,textarea{font-family:var(--font)}
       <div class="view" id="view-usuarios">
         <div class="section-header"><h3>Equipo</h3><span class="count" id="usuariosCount">0</span></div>
         <div class="users-grid" id="usersGrid"></div>
+      </div>
+
+      <!-- AJUSTES -->
+      <div class="view" id="view-ajustes">
+        <div style="max-width:600px">
+          <div class="section-header" style="margin-bottom:24px">
+            <h3>Ajustes de cuenta</h3>
+          </div>
+
+          <!-- Bloque: perfil -->
+          <div class="settings-card" style="margin-bottom:16px">
+            <div class="settings-card-header">
+              <div class="settings-card-icon" style="background:rgba(172,10,16,.1)">
+                <svg fill="none" viewBox="0 0 24 24" stroke="#AC0A10" stroke-width="2" width="18" height="18"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <div>
+                <div class="settings-card-title">Perfil</div>
+                <div class="settings-card-sub" id="settingsProfileSub">—</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bloque: seguridad -->
+          <div class="settings-card">
+            <div class="settings-card-header" style="margin-bottom:24px">
+              <div class="settings-card-icon" style="background:rgba(172,10,16,.1)">
+                <svg fill="none" viewBox="0 0 24 24" stroke="#AC0A10" stroke-width="2" width="18" height="18"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div>
+                <div class="settings-card-title">Seguridad</div>
+                <div class="settings-card-sub">Actualizá tu contraseña de acceso</div>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:16px">
+              <label class="form-label">Contraseña actual</label>
+              <div style="position:relative">
+                <input type="password" class="form-input" id="passActual" placeholder="••••••••••" style="padding-right:44px">
+                <button type="button" onclick="togglePass('passActual',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center">
+                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <div class="settings-field-error" id="errActual"></div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:16px">
+              <label class="form-label">Nueva contraseña</label>
+              <div style="position:relative">
+                <input type="password" class="form-input" id="passNueva" placeholder="••••••••••" oninput="checkPassStrength(this.value)" style="padding-right:44px">
+                <button type="button" onclick="togglePass('passNueva',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center">
+                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <!-- Indicador de fuerza -->
+              <div style="margin-top:8px;display:flex;gap:4px" id="strengthBars">
+                <div style="height:3px;flex:1;border-radius:2px;background:var(--gray-200);transition:background .3s" id="sb1"></div>
+                <div style="height:3px;flex:1;border-radius:2px;background:var(--gray-200);transition:background .3s" id="sb2"></div>
+                <div style="height:3px;flex:1;border-radius:2px;background:var(--gray-200);transition:background .3s" id="sb3"></div>
+                <div style="height:3px;flex:1;border-radius:2px;background:var(--gray-200);transition:background .3s" id="sb4"></div>
+              </div>
+              <div style="font-size:11px;color:var(--gray-400);margin-top:5px" id="strengthLabel"></div>
+              <div class="settings-field-error" id="errNueva"></div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:24px">
+              <label class="form-label">Confirmar nueva contraseña</label>
+              <div style="position:relative">
+                <input type="password" class="form-input" id="passConfirm" placeholder="••••••••••" style="padding-right:44px">
+                <button type="button" onclick="togglePass('passConfirm',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center">
+                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <div class="settings-field-error" id="errConfirm"></div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:12px">
+              <button class="topbar-btn primary" onclick="changePassword()" id="btnCambiarPass" style="height:42px;font-size:13.5px">
+                Actualizar contraseña
+              </button>
+              <div id="passSuccessMsg" style="display:none;align-items:center;gap:6px;font-size:13px;color:#15803d;font-weight:600">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" width="15" height="15"><path d="M20 6L9 17l-5-5"/></svg>
+                Contraseña actualizada correctamente
+              </div>
+            </div>
+
+            <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--gray-200)">
+              <p style="font-size:11.5px;color:var(--gray-400);line-height:1.7">
+                Requisitos: mínimo 6 caracteres · incluir al menos un número.<br>
+                La nueva contraseña se aplicará en el próximo inicio de sesión.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -984,15 +1160,7 @@ window.doLogout = function(){
 };
 
 /* ─── VISTAS ─────────────────────────────────────────── */
-const viewTitles={dashboard:'Dashboard',legajos:'Legajos',proximos:'Próximos viajes',saldos:'Saldos pendientes',usuarios:'Usuarios'};
-window.switchView = function(v){
-  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
-  document.getElementById('view-'+v).classList.add('active');
-  document.querySelector(`[onclick="switchView('${v}')"]`).classList.add('active');
-  document.getElementById('topbarTitle').textContent=viewTitles[v];
-  renderAll();
-};
+const viewTitles={dashboard:'Dashboard',legajos:'Legajos',proximos:'Próximos viajes',saldos:'Saldos pendientes',usuarios:'Usuarios',ajustes:'Ajustes'};
 
 /* ─── DATA FILTER ────────────────────────────────────── */
 function getLegajos(){
@@ -1264,6 +1432,174 @@ document.addEventListener('keydown',e=>{
     closeDetail();
   }
 });
+
+/* ─── AJUSTES: vista ────────────────────────────────── */
+window.switchView = function(v){
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  const navEl = document.querySelector(`[onclick="switchView('${v}')"]`);
+  if(navEl) navEl.classList.add('active');
+  document.getElementById('topbarTitle').textContent=viewTitles[v];
+  if(v==='ajustes') loadSettingsView();
+  else renderAll();
+};
+
+function loadSettingsView(){
+  if(!currentUser) return;
+  document.getElementById('settingsProfileSub').textContent =
+    currentUser.name + ' · ' + currentUser.display;
+  // reset form
+  ['passActual','passNueva','passConfirm'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  ['errActual','errNueva','errConfirm'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.textContent='';
+  });
+  const sm=document.getElementById('passSuccessMsg');
+  if(sm) sm.style.display='none';
+  resetStrengthBars('sb');
+}
+
+/* ─── PASSWORD STRENGTH ──────────────────────────────── */
+window.checkPassStrength = function(val){
+  let score=0;
+  if(val.length>=6) score++;
+  if(val.length>=10) score++;
+  if(/[0-9]/.test(val)) score++;
+  if(/[^a-zA-Z0-9]/.test(val)) score++;
+  const colors=['','#ef4444','#f97316','#eab308','#22c55e'];
+  const labels=['','Muy débil','Débil','Buena','Fuerte'];
+  // intentar actualizar barras de ajustes o de forgot
+  updateStrengthBars('sb', score, colors);
+  updateStrengthBars('fsb', score, colors);
+  const lbl=document.getElementById('strengthLabel');
+  if(lbl){ lbl.textContent=val.length>0?labels[score]:''; lbl.style.color=colors[score]||''; }
+};
+
+function updateStrengthBars(prefix, score, colors){
+  for(let i=1;i<=4;i++){
+    const el=document.getElementById(prefix+i);
+    if(el) el.style.background = i<=score ? colors[score] : 'var(--gray-200)';
+  }
+}
+function resetStrengthBars(prefix){
+  for(let i=1;i<=4;i++){
+    const el=document.getElementById(prefix+i);
+    if(el) el.style.background='var(--gray-200)';
+  }
+}
+
+/* ─── TOGGLE CONTRASEÑA VISIBLE ──────────────────────── */
+window.togglePass = function(inputId, btn){
+  const inp=document.getElementById(inputId);
+  if(!inp) return;
+  const isPass=inp.type==='password';
+  inp.type=isPass?'text':'password';
+  btn.style.color=isPass?'var(--red)':'var(--gray-400)';
+};
+
+/* ─── VALIDAR CONTRASEÑA ─────────────────────────────── */
+function validateNewPass(pass, confirmPass, errNewId, errConfirmId){
+  let ok=true;
+  const errN=document.getElementById(errNewId);
+  const errC=document.getElementById(errConfirmId);
+  if(errN) errN.textContent='';
+  if(errC) errC.textContent='';
+  if(!pass || pass.length<6){
+    if(errN) errN.textContent='Mínimo 6 caracteres';
+    ok=false;
+  } else if(!/[0-9]/.test(pass)){
+    if(errN) errN.textContent='Incluí al menos un número';
+    ok=false;
+  }
+  if(pass && confirmPass && pass!==confirmPass){
+    if(errC) errC.textContent='Las contraseñas no coinciden';
+    ok=false;
+  }
+  return ok;
+}
+
+/* ─── CAMBIAR CONTRASEÑA (AJUSTES) ──────────────────── */
+window.changePassword = function(){
+  const actual   = document.getElementById('passActual').value;
+  const nueva    = document.getElementById('passNueva').value;
+  const confirma = document.getElementById('passConfirm').value;
+  const errA=document.getElementById('errActual');
+  const sm=document.getElementById('passSuccessMsg');
+  errA.textContent='';
+  sm.style.display='none';
+
+  // Validar actual
+  if(actual !== currentUser.pass){
+    errA.textContent='La contraseña actual es incorrecta';
+    return;
+  }
+  // Validar nueva
+  if(!validateNewPass(nueva, confirma, 'errNueva', 'errConfirm')) return;
+  // Guardar
+  USERS[currentUser.id].pass = nueva;
+  currentUser.pass = nueva;
+  // Limpiar
+  ['passActual','passNueva','passConfirm'].forEach(id=>document.getElementById(id).value='');
+  resetStrengthBars('sb');
+  document.getElementById('strengthLabel').textContent='';
+  sm.style.display='flex';
+  toast('Contraseña actualizada correctamente','success');
+};
+
+/* ─── FORGOT PASSWORD FLOW ───────────────────────────── */
+let forgotStep=1;
+
+window.openForgotPassword = function(){
+  forgotStep=1;
+  document.getElementById('forgotUser').value='';
+  document.getElementById('forgotNewPass').value='';
+  document.getElementById('forgotConfirmPass').value='';
+  ['errForgotUser','errForgotNew','errForgotConfirm'].forEach(id=>document.getElementById(id).textContent='');
+  resetStrengthBars('fsb');
+  document.getElementById('forgotStep1').style.display='';
+  document.getElementById('forgotStep2').style.display='none';
+  document.getElementById('forgotStep3').style.display='none';
+  document.getElementById('forgotFooter').style.display='';
+  document.getElementById('btnForgotNext').textContent='Continuar';
+  openModal('modalForgot');
+};
+
+window.closeForgotModal = function(){
+  closeModal('modalForgot');
+  if(forgotStep===3){
+    // si se completó, limpiar login pass
+    document.getElementById('loginPass').value='';
+  }
+};
+
+window.forgotNext = function(){
+  if(forgotStep===1){
+    const uid=document.getElementById('forgotUser').value;
+    const err=document.getElementById('errForgotUser');
+    if(!uid){ err.textContent='Seleccioná un usuario'; return; }
+    err.textContent='';
+    forgotStep=2;
+    document.getElementById('forgotStep1').style.display='none';
+    document.getElementById('forgotStep2').style.display='';
+    document.getElementById('btnForgotNext').textContent='Actualizar contraseña';
+    document.getElementById('forgotNewPass').focus();
+    return;
+  }
+  if(forgotStep===2){
+    const nueva    = document.getElementById('forgotNewPass').value;
+    const confirma = document.getElementById('forgotConfirmPass').value;
+    if(!validateNewPass(nueva, confirma, 'errForgotNew', 'errForgotConfirm')) return;
+    const uid=document.getElementById('forgotUser').value;
+    USERS[uid].pass=nueva;
+    forgotStep=3;
+    document.getElementById('forgotStep2').style.display='none';
+    document.getElementById('forgotStep3').style.display='';
+    document.getElementById('forgotFooter').style.display='none';
+    return;
+  }
+};
 
 /* ─── INIT: quitar loading y mostrar login ───────────── */
 window.addEventListener('load',()=>{
