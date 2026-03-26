@@ -6,362 +6,287 @@
 <title>Legend — Sistema de Legajos</title>
 <link href="https://fonts.googleapis.com/css2?family=Satoshi:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
-/* ─── DESIGN TOKENS ────────────────────────────────────────────── */
 :root {
-  --red:       #AC0A10;
-  --red-mid:   #D33838;
-  --red-light: #D5464C;
-  --burgundy:  #491417;
-  --black:     #0E232D;
-  --white:     #F8F8F8;
-  --gray-100:  #F0EDED;
-  --gray-200:  #E2DEDE;
-  --gray-400:  #9E9898;
-  --gray-600:  #5C5555;
-  --surface:   #FFFFFF;
-  --radius:    14px;
-  --radius-sm: 8px;
-  --shadow:    0 4px 24px rgba(14,35,45,.10);
-  --shadow-lg: 0 12px 48px rgba(14,35,45,.18);
-  --font: 'Satoshi', sans-serif;
+  --red:#AC0A10;--red-mid:#D33838;--red-light:#D5464C;--burgundy:#491417;
+  --black:#0E232D;--white:#F8F8F8;--gray-100:#F0EDED;--gray-200:#E2DEDE;
+  --gray-400:#9E9898;--gray-600:#5C5555;--surface:#FFFFFF;
+  --radius:14px;--radius-sm:8px;
+  --shadow:0 4px 24px rgba(14,35,45,.10);--shadow-lg:0 12px 48px rgba(14,35,45,.18);
+  --font:'Satoshi',sans-serif;
 }
-
-/* ─── RESET ────────────────────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:var(--font);background:var(--gray-100);color:var(--black);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
 button{font-family:var(--font);cursor:pointer;border:none;background:none}
 input,select,textarea{font-family:var(--font)}
-a{text-decoration:none;color:inherit}
 
-/* ─── SCREENS ──────────────────────────────────────────────────── */
+/* LOADING */
+#loading-screen{
+  position:fixed;inset:0;background:var(--black);z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+}
+.loading-logo{display:flex;align-items:center;gap:14px;animation:fadeUp .5s ease both}
+.loading-logo-icon{width:52px;height:52px;background:var(--red);border-radius:14px;display:flex;align-items:center;justify-content:center}
+.loading-logo-icon svg{width:30px;height:30px}
+.loading-logo-name{font-size:28px;font-weight:700;color:var(--white);letter-spacing:-.5px}
+.loading-bar-wrap{width:200px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;animation:fadeIn .5s .3s both}
+.loading-bar{height:100%;background:var(--red);border-radius:2px;animation:loadBar 1.8s ease forwards}
+@keyframes loadBar{from{width:0}to{width:100%}}
+.loading-text{font-size:13px;color:rgba(255,255,255,.35);animation:fadeIn .5s .5s both}
+
+/* SCREENS */
 .screen{display:none;min-height:100vh}
 .screen.active{display:flex}
 
-/* ══════════════════════════════════════════════════════════════════
-   LOGIN SCREEN
-══════════════════════════════════════════════════════════════════ */
-#screen-login{
-  align-items:center;justify-content:center;
-  background: var(--black);
-  position:relative;overflow:hidden;
-}
-#screen-login::before{
-  content:'';position:absolute;top:-120px;right:-120px;
-  width:480px;height:480px;border-radius:50%;
-  background:radial-gradient(circle, rgba(172,10,16,.35) 0%, transparent 70%);
-  pointer-events:none;
-}
-#screen-login::after{
-  content:'';position:absolute;bottom:-80px;left:-80px;
-  width:320px;height:320px;border-radius:50%;
-  background:radial-gradient(circle, rgba(73,20,23,.5) 0%, transparent 70%);
-  pointer-events:none;
-}
-
-.login-card{
-  background:rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:24px;
-  padding:52px 48px;
-  width:100%;max-width:420px;
-  position:relative;z-index:1;
-  backdrop-filter:blur(12px);
-  animation: fadeUp .6s ease both;
-}
-
+/* ANIMATIONS */
 @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-@keyframes spin{to{transform:rotate(360deg)}}
 
-.login-logo{
-  display:flex;align-items:center;gap:14px;
-  margin-bottom:40px;
-}
-.login-logo-icon{
-  width:52px;height:52px;
-  background:var(--red);border-radius:14px;
-  display:flex;align-items:center;justify-content:center;
-}
-.login-logo-icon svg{width:30px;height:30px}
-.login-logo-name{
-  font-size:26px;font-weight:700;
-  color:var(--white);letter-spacing:-.5px;
+/* ── LOGIN ─────────────────────────────────────────────── */
+#screen-login{
+  align-items:stretch;justify-content:stretch;
+  background:var(--black);position:relative;overflow:hidden;
 }
 
-.login-title{font-size:22px;font-weight:600;color:var(--white);margin-bottom:6px}
-.login-sub{font-size:14px;color:rgba(248,248,248,.45);margin-bottom:32px}
-
-.field{margin-bottom:18px}
-.field label{display:block;font-size:12px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:rgba(248,248,248,.45);margin-bottom:8px}
-.field input, .field select{
-  width:100%;height:48px;
-  background:rgba(255,255,255,.06);
-  border:1.5px solid rgba(255,255,255,.1);
-  border-radius:10px;
-  color:var(--white);
-  font-size:15px;font-family:var(--font);
-  padding:0 16px;
-  transition:border-color .2s, background .2s;
-  outline:none;
+/* Panel izquierdo: branding */
+.login-brand{
+  flex:1;display:flex;flex-direction:column;justify-content:space-between;
+  padding:52px 56px;position:relative;overflow:hidden;
+  background:linear-gradient(145deg,#0E232D 0%,#160509 100%);
 }
-.field input::placeholder{color:rgba(255,255,255,.25)}
-.field input:focus, .field select:focus{
-  border-color:var(--red-mid);
-  background:rgba(255,255,255,.09);
-}
-.field select option{background:var(--black);color:var(--white)}
-
-.btn-primary{
-  width:100%;height:50px;
-  background:var(--red);
-  color:var(--white);
-  border-radius:10px;
-  font-size:15px;font-weight:600;
-  margin-top:8px;
-  transition:background .2s, transform .15s, box-shadow .2s;
-  box-shadow:0 4px 16px rgba(172,10,16,.4);
-}
-.btn-primary:hover{background:#c41215;box-shadow:0 6px 24px rgba(172,10,16,.55);transform:translateY(-1px)}
-.btn-primary:active{transform:translateY(0)}
-
-.login-error{
-  background:rgba(172,10,16,.2);border:1px solid rgba(172,10,16,.4);
-  border-radius:8px;padding:10px 14px;
-  font-size:13px;color:#ff8585;
-  margin-top:12px;display:none;
-}
-
-.login-hint{
-  margin-top:28px;padding-top:24px;
-  border-top:1px solid rgba(255,255,255,.07);
-  font-size:12px;color:rgba(248,248,248,.3);
-  text-align:center;line-height:1.7;
-}
-.login-hint strong{color:rgba(248,248,248,.5)}
-
-/* ══════════════════════════════════════════════════════════════════
-   MAIN APP SCREEN
-══════════════════════════════════════════════════════════════════ */
-#screen-app{
-  flex-direction:row;
-  height:100vh;overflow:hidden;
-}
-
-/* ─── SIDEBAR ──────────────────────────────────────────────────── */
-.sidebar{
-  width:260px;flex-shrink:0;
-  background:var(--black);
-  display:flex;flex-direction:column;
-  height:100vh;
-  position:relative;overflow:hidden;
-}
-.sidebar::before{
-  content:'';position:absolute;bottom:-60px;left:-60px;
-  width:200px;height:200px;border-radius:50%;
-  background:radial-gradient(circle,rgba(172,10,16,.2) 0%,transparent 70%);
+.login-brand::before{
+  content:'';position:absolute;top:-100px;right:-100px;
+  width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(172,10,16,.28) 0%,transparent 65%);
   pointer-events:none;
 }
-
-.sidebar-logo{
-  padding:28px 24px 20px;
+.login-brand::after{
+  content:'';position:absolute;bottom:-80px;left:-60px;
+  width:360px;height:360px;border-radius:50%;
+  background:radial-gradient(circle,rgba(73,20,23,.45) 0%,transparent 65%);
+  pointer-events:none;
+}
+.brand-top{position:relative;z-index:1}
+.brand-logo{display:flex;align-items:center;gap:14px;margin-bottom:64px}
+.brand-logo-icon{
+  width:48px;height:48px;background:var(--red);border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 24px rgba(172,10,16,.4);
+}
+.brand-logo-icon svg{width:28px;height:28px}
+.brand-logo-name{font-size:22px;font-weight:700;color:var(--white);letter-spacing:-.3px}
+.brand-headline{
+  font-size:36px;font-weight:700;color:var(--white);
+  line-height:1.15;letter-spacing:-.8px;margin-bottom:16px;
+}
+.brand-headline span{color:var(--red-mid)}
+.brand-desc{font-size:15px;color:rgba(255,255,255,.4);line-height:1.6;max-width:340px}
+.brand-bottom{position:relative;z-index:1}
+.brand-roles{display:flex;flex-direction:column;gap:10px}
+.brand-role{
   display:flex;align-items:center;gap:12px;
-  border-bottom:1px solid rgba(255,255,255,.07);
-  margin-bottom:8px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+  border-radius:10px;padding:12px 16px;
 }
-.sidebar-logo-icon{
-  width:38px;height:38px;background:var(--red);border-radius:10px;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+.brand-role-dot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
 }
+.brand-role-dot.vendedora{background:#f59e0b}
+.brand-role-dot.admin{background:#3b82f6}
+.brand-role-info{}
+.brand-role-title{font-size:13px;font-weight:600;color:rgba(255,255,255,.75)}
+.brand-role-desc{font-size:11px;color:rgba(255,255,255,.35);margin-top:1px}
+
+/* Panel derecho: formulario */
+.login-form-panel{
+  width:420px;flex-shrink:0;
+  background:rgba(255,255,255,.025);
+  border-left:1px solid rgba(255,255,255,.06);
+  display:flex;flex-direction:column;justify-content:center;
+  padding:56px 48px;
+  position:relative;z-index:1;
+}
+.login-form-header{margin-bottom:36px}
+.login-form-title{
+  font-size:24px;font-weight:700;color:var(--white);
+  letter-spacing:-.4px;margin-bottom:6px;
+}
+.login-form-sub{font-size:13.5px;color:rgba(255,255,255,.35);line-height:1.5}
+
+/* Campos */
+.field{margin-bottom:20px}
+.field label{
+  display:block;font-size:11px;font-weight:600;
+  letter-spacing:1px;text-transform:uppercase;
+  color:rgba(255,255,255,.35);margin-bottom:8px;
+}
+.field input,.field select{
+  width:100%;height:48px;
+  background:rgba(255,255,255,.05);
+  border:1.5px solid rgba(255,255,255,.09);
+  border-radius:10px;color:var(--white);
+  font-size:14.5px;font-family:var(--font);
+  padding:0 16px;
+  transition:border-color .2s,background .2s,box-shadow .2s;
+  outline:none;
+}
+.field input::placeholder{color:rgba(255,255,255,.2)}
+.field input:focus,.field select:focus{
+  border-color:var(--red-mid);
+  background:rgba(255,255,255,.08);
+  box-shadow:0 0 0 3px rgba(172,10,16,.15);
+}
+.field select option{background:#0E232D;color:var(--white)}
+.field select:invalid,.field select option[value=""]{color:rgba(255,255,255,.3)}
+
+/* Error inline por campo */
+.field-error{
+  font-size:12px;color:#f87171;margin-top:6px;display:none;
+  align-items:center;gap:5px;
+}
+.field-error.show{display:flex}
+.field input.has-error,.field select.has-error{
+  border-color:rgba(248,113,113,.5);
+  box-shadow:0 0 0 3px rgba(248,113,113,.1);
+}
+
+/* Botón */
+.btn-primary{
+  width:100%;height:50px;
+  background:var(--red);color:var(--white);
+  border-radius:10px;font-size:15px;font-weight:600;
+  margin-top:4px;letter-spacing:.2px;
+  transition:background .2s,transform .15s,box-shadow .2s,opacity .2s;
+  box-shadow:0 4px 20px rgba(172,10,16,.45);
+  position:relative;overflow:hidden;
+}
+.btn-primary:hover:not(:disabled){
+  background:#c41215;
+  box-shadow:0 6px 28px rgba(172,10,16,.6);
+  transform:translateY(-1px);
+}
+.btn-primary:active:not(:disabled){transform:translateY(0);box-shadow:0 2px 10px rgba(172,10,16,.3)}
+.btn-primary:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.btn-primary .btn-loader{
+  display:none;width:18px;height:18px;
+  border:2px solid rgba(255,255,255,.3);
+  border-top-color:white;border-radius:50%;
+  animation:spin .7s linear infinite;
+  position:absolute;right:18px;top:50%;transform:translateY(-50%);
+}
+@keyframes spin{to{transform:translateY(-50%) rotate(360deg)}}
+.btn-primary.loading .btn-loader{display:block}
+.btn-primary.loading .btn-text{opacity:.6}
+
+/* Error general */
+.login-error{
+  display:none;align-items:center;gap:10px;
+  background:rgba(172,10,16,.15);
+  border:1px solid rgba(172,10,16,.3);
+  border-radius:8px;padding:11px 14px;
+  font-size:13px;color:#fca5a5;margin-top:14px;
+}
+.login-error.show{display:flex}
+.login-error svg{width:15px;height:15px;flex-shrink:0;color:#f87171}
+
+/* Pie: acceso exclusivo */
+.login-footer{
+  margin-top:32px;padding-top:24px;
+  border-top:1px solid rgba(255,255,255,.07);
+}
+.login-footer-label{
+  font-size:11px;font-weight:600;letter-spacing:.8px;
+  text-transform:uppercase;color:rgba(255,255,255,.2);
+  margin-bottom:0;text-align:center;
+}
+
+/* Responsive: una columna en móvil */
+@media(max-width:780px){
+  #screen-login{flex-direction:column}
+  .login-brand{display:none}
+  .login-form-panel{width:100%;padding:40px 28px;justify-content:flex-start;padding-top:60px}
+}
+
+/* ── APP ───────────────────────────────────────────────── */
+#screen-app{flex-direction:row;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:260px;flex-shrink:0;background:var(--black);display:flex;flex-direction:column;height:100vh;position:relative;overflow:hidden}
+.sidebar::before{content:'';position:absolute;bottom:-60px;left:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(172,10,16,.2) 0%,transparent 70%);pointer-events:none}
+.sidebar-logo{padding:28px 24px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:8px}
+.sidebar-logo-icon{width:38px;height:38px;background:var(--red);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .sidebar-logo-icon svg{width:22px;height:22px}
 .sidebar-logo-name{font-size:20px;font-weight:700;color:var(--white);letter-spacing:-.3px}
-
-.sidebar-section{
-  padding:0 12px;margin-bottom:4px;
-}
-.sidebar-section-label{
-  font-size:10px;font-weight:700;letter-spacing:1.2px;
-  text-transform:uppercase;color:rgba(255,255,255,.25);
-  padding:12px 12px 6px;
-}
-
-.nav-item{
-  display:flex;align-items:center;gap:12px;
-  padding:10px 14px;border-radius:10px;
-  font-size:14px;font-weight:500;color:rgba(255,255,255,.55);
-  cursor:pointer;transition:all .2s;margin-bottom:2px;
-}
+.sidebar-section{padding:0 12px;margin-bottom:4px}
+.sidebar-section-label{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.25);padding:12px 12px 6px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;font-size:14px;font-weight:500;color:rgba(255,255,255,.55);cursor:pointer;transition:all .2s;margin-bottom:2px}
 .nav-item svg{width:18px;height:18px;flex-shrink:0;opacity:.7}
 .nav-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85)}
 .nav-item.active{background:rgba(172,10,16,.25);color:var(--white);font-weight:600}
 .nav-item.active svg{opacity:1}
-.nav-item .badge{
-  margin-left:auto;background:var(--red);color:white;
-  font-size:10px;font-weight:700;border-radius:10px;
-  padding:2px 7px;min-width:20px;text-align:center;
-}
-
-.sidebar-user{
-  margin-top:auto;padding:16px;
-  border-top:1px solid rgba(255,255,255,.07);
-}
-.sidebar-user-card{
-  display:flex;align-items:center;gap:12px;
-  background:rgba(255,255,255,.05);border-radius:12px;padding:12px;
-}
-.user-avatar{
-  width:36px;height:36px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:13px;font-weight:700;color:white;flex-shrink:0;
-}
-.user-info{flex:1;min-width:0;}
-.user-name{font-size:13px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.user-role{font-size:11px;color:rgba(255,255,255,.35);}
-.logout-btn{
-  width:28px;height:28px;border-radius:8px;
-  display:flex;align-items:center;justify-content:center;
-  background:rgba(255,255,255,.07);
-  color:rgba(255,255,255,.4);
-  transition:all .2s;flex-shrink:0;
-}
+.nav-item .badge{margin-left:auto;background:var(--red);color:white;font-size:10px;font-weight:700;border-radius:10px;padding:2px 7px;min-width:20px;text-align:center}
+.sidebar-user{margin-top:auto;padding:16px;border-top:1px solid rgba(255,255,255,.07)}
+.sidebar-user-card{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.05);border-radius:12px;padding:12px}
+.user-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:13px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:11px;color:rgba(255,255,255,.35)}
+.logout-btn{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.07);color:rgba(255,255,255,.4);transition:all .2s;flex-shrink:0}
 .logout-btn:hover{background:rgba(172,10,16,.3);color:rgba(255,100,100,.8)}
 .logout-btn svg{width:14px;height:14px}
 
-/* ─── MAIN CONTENT ─────────────────────────────────────────────── */
-.main{
-  flex:1;overflow-y:auto;display:flex;flex-direction:column;
-  background:var(--gray-100);
-}
-
-/* ─── TOPBAR ───────────────────────────────────────────────────── */
-.topbar{
-  background:var(--surface);
-  border-bottom:1px solid var(--gray-200);
-  padding:16px 32px;
-  display:flex;align-items:center;gap:16px;
-  position:sticky;top:0;z-index:50;
-  flex-shrink:0;
-}
+/* MAIN */
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column;background:var(--gray-100)}
+.topbar{background:var(--surface);border-bottom:1px solid var(--gray-200);padding:16px 32px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:50;flex-shrink:0}
 .topbar-title{font-size:20px;font-weight:700;color:var(--black);letter-spacing:-.3px;flex:1}
-.topbar-live{
-  display:flex;align-items:center;gap:7px;
-  font-size:12px;font-weight:600;color:var(--gray-400);
-  background:var(--gray-100);border-radius:20px;padding:6px 12px;
-}
-.live-dot{
-  width:7px;height:7px;border-radius:50%;background:#2ecc71;
-  animation:pulse 2s ease-in-out infinite;
-}
-.topbar-btn{
-  height:38px;padding:0 18px;border-radius:10px;
-  font-size:13px;font-weight:600;
-  display:flex;align-items:center;gap:8px;
-  transition:all .2s;
-}
+.topbar-live{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--gray-400);background:var(--gray-100);border-radius:20px;padding:6px 12px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#2ecc71;animation:pulse 2s ease-in-out infinite}
+.live-dot.offline{background:#9E9898;animation:none}
+.topbar-btn{height:38px;padding:0 18px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;transition:all .2s}
 .topbar-btn.primary{background:var(--red);color:white;box-shadow:0 2px 10px rgba(172,10,16,.3)}
 .topbar-btn.primary:hover{background:#c41215;transform:translateY(-1px)}
 .topbar-btn.secondary{background:var(--gray-100);color:var(--black);border:1.5px solid var(--gray-200)}
 .topbar-btn.secondary:hover{background:var(--gray-200)}
 .topbar-btn svg{width:15px;height:15px}
-
-/* ─── CONTENT AREA ─────────────────────────────────────────────── */
 .content{padding:28px 32px;flex:1}
-
-/* ─── VIEW PAGES ────────────────────────────────────────────────── */
 .view{display:none;animation:fadeIn .3s ease}
 .view.active{display:block}
 
-/* ─── STATS GRID ────────────────────────────────────────────────── */
-.stats-grid{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;
-  margin-bottom:28px;
-}
-.stat-card{
-  background:var(--surface);border-radius:var(--radius);
-  padding:22px 24px;
-  border:1.5px solid var(--gray-200);
-  transition:transform .2s, box-shadow .2s;
-}
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{background:var(--surface);border-radius:var(--radius);padding:22px 24px;border:1.5px solid var(--gray-200);transition:transform .2s,box-shadow .2s}
 .stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
-.stat-card-icon{
-  width:40px;height:40px;border-radius:10px;
-  display:flex;align-items:center;justify-content:center;
-  margin-bottom:14px;
-}
+.stat-card-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
 .stat-card-icon svg{width:20px;height:20px}
 .stat-card-val{font-size:28px;font-weight:700;color:var(--black);letter-spacing:-1px;line-height:1}
 .stat-card-label{font-size:12px;font-weight:500;color:var(--gray-400);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
-.stat-card-trend{font-size:12px;font-weight:600;margin-top:6px}
-.trend-up{color:#2ecc71}.trend-down{color:var(--red-mid)}
 
-/* ─── SECTION HEADER ────────────────────────────────────────────── */
-.section-header{
-  display:flex;align-items:center;gap:12px;margin-bottom:16px;
-}
+/* SECTION HEADER */
+.section-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
 .section-header h3{font-size:16px;font-weight:700;color:var(--black);flex:1;letter-spacing:-.2px}
-.section-header .count{
-  background:var(--gray-100);border-radius:20px;
-  padding:3px 10px;font-size:12px;font-weight:600;color:var(--gray-600);
-}
+.section-header .count{background:var(--gray-100);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:600;color:var(--gray-600)}
 
-/* ─── FILTERS BAR ────────────────────────────────────────────────── */
-.filters-bar{
-  display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;
-}
-.filter-input{
-  flex:1;min-width:200px;height:40px;
-  background:var(--surface);border:1.5px solid var(--gray-200);
-  border-radius:10px;padding:0 14px 0 38px;
-  font-size:14px;font-family:var(--font);color:var(--black);
-  outline:none;transition:border-color .2s;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239E9898' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:12px center;background-size:16px;
-}
+/* FILTERS */
+.filters-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.filter-input{flex:1;min-width:200px;height:40px;background:var(--surface);border:1.5px solid var(--gray-200);border-radius:10px;padding:0 14px 0 38px;font-size:14px;font-family:var(--font);color:var(--black);outline:none;transition:border-color .2s;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239E9898' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:12px center;background-size:16px}
 .filter-input:focus{border-color:var(--red-mid)}
-.filter-select{
-  height:40px;background:var(--surface);
-  border:1.5px solid var(--gray-200);border-radius:10px;
-  padding:0 32px 0 14px;font-size:14px;font-family:var(--font);
-  color:var(--black);outline:none;cursor:pointer;
-  appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239E9898' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 10px center;background-size:16px;
-  transition:border-color .2s;
-}
+.filter-select{height:40px;background:var(--surface);border:1.5px solid var(--gray-200);border-radius:10px;padding:0 32px 0 14px;font-size:14px;font-family:var(--font);color:var(--black);outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239E9898' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:16px;transition:border-color .2s}
 .filter-select:focus{border-color:var(--red-mid)}
 
-/* ─── TABLE ──────────────────────────────────────────────────────── */
-.table-wrap{
-  background:var(--surface);border-radius:var(--radius);
-  border:1.5px solid var(--gray-200);overflow:hidden;
-}
+/* TABLE */
+.table-wrap{background:var(--surface);border-radius:var(--radius);border:1.5px solid var(--gray-200);overflow:hidden}
 .data-table{width:100%;border-collapse:collapse}
 .data-table thead{background:var(--gray-100);border-bottom:1.5px solid var(--gray-200)}
-.data-table th{
-  padding:12px 18px;font-size:11px;font-weight:700;
-  letter-spacing:.8px;text-transform:uppercase;color:var(--gray-600);
-  text-align:left;white-space:nowrap;
-}
-.data-table td{
-  padding:14px 18px;font-size:13.5px;color:var(--black);
-  border-bottom:1px solid var(--gray-100);vertical-align:middle;
-}
+.data-table th{padding:12px 18px;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--gray-600);text-align:left;white-space:nowrap}
+.data-table td{padding:14px 18px;font-size:13.5px;color:var(--black);border-bottom:1px solid var(--gray-100);vertical-align:middle}
 .data-table tr:last-child td{border-bottom:none}
 .data-table tbody tr{transition:background .15s;cursor:pointer}
 .data-table tbody tr:hover{background:rgba(172,10,16,.03)}
-.data-table tbody tr.new-row{animation:slideIn .4s ease both}
-
 .td-legajo{font-weight:700;color:var(--red);font-size:13px}
 .td-cliente{font-weight:600}
 .td-sub{font-size:12px;color:var(--gray-400);margin-top:1px}
-
-/* STATUS PILLS */
-.status{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:4px 10px;border-radius:20px;
-  font-size:11px;font-weight:700;letter-spacing:.3px;white-space:nowrap;
-}
+.status{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.3px;white-space:nowrap}
 .status::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
 .s-cotizado{background:#EEF2FF;color:#3730a3}.s-cotizado::before{background:#818cf8}
 .s-senado{background:#FFF7ED;color:#c2410c}.s-senado::before{background:#fb923c}
@@ -371,207 +296,90 @@ a{text-decoration:none;color:inherit}
 .s-viajado{background:#F5F3FF;color:#6d28d9}.s-viajado::before{background:#8b5cf6}
 .s-cerrado{background:var(--gray-100);color:var(--gray-600)}.s-cerrado::before{background:var(--gray-400)}
 .s-anulado{background:#FFF1F2;color:#9f1239}.s-anulado::before{background:#f43f5e}
-
 .saldo-ok{color:#15803d;font-weight:700}
 .saldo-pend{color:var(--red);font-weight:700}
-
-/* ─── TABLE ACTIONS ──────────────────────────────────────────────── */
 .row-actions{display:flex;gap:6px;align-items:center}
-.row-btn{
-  width:30px;height:30px;border-radius:8px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:12px;transition:all .15s;color:var(--gray-600);
-  background:var(--gray-100);
-}
+.row-btn{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s;color:var(--gray-600);background:var(--gray-100)}
 .row-btn:hover{background:var(--red);color:white}
 .row-btn svg{width:14px;height:14px}
-
-/* ─── EMPTY STATE ────────────────────────────────────────────────── */
-.empty-state{
-  padding:60px 32px;text-align:center;
-}
+.empty-state{padding:60px 32px;text-align:center}
 .empty-state svg{width:56px;height:56px;color:var(--gray-200);margin-bottom:16px}
 .empty-state h4{font-size:16px;font-weight:600;color:var(--gray-600);margin-bottom:6px}
 .empty-state p{font-size:13px;color:var(--gray-400)}
 
-/* ─── MODAL ──────────────────────────────────────────────────────── */
-.modal-overlay{
-  position:fixed;inset:0;
-  background:rgba(14,35,45,.6);backdrop-filter:blur(4px);
-  z-index:1000;display:none;align-items:flex-start;justify-content:center;
-  padding:32px 16px;overflow-y:auto;
-}
+/* NEW ROW FLASH */
+@keyframes newFlash{0%{background:rgba(172,10,16,.08)}100%{background:transparent}}
+.new-row{animation:newFlash 1.5s ease}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(14,35,45,.6);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:flex-start;justify-content:center;padding:32px 16px;overflow-y:auto}
 .modal-overlay.open{display:flex}
-.modal{
-  background:var(--surface);border-radius:20px;
-  width:100%;max-width:680px;
-  box-shadow:var(--shadow-lg);
-  animation:fadeUp .3s ease both;
-  margin:auto;
-}
-.modal-header{
-  display:flex;align-items:center;gap:16px;
-  padding:24px 28px 20px;
-  border-bottom:1px solid var(--gray-200);
-}
-.modal-header-icon{
-  width:44px;height:44px;background:var(--red);border-radius:12px;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-}
+.modal{background:var(--surface);border-radius:20px;width:100%;max-width:680px;box-shadow:var(--shadow-lg);animation:fadeUp .3s ease both;margin:auto}
+.modal-header{display:flex;align-items:center;gap:16px;padding:24px 28px 20px;border-bottom:1px solid var(--gray-200)}
+.modal-header-icon{width:44px;height:44px;background:var(--red);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .modal-header-icon svg{width:22px;height:22px;color:white}
 .modal-title{font-size:18px;font-weight:700;color:var(--black);letter-spacing:-.3px;flex:1}
 .modal-subtitle{font-size:13px;color:var(--gray-400)}
-.modal-close{
-  width:32px;height:32px;border-radius:8px;background:var(--gray-100);
-  display:flex;align-items:center;justify-content:center;
-  color:var(--gray-600);transition:all .2s;
-}
+.modal-close{width:32px;height:32px;border-radius:8px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;color:var(--gray-600);transition:all .2s}
 .modal-close:hover{background:var(--gray-200)}
 .modal-close svg{width:16px;height:16px}
-
 .modal-body{padding:24px 28px}
-.modal-footer{
-  padding:16px 28px 24px;display:flex;gap:10px;justify-content:flex-end;
-  border-top:1px solid var(--gray-200);
-}
-
+.modal-footer{padding:16px 28px 24px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--gray-200)}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .form-grid .full{grid-column:1/-1}
 .form-group{display:flex;flex-direction:column;gap:6px}
 .form-label{font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--gray-600)}
-.form-input,.form-select,.form-textarea{
-  height:42px;background:var(--gray-100);
-  border:1.5px solid var(--gray-200);border-radius:10px;
-  padding:0 14px;font-size:14px;font-family:var(--font);color:var(--black);
-  outline:none;transition:border-color .2s,background .2s;
-  width:100%;
-}
-.form-input:focus,.form-select:focus,.form-textarea:focus{
-  border-color:var(--red);background:white;
-}
+.form-input,.form-select,.form-textarea{height:42px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:10px;padding:0 14px;font-size:14px;font-family:var(--font);color:var(--black);outline:none;transition:border-color .2s,background .2s;width:100%}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--red);background:white}
 .form-textarea{height:80px;padding:12px 14px;resize:vertical}
-.form-select{appearance:none;cursor:pointer;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239E9898' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 12px center;background-size:16px;
-  padding-right:36px;
-}
-
-.form-section-title{
-  font-size:12px;font-weight:700;letter-spacing:.8px;
-  text-transform:uppercase;color:var(--red);
-  margin-bottom:12px;margin-top:8px;padding-bottom:8px;
-  border-bottom:1.5px solid var(--gray-200);
-  grid-column:1/-1;
-}
-
-.btn-modal-primary{
-  height:42px;padding:0 24px;background:var(--red);color:white;
-  border-radius:10px;font-size:14px;font-weight:600;
-  transition:all .2s;box-shadow:0 2px 10px rgba(172,10,16,.25);
-}
+.form-select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239E9898' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:16px;padding-right:36px}
+.form-section-title{font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--red);margin-bottom:12px;margin-top:8px;padding-bottom:8px;border-bottom:1.5px solid var(--gray-200);grid-column:1/-1}
+.btn-modal-primary{height:42px;padding:0 24px;background:var(--red);color:white;border-radius:10px;font-size:14px;font-weight:600;transition:all .2s;box-shadow:0 2px 10px rgba(172,10,16,.25)}
 .btn-modal-primary:hover{background:#c41215;transform:translateY(-1px)}
-.btn-modal-cancel{
-  height:42px;padding:0 20px;background:var(--gray-100);color:var(--black);
-  border-radius:10px;font-size:14px;font-weight:500;
-  border:1.5px solid var(--gray-200);transition:all .2s;
-}
+.btn-modal-primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn-modal-cancel{height:42px;padding:0 20px;background:var(--gray-100);color:var(--black);border-radius:10px;font-size:14px;font-weight:500;border:1.5px solid var(--gray-200);transition:all .2s}
 .btn-modal-cancel:hover{background:var(--gray-200)}
 
-/* ─── DETAIL PANEL ───────────────────────────────────────────────── */
-.detail-panel{
-  position:fixed;right:0;top:0;bottom:0;width:520px;
-  background:var(--surface);box-shadow:-12px 0 48px rgba(14,35,45,.12);
-  z-index:900;display:none;flex-direction:column;
-  overflow-y:auto;
-}
+/* DETAIL PANEL */
+.detail-panel{position:fixed;right:0;top:0;bottom:0;width:520px;background:var(--surface);box-shadow:-12px 0 48px rgba(14,35,45,.12);z-index:900;display:none;flex-direction:column;overflow-y:auto}
 .detail-panel.open{display:flex;animation:slideIn .3s ease}
-.detail-header{
-  background:var(--black);padding:28px 28px 24px;
-  position:sticky;top:0;z-index:1;
-  flex-shrink:0;
-}
+.detail-header{background:var(--black);padding:28px 28px 24px;position:sticky;top:0;z-index:1;flex-shrink:0}
 .detail-header-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px}
 .detail-legajo{font-size:13px;font-weight:700;color:var(--red-mid);letter-spacing:.5px}
 .detail-destino{font-size:22px;font-weight:700;color:white;letter-spacing:-.5px;line-height:1.2}
 .detail-meta{font-size:13px;color:rgba(255,255,255,.4);margin-top:4px}
-.detail-close{
-  width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.1);
-  display:flex;align-items:center;justify-content:center;
-  color:rgba(255,255,255,.6);transition:all .2s;flex-shrink:0;margin-left:auto;
-}
+.detail-close{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.6);transition:all .2s;flex-shrink:0;margin-left:auto}
 .detail-close:hover{background:rgba(172,10,16,.4);color:white}
 .detail-close svg{width:16px;height:16px}
-
-.detail-stats{
-  display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;
-}
-.detail-stat{
-  background:rgba(255,255,255,.07);border-radius:10px;padding:12px;
-}
+.detail-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.detail-stat{background:rgba(255,255,255,.07);border-radius:10px;padding:12px}
 .detail-stat-val{font-size:16px;font-weight:700;color:white}
 .detail-stat-lbl{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px}
-
 .detail-body{padding:24px 28px;flex:1}
 .detail-section{margin-bottom:24px}
-.detail-section-title{
-  font-size:11px;font-weight:700;letter-spacing:1px;
-  text-transform:uppercase;color:var(--gray-400);
-  margin-bottom:12px;
-}
-.detail-row{
-  display:flex;justify-content:space-between;align-items:flex-start;
-  padding:10px 0;border-bottom:1px solid var(--gray-100);font-size:14px;
-}
+.detail-section-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gray-400);margin-bottom:12px}
+.detail-row{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--gray-100);font-size:14px}
 .detail-row:last-child{border-bottom:none}
 .detail-row-key{color:var(--gray-600);font-size:13px}
 .detail-row-val{font-weight:600;text-align:right;max-width:60%}
-
-.acomp-item{
-  background:var(--gray-100);border-radius:10px;padding:12px 14px;
-  margin-bottom:8px;display:flex;align-items:center;gap:12px;
-}
-.acomp-avatar{
-  width:32px;height:32px;border-radius:50%;background:var(--red);
-  display:flex;align-items:center;justify-content:center;
-  font-size:12px;font-weight:700;color:white;flex-shrink:0;
-}
+.acomp-item{background:var(--gray-100);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+.acomp-avatar{width:32px;height:32px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0}
 .acomp-name{font-size:14px;font-weight:600}
 .acomp-dni{font-size:12px;color:var(--gray-400)}
-
-.pago-item{
-  background:var(--gray-100);border-radius:10px;padding:12px 14px;
-  margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;
-  gap:10px;
-}
+.pago-item{background:var(--gray-100);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .pago-left{display:flex;flex-direction:column;gap:2px}
 .pago-fecha{font-size:12px;color:var(--gray-400)}
 .pago-medio{font-size:13px;font-weight:600}
 .pago-monto{font-size:15px;font-weight:700;color:var(--black)}
-
-.add-pago-btn{
-  width:100%;height:40px;border:2px dashed var(--gray-200);
-  border-radius:10px;font-size:13px;font-weight:600;color:var(--gray-400);
-  transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;
-  margin-top:8px;
-}
+.add-pago-btn{width:100%;height:40px;border:2px dashed var(--gray-200);border-radius:10px;font-size:13px;font-weight:600;color:var(--gray-400);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px}
 .add-pago-btn:hover{border-color:var(--red);color:var(--red);background:rgba(172,10,16,.03)}
 .add-pago-btn svg{width:14px;height:14px}
-
-/* ─── ITINERARIO TABLE ───────────────────────────────────────────── */
 .itin-table{width:100%;border-collapse:collapse;font-size:13px}
-.itin-table th{
-  padding:8px 12px;text-align:left;font-size:10px;font-weight:700;
-  letter-spacing:.7px;text-transform:uppercase;color:var(--gray-400);
-  background:var(--gray-100);border-radius:6px;
-}
+.itin-table th{padding:8px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--gray-400);background:var(--gray-100)}
 .itin-table td{padding:9px 12px;border-bottom:1px solid var(--gray-100);vertical-align:middle}
 .itin-table tr:last-child td{border-bottom:none}
 .itin-date{font-weight:700;color:var(--red);font-size:12px;white-space:nowrap}
-
-/* ─── OPERADORES ─────────────────────────────────────────────────── */
-.op-item{
-  background:var(--gray-100);border-radius:10px;padding:14px;margin-bottom:8px;
-}
+.op-item{background:var(--gray-100);border-radius:10px;padding:14px;margin-bottom:8px}
 .op-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .op-name{font-size:14px;font-weight:700}
 .op-saldo-ok{font-size:12px;font-weight:700;color:#15803d;background:#F0FDF4;padding:3px 9px;border-radius:6px}
@@ -579,141 +387,153 @@ a{text-decoration:none;color:inherit}
 .op-row{display:flex;justify-content:space-between;font-size:12.5px;padding:3px 0;color:var(--gray-600)}
 .op-row span:last-child{font-weight:600;color:var(--black)}
 
-/* ─── TOAST ──────────────────────────────────────────────────────── */
-.toast-container{
-  position:fixed;bottom:24px;right:24px;z-index:9999;
-  display:flex;flex-direction:column;gap:10px;
-}
-.toast{
-  background:var(--black);color:white;
-  border-radius:12px;padding:14px 18px;
-  font-size:13px;font-weight:500;
-  box-shadow:var(--shadow-lg);
-  display:flex;align-items:center;gap:12px;
-  animation:fadeUp .3s ease;max-width:320px;
-}
+/* USERS */
+.users-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.user-card{background:var(--surface);border:1.5px solid var(--gray-200);border-radius:var(--radius);padding:20px;transition:transform .2s,box-shadow .2s}
+.user-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.user-card-header{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.user-card-avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:white;flex-shrink:0}
+.user-card-name{font-size:15px;font-weight:700}
+.user-card-role{font-size:12px;color:var(--gray-400)}
+.user-card-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ucs{background:var(--gray-100);border-radius:8px;padding:10px;text-align:center}
+.ucs-val{font-size:18px;font-weight:700;color:var(--black)}
+.ucs-lbl{font-size:11px;color:var(--gray-400)}
+.role-admin{background:#EFF6FF;color:#1d4ed8;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:700}
+.role-seller{background:rgba(172,10,16,.1);color:var(--red);padding:3px 9px;border-radius:6px;font-size:11px;font-weight:700}
+
+/* TOAST */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px}
+.toast{background:var(--black);color:white;border-radius:12px;padding:14px 18px;font-size:13px;font-weight:500;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:12px;animation:fadeUp .3s ease;max-width:320px}
 .toast.success .toast-icon{color:#22c55e}
 .toast.error .toast-icon{color:#f87171}
 .toast.info .toast-icon{color:#60a5fa}
 .toast-icon svg{width:16px;height:16px}
 
-/* ─── ADMIN PANEL ────────────────────────────────────────────────── */
-.users-grid{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;
-}
-.user-card{
-  background:var(--surface);border:1.5px solid var(--gray-200);
-  border-radius:var(--radius);padding:20px;
-  transition:transform .2s,box-shadow .2s;
-}
-.user-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
-.user-card-header{display:flex;align-items:center;gap:14px;margin-bottom:14px}
-.user-card-avatar{
-  width:48px;height:48px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:18px;font-weight:700;color:white;flex-shrink:0;
-}
-.user-card-name{font-size:15px;font-weight:700}
-.user-card-role{font-size:12px;color:var(--gray-400)}
-.user-card-stats{
-  display:grid;grid-template-columns:1fr 1fr;gap:8px;
-}
-.ucs{background:var(--gray-100);border-radius:8px;padding:10px;text-align:center}
-.ucs-val{font-size:18px;font-weight:700;color:var(--black)}
-.ucs-lbl{font-size:11px;color:var(--gray-400)}
-
-/* ─── ROLE BADGE ─────────────────────────────────────────────────── */
-.role-admin{background:#EFF6FF;color:#1d4ed8;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:700}
-.role-seller{background:rgba(172,10,16,.1);color:var(--red);padding:3px 9px;border-radius:6px;font-size:11px;font-weight:700}
-
-/* ─── LIVE INDICATOR ─────────────────────────────────────────────── */
-.live-row-flash{animation:liveFlash .8s ease}
-@keyframes liveFlash{
-  0%{background:rgba(34,197,94,.12)}
-  100%{background:transparent}
-}
-
-/* ─── RESPONSIVE ─────────────────────────────────────────────────── */
-@media(max-width:900px){
-  .sidebar{width:220px}
-  .detail-panel{width:100%}
-  .form-grid{grid-template-columns:1fr}
-  .content{padding:20px 16px}
-  .topbar{padding:14px 16px}
-}
-@media(max-width:700px){
-  .sidebar{display:none}
-  .stats-grid{grid-template-columns:1fr 1fr}
-}
+@media(max-width:900px){.sidebar{width:220px}.detail-panel{width:100%}.form-grid{grid-template-columns:1fr}.content{padding:20px 16px}.topbar{padding:14px 16px}}
+@media(max-width:700px){.sidebar{display:none}.stats-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════════════════════════
-  TOAST CONTAINER
-══════════════════════════════════════════════════════════════ -->
+<!-- LOADING -->
+<div id="loading-screen">
+  <div class="loading-logo">
+    <div class="loading-logo-icon">
+      <svg viewBox="0 0 30 30" fill="none">
+        <path d="M15 2C18.5 2 21.5 4.5 21.5 8.5C21.5 13.5 15 22 15 22C15 22 8.5 13.5 8.5 8.5C8.5 4.5 11.5 2 15 2Z" stroke="white" stroke-width="1.8"/>
+        <path d="M11 8L16 6L18 8.5L16 11L11 9V8Z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M16 6L20 5L18 8.5" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M11 9L9 10.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="loading-logo-name">Legend</div>
+  </div>
+  <div class="loading-bar-wrap"><div class="loading-bar"></div></div>
+  <div class="loading-text">Conectando con la base de datos...</div>
+</div>
+
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- ══════════════════════════════════════════════════════════════
-  LOGIN SCREEN
-══════════════════════════════════════════════════════════════ -->
-<div class="screen active" id="screen-login">
-  <div class="login-card">
-    <div class="login-logo">
-      <div class="login-logo-icon">
-        <!-- LEGEND LOGO SVG (avion + pin) -->
-        <svg viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M15 2C18.5 2 21.5 4.5 21.5 8.5C21.5 13.5 15 22 15 22C15 22 8.5 13.5 8.5 8.5C8.5 4.5 11.5 2 15 2Z" stroke="white" stroke-width="1.8" fill="none"/>
-          <path d="M11 8L16 6L18 8.5L16 11L11 9V8Z" stroke="white" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
-          <path d="M16 6L20 5L18 8.5" stroke="white" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
-          <path d="M11 9L9 10.5" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-        </svg>
+<!-- LOGIN -->
+<div class="screen" id="screen-login">
+
+  <!-- Panel izquierdo: branding -->
+  <div class="login-brand">
+    <div class="brand-top">
+      <div class="brand-logo">
+        <div class="brand-logo-icon">
+          <svg viewBox="0 0 30 30" fill="none">
+            <path d="M15 2C18.5 2 21.5 4.5 21.5 8.5C21.5 13.5 15 22 15 22C15 22 8.5 13.5 8.5 8.5C8.5 4.5 11.5 2 15 2Z" stroke="white" stroke-width="1.8"/>
+            <path d="M11 8L16 6L18 8.5L16 11L11 9V8Z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M16 6L20 5L18 8.5" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M11 9L9 10.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="brand-logo-name">Legend</div>
       </div>
-      <div class="login-logo-name">Legend</div>
+      <div class="brand-headline">Sistema de<br>gestión <span>comercial</span></div>
+      <div class="brand-desc">Legajos, clientes, pagos y operaciones — todo en un mismo lugar, en tiempo real.</div>
     </div>
-    <div class="login-title">Bienvenida</div>
-    <div class="login-sub">Ingresá para gestionar tus legajos</div>
+    <div class="brand-bottom">
+      <div class="brand-roles">
+        <div class="brand-role">
+          <div class="brand-role-dot vendedora"></div>
+          <div class="brand-role-info">
+            <div class="brand-role-title">Vendedoras</div>
+            <div class="brand-role-desc">Visualizan y gestionan sus propios legajos</div>
+          </div>
+        </div>
+        <div class="brand-role">
+          <div class="brand-role-dot admin"></div>
+          <div class="brand-role-info">
+            <div class="brand-role-title">Administración</div>
+            <div class="brand-role-desc">Acceso completo a todas las operaciones</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel derecho: formulario -->
+  <div class="login-form-panel">
+    <div class="login-form-header">
+      <div class="login-form-title">Acceso al sistema</div>
+      <div class="login-form-sub">Ingresá tus credenciales para continuar</div>
+    </div>
 
     <div class="field">
-      <label>Usuario</label>
-      <select id="loginUser">
-        <option value="">Seleccionar usuario...</option>
-        <optgroup label="── Vendedoras ──────────────">
+      <label for="loginUser">Usuario</label>
+      <select id="loginUser" autocomplete="username">
+        <option value="">Seleccionar usuario</option>
+        <optgroup label="Vendedoras">
           <option value="Carolina">Carolina</option>
           <option value="Lujan">Lujan</option>
           <option value="Luciana">Luciana</option>
           <option value="Claudia">Claudia</option>
           <option value="Xiomara">Xiomara</option>
         </optgroup>
-        <optgroup label="── Administración ──────────">
+        <optgroup label="Administración">
           <option value="Pilar">Pilar</option>
           <option value="Silvia">Silvia</option>
           <option value="Fernando">Fernando</option>
           <option value="Lucas">Lucas</option>
         </optgroup>
       </select>
+      <div class="field-error" id="errUser">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="13" height="13"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        Seleccioná un usuario
+      </div>
     </div>
-    <div class="field">
-      <label>Contraseña</label>
-      <input type="password" id="loginPass" placeholder="••••••••" value="1234">
-    </div>
-    <button class="btn-primary" onclick="doLogin()">Ingresar al sistema</button>
-    <div class="login-error" id="loginError">Usuario o contraseña incorrectos</div>
 
-    <div class="login-hint">
-      Contraseña: tu nombre + 1<br>
-      Ej: <strong>Lucas1</strong> · <strong>Carolina1</strong> · <strong>Pilar1</strong><br>
-      Vendedoras ven sus ventas · Admin ve todas
+    <div class="field">
+      <label for="loginPass">Contraseña</label>
+      <input type="password" id="loginPass" placeholder="••••••••••" autocomplete="current-password">
+      <div class="field-error" id="errPass">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="13" height="13"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        Contraseña incorrecta
+      </div>
+    </div>
+
+    <button class="btn-primary" id="btnLogin" onclick="doLogin()">
+      <span class="btn-text">Ingresar</span>
+      <div class="btn-loader"></div>
+    </button>
+
+    <div class="login-error" id="loginError">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+      Usuario o contraseña incorrectos
+    </div>
+
+    <div class="login-footer">
+      <div class="login-footer-label">Acceso exclusivo para personal autorizado</div>
     </div>
   </div>
+
 </div>
 
-<!-- ══════════════════════════════════════════════════════════════
-  APP SCREEN
-══════════════════════════════════════════════════════════════ -->
+<!-- APP -->
 <div class="screen" id="screen-app">
-
-  <!-- SIDEBAR -->
   <nav class="sidebar">
     <div class="sidebar-logo">
       <div class="sidebar-logo-icon">
@@ -726,7 +546,6 @@ a{text-decoration:none;color:inherit}
       </div>
       <div class="sidebar-logo-name">Legend</div>
     </div>
-
     <div class="sidebar-section">
       <div class="sidebar-section-label">Principal</div>
       <div class="nav-item active" onclick="switchView('dashboard')">
@@ -749,7 +568,6 @@ a{text-decoration:none;color:inherit}
         <span class="badge" id="badgeSaldos">0</span>
       </div>
     </div>
-
     <div class="sidebar-section" id="adminNav" style="display:none">
       <div class="sidebar-section-label">Administración</div>
       <div class="nav-item" onclick="switchView('usuarios')">
@@ -757,7 +575,6 @@ a{text-decoration:none;color:inherit}
         Usuarios
       </div>
     </div>
-
     <div class="sidebar-user">
       <div class="sidebar-user-card">
         <div class="user-avatar" id="sidebarAvatar" style="background:var(--red)">?</div>
@@ -772,222 +589,138 @@ a{text-decoration:none;color:inherit}
     </div>
   </nav>
 
-  <!-- MAIN -->
   <div class="main">
-
-    <!-- TOPBAR -->
     <div class="topbar">
       <div class="topbar-title" id="topbarTitle">Dashboard</div>
       <div class="topbar-live">
-        <div class="live-dot"></div>
-        <span id="liveCount">En línea: 1</span>
+        <div class="live-dot" id="liveDot"></div>
+        <span id="liveStatus">En vivo</span>
       </div>
-      <button class="topbar-btn secondary" onclick="refreshData()">
+      <button class="topbar-btn secondary" onclick="renderAll()">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
         Actualizar
       </button>
-      <button class="topbar-btn primary" onclick="openNewLegajo()" id="btnNuevoLegajo">
+      <button class="topbar-btn primary" onclick="openNewLegajo()">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 4v16m8-8H4"/></svg>
         Nuevo legajo
       </button>
     </div>
 
-    <!-- VIEWS -->
     <div class="content">
-
-      <!-- ── DASHBOARD ─────────────────────────────────────────────── -->
+      <!-- DASHBOARD -->
       <div class="view active" id="view-dashboard">
         <div class="stats-grid" id="statsGrid"></div>
-
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px">
           <div>
-            <div class="section-header">
-              <h3>Legajos recientes</h3>
-            </div>
+            <div class="section-header"><h3>Legajos recientes</h3></div>
             <div class="table-wrap">
-              <table class="data-table" id="recentTable">
-                <thead><tr>
-                  <th>Legajo</th><th>Cliente</th><th>Destino</th><th>Estado</th>
-                </tr></thead>
+              <table class="data-table">
+                <thead><tr><th>Legajo</th><th>Cliente</th><th>Destino</th><th>Estado</th></tr></thead>
                 <tbody id="recentTbody"></tbody>
               </table>
             </div>
           </div>
           <div>
-            <div class="section-header">
-              <h3>Alertas</h3>
-            </div>
+            <div class="section-header"><h3>Alertas</h3></div>
             <div id="alertasContainer"></div>
           </div>
         </div>
       </div>
 
-      <!-- ── LEGAJOS ────────────────────────────────────────────────── -->
+      <!-- LEGAJOS -->
       <div class="view" id="view-legajos">
         <div class="filters-bar">
-          <input type="text" class="filter-input" placeholder="Buscar por cliente, destino o nº legajo..." id="searchInput" oninput="filterLegajos()">
-          <select class="filter-select" id="filterEstado" onchange="filterLegajos()">
+          <input type="text" class="filter-input" placeholder="Buscar por cliente, destino o nº legajo..." id="searchInput" oninput="renderLegajosTable()">
+          <select class="filter-select" id="filterEstado" onchange="renderLegajosTable()">
             <option value="">Todos los estados</option>
-            <option>cotizado</option><option>señado</option>
-            <option>parcialmente pago</option><option>pago completo</option>
-            <option>emitido</option><option>viajado</option><option>cerrado</option><option>anulado</option>
+            <option>cotizado</option><option>señado</option><option>parcialmente pago</option>
+            <option>pago completo</option><option>emitido</option><option>viajado</option><option>cerrado</option><option>anulado</option>
           </select>
-          <select class="filter-select" id="filterVendedora" onchange="filterLegajos()">
+          <select class="filter-select" id="filterVendedora" onchange="renderLegajosTable()">
             <option value="">Todas las vendedoras</option>
           </select>
         </div>
         <div class="section-header">
-          <h3>Legajos</h3>
-          <span class="count" id="legajosCount">0</span>
+          <h3>Legajos</h3><span class="count" id="legajosCount">0</span>
         </div>
         <div class="table-wrap">
           <table class="data-table">
-            <thead><tr>
-              <th>Legajo</th><th>Cliente</th><th>Destino</th>
-              <th>Salida</th><th>Vendedora</th>
-              <th>Total</th><th>Saldo</th><th>Estado</th><th></th>
-            </tr></thead>
+            <thead><tr><th>Legajo</th><th>Cliente</th><th>Destino</th><th>Salida</th><th>Vendedora</th><th>Total</th><th>Saldo</th><th>Estado</th><th></th></tr></thead>
             <tbody id="legajosTbody"></tbody>
           </table>
         </div>
       </div>
 
-      <!-- ── PRÓXIMOS ───────────────────────────────────────────────── -->
+      <!-- PROXIMOS -->
       <div class="view" id="view-proximos">
-        <div class="section-header">
-          <h3>Viajes próximos (30 días)</h3>
-        </div>
+        <div class="section-header"><h3>Viajes próximos (30 días)</h3></div>
         <div class="table-wrap">
           <table class="data-table">
-            <thead><tr>
-              <th>Legajo</th><th>Cliente</th><th>Destino</th>
-              <th>Salida</th><th>Días restantes</th><th>Estado</th><th></th>
-            </tr></thead>
+            <thead><tr><th>Legajo</th><th>Cliente</th><th>Destino</th><th>Salida</th><th>Días restantes</th><th>Estado</th><th></th></tr></thead>
             <tbody id="proximosTbody"></tbody>
           </table>
         </div>
       </div>
 
-      <!-- ── SALDOS ─────────────────────────────────────────────────── -->
+      <!-- SALDOS -->
       <div class="view" id="view-saldos">
-        <div class="section-header">
-          <h3>Clientes con saldo pendiente</h3>
-        </div>
+        <div class="section-header"><h3>Clientes con saldo pendiente</h3></div>
         <div class="table-wrap">
           <table class="data-table">
-            <thead><tr>
-              <th>Legajo</th><th>Cliente</th><th>Destino</th>
-              <th>Salida</th><th>Total venta</th><th>Cobrado</th><th>Saldo</th><th>Estado</th><th></th>
-            </tr></thead>
+            <thead><tr><th>Legajo</th><th>Cliente</th><th>Destino</th><th>Salida</th><th>Total</th><th>Cobrado</th><th>Saldo</th><th>Estado</th><th></th></tr></thead>
             <tbody id="saldosTbody"></tbody>
           </table>
         </div>
       </div>
 
-      <!-- ── USUARIOS ───────────────────────────────────────────────── -->
+      <!-- USUARIOS -->
       <div class="view" id="view-usuarios">
-        <div class="section-header">
-          <h3>Equipo</h3>
-          <span class="count" id="usuariosCount">0</span>
-        </div>
+        <div class="section-header"><h3>Equipo</h3><span class="count" id="usuariosCount">0</span></div>
         <div class="users-grid" id="usersGrid"></div>
       </div>
+    </div>
+  </div>
+</div>
 
-    </div><!-- /content -->
-  </div><!-- /main -->
-</div><!-- /screen-app -->
-
-<!-- ══════════════════════════════════════════════════════════════
-  MODAL: NUEVO/EDITAR LEGAJO
-══════════════════════════════════════════════════════════════ -->
+<!-- MODAL LEGAJO -->
 <div class="modal-overlay" id="modalLegajo">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-header-icon">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12h6M9 16h6M9 8h6M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/></svg>
-      </div>
-      <div>
-        <div class="modal-title" id="modalLegajoTitle">Nuevo legajo</div>
-        <div class="modal-subtitle" id="modalLegajoSub">Completá los datos del viaje</div>
-      </div>
-      <button class="modal-close" onclick="closeModal('modalLegajo')">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
+      <div class="modal-header-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12h6M9 16h6M9 8h6M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/></svg></div>
+      <div><div class="modal-title" id="modalLegajoTitle">Nuevo legajo</div><div class="modal-subtitle" id="modalLegajoSub">Completá los datos del viaje</div></div>
+      <button class="modal-close" onclick="closeModal('modalLegajo')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
     </div>
     <div class="modal-body">
       <div class="form-grid">
         <div class="form-section-title">Datos del cliente</div>
-        <div class="form-group">
-          <label class="form-label">Nombre y apellido *</label>
-          <input type="text" class="form-input" id="fCliente" placeholder="García, María">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Email</label>
-          <input type="email" class="form-input" id="fEmail" placeholder="maria@email.com">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Teléfono</label>
-          <input type="text" class="form-input" id="fTel" placeholder="+54 11 1234-5678">
-        </div>
-        <div class="form-group">
-          <label class="form-label">CUIT</label>
-          <input type="text" class="form-input" id="fCuit" placeholder="20-12345678-9">
-        </div>
-
+        <div class="form-group"><label class="form-label">Nombre y apellido *</label><input type="text" class="form-input" id="fCliente" placeholder="García, María"></div>
+        <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="fEmail" placeholder="maria@email.com"></div>
+        <div class="form-group"><label class="form-label">Teléfono</label><input type="text" class="form-input" id="fTel" placeholder="+54 11 1234-5678"></div>
+        <div class="form-group"><label class="form-label">CUIT</label><input type="text" class="form-input" id="fCuit" placeholder="20-12345678-9"></div>
         <div class="form-section-title">Datos del viaje</div>
-        <div class="form-group">
-          <label class="form-label">Nº Legajo *</label>
-          <input type="text" class="form-input" id="fNumLegajo" placeholder="L2024-001">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Destino *</label>
-          <input type="text" class="form-input" id="fDestino" placeholder="Cancún, México">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Fecha de salida *</label>
-          <input type="date" class="form-input" id="fSalida">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Fecha de regreso</label>
-          <input type="date" class="form-input" id="fRegreso">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Vendedora</label>
+        <div class="form-group"><label class="form-label">Nº Legajo *</label><input type="text" class="form-input" id="fNumLegajo" placeholder="L2025-001"></div>
+        <div class="form-group"><label class="form-label">Destino *</label><input type="text" class="form-input" id="fDestino" placeholder="Cancún, México"></div>
+        <div class="form-group"><label class="form-label">Fecha de salida *</label><input type="date" class="form-input" id="fSalida"></div>
+        <div class="form-group"><label class="form-label">Fecha de regreso</label><input type="date" class="form-input" id="fRegreso"></div>
+        <div class="form-group"><label class="form-label">Vendedora</label>
           <select class="form-select" id="fVendedora">
-            <option value="Carolina">Carolina</option>
-            <option value="Lujan">Lujan</option>
-            <option value="Luciana">Luciana</option>
-            <option value="Claudia">Claudia</option>
+            <option value="Carolina">Carolina</option><option value="Lujan">Lujan</option>
+            <option value="Luciana">Luciana</option><option value="Claudia">Claudia</option>
             <option value="Xiomara">Xiomara</option>
           </select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Estado</label>
+        <div class="form-group"><label class="form-label">Estado</label>
           <select class="form-select" id="fEstado">
-            <option value="cotizado">Cotizado</option>
-            <option value="señado">Señado</option>
-            <option value="parcialmente pago">Parcialmente pago</option>
-            <option value="pago completo">Pago completo</option>
-            <option value="emitido">Emitido</option>
-            <option value="viajado">Viajado</option>
-            <option value="cerrado">Cerrado</option>
-            <option value="anulado">Anulado</option>
+            <option value="cotizado">Cotizado</option><option value="señado">Señado</option>
+            <option value="parcialmente pago">Parcialmente pago</option><option value="pago completo">Pago completo</option>
+            <option value="emitido">Emitido</option><option value="viajado">Viajado</option>
+            <option value="cerrado">Cerrado</option><option value="anulado">Anulado</option>
           </select>
         </div>
-
         <div class="form-section-title">Financiero</div>
-        <div class="form-group">
-          <label class="form-label">Total venta (ARS)</label>
-          <input type="number" class="form-input" id="fTotal" placeholder="1500000">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Total cobrado (ARS)</label>
-          <input type="number" class="form-input" id="fCobrado" placeholder="750000">
-        </div>
-        <div class="form-group full">
-          <label class="form-label">Observaciones</label>
-          <textarea class="form-textarea" id="fObs" placeholder="Notas adicionales sobre el legajo..."></textarea>
-        </div>
+        <div class="form-group"><label class="form-label">Total venta (ARS)</label><input type="number" class="form-input" id="fTotal" placeholder="1500000"></div>
+        <div class="form-group"><label class="form-label">Total cobrado (ARS)</label><input type="number" class="form-input" id="fCobrado" placeholder="750000"></div>
+        <div class="form-group full"><label class="form-label">Observaciones</label><textarea class="form-textarea" id="fObs" placeholder="Notas adicionales..."></textarea></div>
       </div>
     </div>
     <div class="modal-footer">
@@ -997,69 +730,36 @@ a{text-decoration:none;color:inherit}
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════════
-  MODAL: AGREGAR PAGO
-══════════════════════════════════════════════════════════════ -->
+<!-- MODAL PAGO -->
 <div class="modal-overlay" id="modalPago">
   <div class="modal" style="max-width:440px">
     <div class="modal-header">
-      <div class="modal-header-icon" style="background:#15803d">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-      </div>
-      <div>
-        <div class="modal-title">Registrar pago del cliente</div>
-        <div class="modal-subtitle" id="pagoLegajoSub">Legajo —</div>
-      </div>
-      <button class="modal-close" onclick="closeModal('modalPago')">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
+      <div class="modal-header-icon" style="background:#15803d"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+      <div><div class="modal-title">Registrar pago</div><div class="modal-subtitle" id="pagoLegajoSub">Legajo —</div></div>
+      <button class="modal-close" onclick="closeModal('modalPago')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
     </div>
     <div class="modal-body">
       <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label">Fecha *</label>
-          <input type="date" class="form-input" id="pFecha">
+        <div class="form-group"><label class="form-label">Fecha *</label><input type="date" class="form-input" id="pFecha"></div>
+        <div class="form-group"><label class="form-label">Medio de pago *</label>
+          <select class="form-select" id="pMedio"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta débito</option><option>Tarjeta crédito</option><option>Cheque</option></select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Medio de pago *</label>
-          <select class="form-select" id="pMedio">
-            <option>Efectivo</option>
-            <option>Transferencia</option>
-            <option>Tarjeta débito</option>
-            <option>Tarjeta crédito</option>
-            <option>Cheque</option>
-          </select>
+        <div class="form-group"><label class="form-label">Moneda</label>
+          <select class="form-select" id="pMoneda"><option>ARS</option><option>USD</option></select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Moneda</label>
-          <select class="form-select" id="pMoneda">
-            <option>ARS</option><option>USD</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Monto *</label>
-          <input type="number" class="form-input" id="pMonto" placeholder="0">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Cotización (si USD)</label>
-          <input type="number" class="form-input" id="pCotizacion" placeholder="1000">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Comprobante / ref.</label>
-          <input type="text" class="form-input" id="pComprobante" placeholder="Nº transferencia...">
-        </div>
+        <div class="form-group"><label class="form-label">Monto *</label><input type="number" class="form-input" id="pMonto" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">Cotización (si USD)</label><input type="number" class="form-input" id="pCotizacion" placeholder="1000"></div>
+        <div class="form-group"><label class="form-label">Comprobante</label><input type="text" class="form-input" id="pComprobante" placeholder="Nº transferencia..."></div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn-modal-cancel" onclick="closeModal('modalPago')">Cancelar</button>
-      <button class="btn-modal-primary" style="background:#15803d;box-shadow:none" onclick="savePago()">Registrar pago</button>
+      <button class="btn-modal-primary" style="background:#15803d;box-shadow:none" onclick="savePago()" id="btnSavePago">Registrar pago</button>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════════
-  DETAIL PANEL
-══════════════════════════════════════════════════════════════ -->
+<!-- DETAIL PANEL -->
 <div class="detail-panel" id="detailPanel">
   <div class="detail-header">
     <div class="detail-header-top">
@@ -1068,697 +768,491 @@ a{text-decoration:none;color:inherit}
         <div class="detail-destino" id="dDestino">—</div>
         <div class="detail-meta" id="dMeta">—</div>
       </div>
-      <button class="detail-close" onclick="closeDetail()">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
+      <button class="detail-close" onclick="closeDetail()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
     </div>
     <div class="detail-stats" id="dStats"></div>
   </div>
   <div class="detail-body" id="dBody"></div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════════
-  JAVASCRIPT
-══════════════════════════════════════════════════════════════ -->
-<script>
-/* ─── USUARIOS ─────────────────────────────────────────── */
+<!-- ═══════════════════════════════════════════════════════
+  FIREBASE SDK (modular CDN)
+═══════════════════════════════════════════════════════ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, push, onValue, update, remove, get }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+/* ─── CONFIG ─────────────────────────────────────────── */
+const firebaseConfig = {
+  apiKey: "AIzaSyCL0d9TQ6rvowsbO7EdJZz1was0zPplwWs",
+  authDomain: "lt-ventas-5a5cb.firebaseapp.com",
+  databaseURL: "https://lt-ventas-5a5cb-default-rtdb.firebaseio.com",
+  projectId: "lt-ventas-5a5cb",
+  storageBucket: "lt-ventas-5a5cb.firebasestorage.app",
+  messagingSenderId: "21291647077",
+  appId: "1:21291647077:web:41657515d9cf2e75a1868c"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+/* ─── USUARIOS ───────────────────────────────────────── */
 const USERS = {
-  Carolina: { name:'Carolina',  initials:'CA', role:'seller', color:'#AC0A10', vendedora:'Carolina',  display:'Vendedora', pass:'Carolina1' },
-  Lujan:    { name:'Lujan',     initials:'LU', role:'seller', color:'#7c3aed', vendedora:'Lujan',     display:'Vendedora', pass:'Lujan1'    },
-  Luciana:  { name:'Luciana',   initials:'LC', role:'seller', color:'#065f46', vendedora:'Luciana',   display:'Vendedora', pass:'Luciana1'  },
-  Claudia:  { name:'Claudia',   initials:'CL', role:'seller', color:'#b45309', vendedora:'Claudia',   display:'Vendedora', pass:'Claudia1'  },
-  Xiomara:  { name:'Xiomara',   initials:'XI', role:'seller', color:'#be185d', vendedora:'Xiomara',   display:'Vendedora', pass:'Xiomara1'  },
-  Pilar:    { name:'Pilar',     initials:'PI', role:'admin',  color:'#1d4ed8', vendedora:null,        display:'Administración', pass:'Pilar1'   },
-  Silvia:   { name:'Silvia',    initials:'SI', role:'admin',  color:'#0891b2', vendedora:null,        display:'Administración', pass:'Silvia1'  },
-  Fernando: { name:'Fernando',  initials:'FE', role:'admin',  color:'#166534', vendedora:null,        display:'Administración', pass:'Fernando1'},
-  Lucas:    { name:'Lucas',     initials:'LK', role:'admin',  color:'#6d28d9', vendedora:null,        display:'Administración', pass:'Lucas1'   },
+  Carolina:{ name:'Carolina', initials:'CA', role:'seller', color:'#AC0A10', vendedora:'Carolina',  display:'Vendedora',      pass:'Carolina1'  },
+  Lujan:   { name:'Lujan',    initials:'LU', role:'seller', color:'#7c3aed', vendedora:'Lujan',     display:'Vendedora',      pass:'Lujan1'     },
+  Luciana: { name:'Luciana',  initials:'LC', role:'seller', color:'#065f46', vendedora:'Luciana',   display:'Vendedora',      pass:'Luciana1'   },
+  Claudia: { name:'Claudia',  initials:'CL', role:'seller', color:'#b45309', vendedora:'Claudia',   display:'Vendedora',      pass:'Claudia1'   },
+  Xiomara: { name:'Xiomara',  initials:'XI', role:'seller', color:'#be185d', vendedora:'Xiomara',   display:'Vendedora',      pass:'Xiomara1'   },
+  Pilar:   { name:'Pilar',    initials:'PI', role:'admin',  color:'#1d4ed8', vendedora:null,        display:'Administración', pass:'Pilar1'     },
+  Silvia:  { name:'Silvia',   initials:'SI', role:'admin',  color:'#0891b2', vendedora:null,        display:'Administración', pass:'Silvia1'    },
+  Fernando:{ name:'Fernando', initials:'FE', role:'admin',  color:'#166534', vendedora:null,        display:'Administración', pass:'Fernando1'  },
+  Lucas:   { name:'Lucas',    initials:'LK', role:'admin',  color:'#6d28d9', vendedora:null,        display:'Administración', pass:'Lucas1'     },
 };
 
-/* ─── ESTADO GLOBAL ─────────────────────────────────────── */
-let currentUser = null;
-let currentLegajoEdit = null;
-let currentLegajoPago = null;
-let liveInterval = null;
-let lastCount = 0;
+/* ─── STATE ──────────────────────────────────────────── */
+let currentUser   = null;
+let currentEdit   = null;
+let currentPagoId = null;
+let currentDetailId = null;
+let allLegajos    = {};   // cache local en memoria
+let fbUnsub       = null; // función para desuscribir el listener
 
-/* ─── DATA (localStorage como "base de datos") ──────────── */
-function getData() {
-  try { return JSON.parse(localStorage.getItem('legend_legajos') || '[]'); } catch { return []; }
-}
-function setData(d) {
-  localStorage.setItem('legend_legajos', JSON.stringify(d));
-  localStorage.setItem('legend_ts', Date.now());
-}
-function getTS() { return parseInt(localStorage.getItem('legend_ts') || '0'); }
+/* ─── HELPERS ────────────────────────────────────────── */
+const fmtMoney = n => n!=null ? '$'+Number(n).toLocaleString('es-AR') : '—';
+const fmtDate  = s => { if(!s) return '—'; const [y,m,d]=s.split('-'); return `${d}/${m}/${y}`; };
+const daysUntil= s => { if(!s) return null; const t=new Date();t.setHours(0,0,0,0); return Math.ceil((new Date(s+'T00:00:00')-t)/86400000); };
+const statusMap = {'cotizado':'s-cotizado','señado':'s-senado','parcialmente pago':'s-parcial','pago completo':'s-pago','emitido':'s-emitido','viajado':'s-viajado','cerrado':'s-cerrado','anulado':'s-anulado'};
+const statusPill = s => `<span class="status ${statusMap[s]||'s-cotizado'}">${s}</span>`;
+const svgDoc  = c=>`<svg fill="none" viewBox="0 0 24 24" stroke="${c}" stroke-width="2"><path d="M9 12h6M9 16h6M9 8h6M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/></svg>`;
+const svgMoney= c=>`<svg fill="none" viewBox="0 0 24 24" stroke="${c}" stroke-width="2"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+const svgCal  = c=>`<svg fill="none" viewBox="0 0 24 24" stroke="${c}" stroke-width="2"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
+const svgPlane= c=>`<svg fill="none" viewBox="0 0 24 24" stroke="${c}" stroke-width="2"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>`;
 
-/* ─── DATOS DEMO ─────────────────────────────────────────── */
-function seedData() {
-  // Reset if old data has old vendedora names
-  const existing = getData();
-  const oldNames = ['Claudia R.','Valeria M.','Lucía P.','Sofía T.'];
-  const hasOld = existing.some(l=>oldNames.includes(l.vendedora));
-  if (hasOld) { localStorage.removeItem('legend_legajos'); }
-  if (getData().length > 0) return;
+function toast(msg, type='info'){
+  const icons={success:`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,error:`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,info:`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`};
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;
+  t.innerHTML=`<div class="toast-icon">${icons[type]||icons.info}</div><span>${msg}</span>`;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(()=>t.remove(),3500);
+}
+
+/* ─── SEED DEMO DATA (solo si la DB está vacía) ──────── */
+async function seedIfEmpty(){
+  const snap = await get(ref(db,'legajos'));
+  if(snap.exists()) return;
   const demo = [
-    { id:1, num:'L2025-001', cliente:'García, María',     email:'maria@gmail.com',    tel:'11-4567-8901', cuit:'',              destino:'Cancún, México',  salida:'2025-04-15', regreso:'2025-04-22', vendedora:'Carolina', estado:'emitido',            total:1500000, cobrado:1500000, obs:'Cliente frecuente',   acomps:[{nombre:'García, Pedro',dni:'35123456',nac:'01/01/1985',nac2:'Argentina'},{nombre:'García, Lucía',dni:'42654321',nac:'05/03/2010',nac2:'Argentina'}], pagos:[{fecha:'2025-01-10',medio:'Transferencia',moneda:'ARS',monto:500000,comp:'TRF-001'},{fecha:'2025-02-15',medio:'Tarjeta crédito',moneda:'ARS',monto:1000000,comp:'TC-022'}], operadores:[{nombre:'Hotetur Cancún',neto:700,total:800,moneda:'USD',pagado:800},{nombre:'Aerolíneas Arg.',neto:400000,total:450000,moneda:'ARS',pagado:450000}], itin:[{fecha:'2025-04-15',ciudad:'Cancún',hotel:'Grand Hyatt',desde:'14:00',hasta:'',vuelo:'AR1850',svc:'Arribo + traslado'},{fecha:'2025-04-16',ciudad:'Cancún',hotel:'Grand Hyatt',desde:'',hasta:'',vuelo:'',svc:'Día libre'},{fecha:'2025-04-22',ciudad:'Buenos Aires',hotel:'',desde:'08:00',hasta:'15:30',vuelo:'AR1851',svc:'Regreso'}], ts: Date.now()-3600000 },
-    { id:2, num:'L2025-002', cliente:'López, Carlos',     email:'carlos@empresa.com', tel:'11-3456-7890', cuit:'20-11111111-1', destino:'Roma + París',    salida:'2025-05-10', regreso:'2025-05-24', vendedora:'Lujan',    estado:'pago completo',       total:4800000, cobrado:4800000, obs:'Luna de miel',        acomps:[{nombre:'López, Daniela',dni:'38456789',nac:'14/06/1990',nac2:'Argentina'}], pagos:[{fecha:'2025-01-20',medio:'Efectivo',moneda:'ARS',monto:1200000,comp:''},{fecha:'2025-03-01',medio:'Transferencia',moneda:'ARS',monto:3600000,comp:'TRF-099'}], operadores:[{nombre:'Alitalia Hotels',neto:1800,total:2100,moneda:'USD',pagado:2100},{nombre:'Air France',neto:1200,total:1350,moneda:'USD',pagado:0}], itin:[{fecha:'2025-05-10',ciudad:'Roma',hotel:'Hotel Minerva',desde:'12:00',hasta:'',vuelo:'AZ1234',svc:'Arribo'},{fecha:'2025-05-17',ciudad:'París',hotel:'Le Marais Hotel',desde:'09:00',hasta:'11:00',vuelo:'AF4455',svc:'Tren Roma-París'}], ts: Date.now()-1800000 },
-    { id:3, num:'L2025-003', cliente:'Martínez, Ana',    email:'ana.m@mail.com',     tel:'11-2345-6789', cuit:'',              destino:'Punta Cana',     salida:'2025-04-28', regreso:'2025-05-05', vendedora:'Carolina', estado:'señado',               total:950000,  cobrado:200000, obs:'',                    acomps:[], pagos:[{fecha:'2025-03-05',medio:'Efectivo',moneda:'ARS',monto:200000,comp:''}], operadores:[{nombre:'BlueBay Resort',neto:450,total:500,moneda:'USD',pagado:0}], itin:[], ts: Date.now()-900000 },
-    { id:4, num:'L2025-004', cliente:'Rodríguez, Juan',  email:'juan.r@mail.com',    tel:'11-9876-5432', cuit:'20-22222222-2', destino:'Madrid + Lisboa', salida:'2025-06-01', regreso:'2025-06-14', vendedora:'Luciana',  estado:'parcialmente pago',    total:3200000, cobrado:1600000, obs:'Viaje de negocios',   acomps:[{nombre:'Rodríguez, Sofía',dni:'40123456',nac:'22/09/1992',nac2:'Argentina'}], pagos:[{fecha:'2025-02-28',medio:'Transferencia',moneda:'ARS',monto:1600000,comp:'TRF-055'}], operadores:[{nombre:'NH Hotels',neto:900,total:1050,moneda:'USD',pagado:500}], itin:[{fecha:'2025-06-01',ciudad:'Madrid',hotel:'NH Suites',desde:'10:00',hasta:'',vuelo:'IB3040',svc:'Arribo'}], ts: Date.now()-600000 },
-    { id:5, num:'L2025-005', cliente:'Sánchez, Laura',   email:'laura.s@mail.com',   tel:'11-5678-1234', cuit:'',              destino:'Bariloche',      salida:'2025-07-15', regreso:'2025-07-22', vendedora:'Claudia',  estado:'cotizado',             total:680000,  cobrado:0,       obs:'Paquete ski',         acomps:[{nombre:'Sánchez, Tom',dni:'45321654',nac:'10/12/2008',nac2:'Argentina'}], pagos:[], operadores:[{nombre:'Nórdico Ski Resort',neto:250000,total:290000,moneda:'ARS',pagado:0}], itin:[], ts: Date.now()-300000 },
-    { id:6, num:'L2025-006', cliente:'Fernández, Diego', email:'diego.f@mail.com',   tel:'11-1111-2222', cuit:'',              destino:'Miami Beach',    salida:'2025-04-18', regreso:'2025-04-25', vendedora:'Xiomara',  estado:'emitido',              total:2100000, cobrado:2100000, obs:'Cumpleaños especial', acomps:[{nombre:'Fernández, Caro',dni:'38998877',nac:'03/07/1988',nac2:'Argentina'},{nombre:'Fernández, Mati',dni:'48776655',nac:'15/11/2012',nac2:'Argentina'}], pagos:[{fecha:'2025-02-10',medio:'Tarjeta débito',moneda:'ARS',monto:1050000,comp:''},{fecha:'2025-03-20',medio:'Transferencia',moneda:'ARS',monto:1050000,comp:'TRF-077'}], operadores:[{nombre:'Marriott Miami',neto:1100,total:1200,moneda:'USD',pagado:1200}], itin:[{fecha:'2025-04-18',ciudad:'Miami',hotel:'Marriott Brickell',desde:'16:00',hasta:'',vuelo:'AA9001',svc:'Arribo + traslado'}], ts: Date.now()-100000 },
-    { id:7, num:'L2025-007', cliente:'Torres, Marta',    email:'marta.t@mail.com',   tel:'11-3333-4444', cuit:'',              destino:'Río de Janeiro', salida:'2025-05-20', regreso:'2025-05-28', vendedora:'Lujan',    estado:'señado',               total:1200000, cobrado:300000, obs:'',                    acomps:[], pagos:[{fecha:'2025-03-10',medio:'Transferencia',moneda:'ARS',monto:300000,comp:'TRF-110'}], operadores:[{nombre:'Windsor Hotels',neto:550,total:620,moneda:'USD',pagado:0}], itin:[], ts: Date.now()-50000 },
-    { id:8, num:'L2025-008', cliente:'Vega, Patricia',   email:'pvega@mail.com',     tel:'11-5555-6666', cuit:'',              destino:'Dubái',          salida:'2025-08-05', regreso:'2025-08-15', vendedora:'Xiomara',  estado:'cotizado',             total:6500000, cobrado:0,       obs:'Viaje de lujo',       acomps:[{nombre:'Vega, Roberto',dni:'30112233',nac:'18/04/1978',nac2:'Argentina'}], pagos:[], operadores:[{nombre:'Atlantis Resort',neto:3800,total:4200,moneda:'USD',pagado:0}], itin:[], ts: Date.now()-20000 },
+    {num:'L2025-001',cliente:'García, María',  email:'maria@gmail.com',    tel:'11-4567-8901',cuit:'',  destino:'Cancún, México', salida:'2025-06-15',regreso:'2025-06-22',vendedora:'Carolina',estado:'emitido',          total:1500000,cobrado:1500000,obs:'Cliente frecuente',acomps:[{nombre:'García, Pedro',dni:'35123456',nac:'01/01/1985',nac2:'Argentina'}],pagos:[{fecha:'2025-01-10',medio:'Transferencia',moneda:'ARS',monto:1500000,comp:'TRF-001'}],operadores:[{nombre:'Hotetur Cancún',neto:700,total:800,moneda:'USD',pagado:800}],itin:[{fecha:'2025-06-15',ciudad:'Cancún',hotel:'Grand Hyatt',desde:'14:00',hasta:'',vuelo:'AR1850',svc:'Arribo'}],ts:Date.now()},
+    {num:'L2025-002',cliente:'López, Carlos',  email:'carlos@empresa.com', tel:'11-3456-7890',cuit:'20-11111111-1',destino:'Roma + París',salida:'2025-07-10',regreso:'2025-07-24',vendedora:'Lujan',  estado:'pago completo',    total:4800000,cobrado:4800000,obs:'Luna de miel',acomps:[{nombre:'López, Daniela',dni:'38456789',nac:'14/06/1990',nac2:'Argentina'}],pagos:[{fecha:'2025-03-01',medio:'Transferencia',moneda:'ARS',monto:4800000,comp:'TRF-099'}],operadores:[{nombre:'Air France',neto:1200,total:1350,moneda:'USD',pagado:0}],itin:[],ts:Date.now()},
+    {num:'L2025-003',cliente:'Martínez, Ana',  email:'ana.m@mail.com',     tel:'11-2345-6789',cuit:'',  destino:'Punta Cana',     salida:'2025-05-28',regreso:'2025-06-05',vendedora:'Carolina',estado:'señado',             total:950000, cobrado:200000,obs:'',acomps:[],pagos:[{fecha:'2025-03-05',medio:'Efectivo',moneda:'ARS',monto:200000,comp:''}],operadores:[{nombre:'BlueBay Resort',neto:450,total:500,moneda:'USD',pagado:0}],itin:[],ts:Date.now()},
+    {num:'L2025-004',cliente:'Rodríguez, Juan',email:'juan.r@mail.com',    tel:'11-9876-5432',cuit:'20-22222222-2',destino:'Madrid + Lisboa',salida:'2025-08-01',regreso:'2025-08-14',vendedora:'Luciana',estado:'parcialmente pago',total:3200000,cobrado:1600000,obs:'Viaje de negocios',acomps:[],pagos:[{fecha:'2025-02-28',medio:'Transferencia',moneda:'ARS',monto:1600000,comp:'TRF-055'}],operadores:[{nombre:'NH Hotels',neto:900,total:1050,moneda:'USD',pagado:0}],itin:[],ts:Date.now()},
+    {num:'L2025-005',cliente:'Sánchez, Laura', email:'laura.s@mail.com',   tel:'11-5678-1234',cuit:'',  destino:'Bariloche',      salida:'2025-09-15',regreso:'2025-09-22',vendedora:'Claudia', estado:'cotizado',           total:680000, cobrado:0,     obs:'Paquete ski',acomps:[],pagos:[],operadores:[{nombre:'Nórdico Resort',neto:250000,total:290000,moneda:'ARS',pagado:0}],itin:[],ts:Date.now()},
+    {num:'L2025-006',cliente:'Vega, Patricia', email:'pvega@mail.com',     tel:'11-5555-6666',cuit:'',  destino:'Dubái',          salida:'2025-10-05',regreso:'2025-10-15',vendedora:'Xiomara', estado:'cotizado',           total:6500000,cobrado:0,     obs:'Viaje de lujo',acomps:[],pagos:[],operadores:[{nombre:'Atlantis Resort',neto:3800,total:4200,moneda:'USD',pagado:0}],itin:[],ts:Date.now()},
   ];
-  setData(demo);
+  for(const l of demo){
+    await push(ref(db,'legajos'),l);
+  }
 }
 
-/* ─── LOGIN ──────────────────────────────────────────────── */
-function doLogin() {
-  const uid = document.getElementById('loginUser').value;
-  const pwd = document.getElementById('loginPass').value;
-  const err = document.getElementById('loginError');
-  if (!uid || !USERS[uid] || pwd !== USERS[uid].pass) { err.style.display='block'; return; }
-  err.style.display='none';
-  currentUser = { id: uid, ...USERS[uid] };
-  seedData();
-  initApp();
+/* ─── FIREBASE LISTENER (tiempo real) ───────────────── */
+function startListener(){
+  const r = ref(db,'legajos');
+  fbUnsub = onValue(r, snap => {
+    allLegajos = snap.val() || {};
+    renderAll();
+    // actualizar detalle si está abierto
+    if(currentDetailId && allLegajos[currentDetailId]){
+      renderDetail(currentDetailId);
+    }
+  }, err => {
+    document.getElementById('liveDot').className='live-dot offline';
+    document.getElementById('liveStatus').textContent='Sin conexión';
+    toast('Error de conexión con Firebase','error');
+  });
 }
 
-function initApp() {
+function stopListener(){
+  if(fbUnsub){ fbUnsub(); fbUnsub=null; }
+}
+
+/* ─── LOGIN ──────────────────────────────────────────── */
+function resetLoginErrors(){
+  document.getElementById('loginError').classList.remove('show');
+  document.getElementById('errUser').classList.remove('show');
+  document.getElementById('errPass').classList.remove('show');
+  document.getElementById('loginUser').classList.remove('has-error');
+  document.getElementById('loginPass').classList.remove('has-error');
+}
+
+window.doLogin = async function(){
+  const uid    = document.getElementById('loginUser').value;
+  const pwd    = document.getElementById('loginPass').value;
+  const btn    = document.getElementById('btnLogin');
+  const selEl  = document.getElementById('loginUser');
+  const passEl = document.getElementById('loginPass');
+  resetLoginErrors();
+
+  if(!uid || !USERS[uid]){
+    document.getElementById('errUser').classList.add('show');
+    selEl.classList.add('has-error');
+    selEl.focus(); return;
+  }
+  if(pwd !== USERS[uid].pass){
+    document.getElementById('errPass').classList.add('show');
+    passEl.classList.add('has-error');
+    passEl.focus(); passEl.select(); return;
+  }
+  btn.disabled=true; btn.classList.add('loading');
+  currentUser = {id:uid, ...USERS[uid]};
+  try {
+    await seedIfEmpty();
+    initApp();
+  } catch(e){
+    toast('Error al conectar. Verificá tu conexión.','error');
+    btn.disabled=false; btn.classList.remove('loading');
+  }
+};
+
+// Enter key support
+document.addEventListener('keydown', e=>{
+  if(e.key==='Enter'){
+    const loginActive = document.getElementById('screen-login').classList.contains('active');
+    if(loginActive) window.doLogin();
+  }
+});
+
+function initApp(){
   document.getElementById('screen-login').classList.remove('active');
   document.getElementById('screen-app').classList.add('active');
-  // Sidebar
   const av = document.getElementById('sidebarAvatar');
   av.textContent = currentUser.initials;
   av.style.background = currentUser.color;
   document.getElementById('sidebarName').textContent = currentUser.name;
   document.getElementById('sidebarRole').textContent = currentUser.display;
-  // Admin nav
-  if (currentUser.role === 'admin') {
-    document.getElementById('adminNav').style.display = '';
-  }
-  // Vendedora no puede crear legajos (en esta demo sí puede)
-  // Filtro vendedoras
-  const fv = document.getElementById('filterVendedora');
-  if (currentUser.role === 'seller') {
-    fv.style.display = 'none';
-    document.getElementById('btnNuevoLegajo').style.display = '';
-  }
-  // Preselect vendedora en nuevo legajo
-  if (currentUser.role === 'seller') {
-    document.getElementById('fVendedora').value = currentUser.vendedora;
-  }
+  if(currentUser.role==='admin') document.getElementById('adminNav').style.display='';
+  if(currentUser.role==='seller') document.getElementById('filterVendedora').style.display='none';
   populateVendedoraFilter();
-  renderAll();
-  // Live update simulation
-  startLiveSync();
+  startListener();
+  set(ref(db,`presencia/${currentUser.id}`), {nombre:currentUser.name, ts:Date.now()});
+  onValue(ref(db,'presencia'), snap => {
+    const p = snap.val()||{};
+    const count = Object.keys(p).length;
+    document.getElementById('liveStatus').textContent = `${count} en línea`;
+  });
 }
 
-function doLogout() {
-  clearInterval(liveInterval);
-  currentUser = null;
+window.doLogout = function(){
+  remove(ref(db,`presencia/${currentUser.id}`));
+  stopListener();
+  currentUser=null; allLegajos={};
   closeDetail();
   document.getElementById('screen-app').classList.remove('active');
   document.getElementById('screen-login').classList.add('active');
-  document.getElementById('loginUser').value = '';
-  document.getElementById('loginPass').value = '';
-  document.getElementById('adminNav').style.display = 'none';
-}
-
-/* ─── LIVE SYNC ──────────────────────────────────────────── */
-let myTS = 0;
-function startLiveSync() {
-  myTS = getTS();
-  liveInterval = setInterval(() => {
-    const ts = getTS();
-    if (ts > myTS) {
-      myTS = ts;
-      renderAll();
-      showToast('Datos actualizados en tiempo real', 'info');
-    }
-    // Simulate random online users
-    const online = Math.floor(Math.random() * 3) + 1;
-    document.getElementById('liveCount').textContent = `En línea: ${online}`;
-  }, 3000);
-}
-
-function refreshData() {
-  renderAll();
-  showToast('Datos actualizados', 'success');
-}
-
-/* ─── VIEWS ──────────────────────────────────────────────── */
-const viewTitles = {
-  dashboard:'Dashboard', legajos:'Legajos',
-  proximos:'Próximos viajes', saldos:'Saldos pendientes', usuarios:'Usuarios'
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+  document.getElementById('btnLogin').disabled=false;
+  document.getElementById('btnLogin').classList.remove('loading');
+  document.getElementById('adminNav').style.display='none';
+  document.getElementById('filterVendedora').style.display='';
+  resetLoginErrors();
+  setTimeout(()=>document.getElementById('loginUser').focus(),200);
 };
 
-function switchView(v) {
+/* ─── VISTAS ─────────────────────────────────────────── */
+const viewTitles={dashboard:'Dashboard',legajos:'Legajos',proximos:'Próximos viajes',saldos:'Saldos pendientes',usuarios:'Usuarios'};
+window.switchView = function(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
   document.querySelector(`[onclick="switchView('${v}')"]`).classList.add('active');
-  document.getElementById('topbarTitle').textContent = viewTitles[v];
+  document.getElementById('topbarTitle').textContent=viewTitles[v];
   renderAll();
-}
-
-/* ─── DATA HELPERS ───────────────────────────────────────── */
-function getLegajos() {
-  let d = getData();
-  if (currentUser.role === 'seller') {
-    d = d.filter(l => l.vendedora === currentUser.vendedora);
-  }
-  return d;
-}
-
-function fmtMoney(n) {
-  if (!n && n!==0) return '—';
-  return '$' + Number(n).toLocaleString('es-AR');
-}
-function fmtDate(s) {
-  if (!s) return '—';
-  try {
-    const [y,m,d] = s.split('-');
-    return `${d}/${m}/${y}`;
-  } catch { return s; }
-}
-function daysUntil(s) {
-  if (!s) return null;
-  const today = new Date(); today.setHours(0,0,0,0);
-  const d = new Date(s+'T00:00:00');
-  return Math.ceil((d-today)/(1000*60*60*24));
-}
-
-const statusMap = {
-  'cotizado':'s-cotizado','señado':'s-senado',
-  'parcialmente pago':'s-parcial','pago completo':'s-pago',
-  'emitido':'s-emitido','viajado':'s-viajado',
-  'cerrado':'s-cerrado','anulado':'s-anulado'
 };
-function statusPill(s) {
-  const cls = statusMap[s]||'s-cotizado';
-  return `<span class="status ${cls}">${s}</span>`;
+
+/* ─── DATA FILTER ────────────────────────────────────── */
+function getLegajos(){
+  const arr = Object.entries(allLegajos).map(([k,v])=>({...v,fbKey:k}));
+  if(currentUser.role==='seller') return arr.filter(l=>l.vendedora===currentUser.vendedora);
+  return arr;
 }
 
-/* ─── RENDER ALL ─────────────────────────────────────────── */
-function renderAll() {
+/* ─── RENDER ALL ─────────────────────────────────────── */
+function renderAll(){
+  if(!currentUser) return;
   renderStats();
   renderDashboard();
   renderLegajosTable();
   renderProximos();
   renderSaldos();
-  if (currentUser.role==='admin') renderUsuarios();
+  if(currentUser.role==='admin') renderUsuarios();
   updateBadges();
 }
+window.renderAll = renderAll;
 
-/* ─── STATS ──────────────────────────────────────────────── */
-function renderStats() {
-  const data = getLegajos();
-  const total = data.length;
-  const saldo = data.filter(l=>l.cobrado<l.total && l.estado!=='anulado').length;
-  const proximos = data.filter(l=>{ const d=daysUntil(l.salida); return d>=0&&d<=30;}).length;
-  const emitidos = data.filter(l=>l.estado==='emitido').length;
-
-  document.getElementById('statsGrid').innerHTML = `
-    ${statCard('Legajos activos', total, '#AC0A10', svgDoc(), '')}
-    ${statCard('Saldos pendientes', saldo, '#d97706', svgMoney(), 'trend-down')}
-    ${statCard('Viajes próximos', proximos, '#1d4ed8', svgCal(), '')}
-    ${statCard('Emitidos', emitidos, '#15803d', svgPlane(), '')}
-  `;
-}
-function statCard(lbl, val, color, icon, trend) {
-  return `<div class="stat-card">
-    <div class="stat-card-icon" style="background:${color}18">${icon.replace('currentColor',color)}</div>
-    <div class="stat-card-val">${val}</div>
-    <div class="stat-card-label">${lbl}</div>
-  </div>`;
-}
-function svgDoc(){ return `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12h6M9 16h6M9 8h6M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/></svg>`}
-function svgMoney(){ return `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`}
-function svgCal(){ return `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`}
-function svgPlane(){ return `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>`}
-
-/* ─── DASHBOARD ──────────────────────────────────────────── */
-function renderDashboard() {
-  const data = getLegajos();
-  const recent = [...data].sort((a,b)=>b.ts-a.ts).slice(0,5);
-
-  document.getElementById('recentTbody').innerHTML = recent.length
-    ? recent.map(l=>`<tr onclick="openDetail(${l.id})">
-        <td><div class="td-legajo">${l.num}</div></td>
-        <td><div class="td-cliente">${l.cliente}</div></td>
-        <td>${l.destino}</td>
-        <td>${statusPill(l.estado)}</td>
-      </tr>`).join('')
-    : `<tr><td colspan="4"><div class="empty-state"><p>Sin legajos aún</p></div></td></tr>`;
-
-  // Alertas
-  const urgentes = data.filter(l=>{
-    const d=daysUntil(l.salida); const s=l.cobrado<l.total;
-    return d>=0&&d<=15&&s&&l.estado!=='anulado';
-  });
-  const sinPago = data.filter(l=>l.cobrado===0&&l.estado==='cotizado');
-  let html = '';
-  if (urgentes.length) {
-    html += urgentes.map(l=>`
-      <div onclick="openDetail(${l.id})" style="background:#FFF1F2;border:1px solid #fecdd3;border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:transform .15s" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-          <span style="background:#f43f5e;color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px">URGENTE</span>
-          <span style="font-size:12px;font-weight:700;color:#AC0A10">${l.num}</span>
-        </div>
-        <div style="font-size:13px;font-weight:600;color:#1e1e1e">${l.cliente} — ${l.destino}</div>
-        <div style="font-size:12px;color:#9f1239;margin-top:2px">Saldo ${fmtMoney(l.total-l.cobrado)} · Salida en ${daysUntil(l.salida)} días</div>
-      </div>`).join('');
-  }
-  if (sinPago.length) {
-    html += `<div style="background:#FFF7ED;border:1px solid #fed7aa;border-radius:10px;padding:12px 14px;margin-bottom:8px">
-      <div style="font-size:12px;font-weight:700;color:#c2410c;margin-bottom:4px">SIN PAGO INICIAL</div>
-      <div style="font-size:13px;color:#7c2d12">${sinPago.length} legajo${sinPago.length>1?'s':''} cotizado${sinPago.length>1?'s':''} sin seña</div>
-    </div>`;
-  }
-  if (!html) html = `<div style="background:var(--gray-100);border-radius:10px;padding:20px;text-align:center;color:var(--gray-400);font-size:13px">Sin alertas pendientes ✓</div>`;
-  document.getElementById('alertasContainer').innerHTML = html;
+/* ─── STATS ──────────────────────────────────────────── */
+function renderStats(){
+  const data=getLegajos();
+  const total=data.length;
+  const saldo=data.filter(l=>l.cobrado<l.total&&l.estado!=='anulado').length;
+  const prox=data.filter(l=>{const d=daysUntil(l.salida);return d!=null&&d>=0&&d<=30}).length;
+  const emit=data.filter(l=>l.estado==='emitido').length;
+  document.getElementById('statsGrid').innerHTML=`
+    <div class="stat-card"><div class="stat-card-icon" style="background:#AC0A1018">${svgDoc('#AC0A10')}</div><div class="stat-card-val">${total}</div><div class="stat-card-label">Legajos activos</div></div>
+    <div class="stat-card"><div class="stat-card-icon" style="background:#d9770618">${svgMoney('#d97706')}</div><div class="stat-card-val">${saldo}</div><div class="stat-card-label">Saldos pendientes</div></div>
+    <div class="stat-card"><div class="stat-card-icon" style="background:#1d4ed818">${svgCal('#1d4ed8')}</div><div class="stat-card-val">${prox}</div><div class="stat-card-label">Viajes próximos</div></div>
+    <div class="stat-card"><div class="stat-card-icon" style="background:#15803d18">${svgPlane('#15803d')}</div><div class="stat-card-val">${emit}</div><div class="stat-card-label">Emitidos</div></div>`;
 }
 
-/* ─── BADGES ─────────────────────────────────────────────── */
-function updateBadges() {
-  const data = getLegajos();
-  document.getElementById('badgeLegajos').textContent = data.length;
-  const p = data.filter(l=>{const d=daysUntil(l.salida);return d>=0&&d<=30}).length;
-  document.getElementById('badgeProximos').textContent = p;
-  const s = data.filter(l=>l.cobrado<l.total&&l.estado!=='anulado').length;
-  document.getElementById('badgeSaldos').textContent = s;
+/* ─── DASHBOARD ──────────────────────────────────────── */
+function renderDashboard(){
+  const data=getLegajos();
+  const recent=[...data].sort((a,b)=>b.ts-a.ts).slice(0,5);
+  document.getElementById('recentTbody').innerHTML=recent.length
+    ?recent.map(l=>`<tr onclick="openDetail('${l.fbKey}')"><td><div class="td-legajo">${l.num}</div></td><td><div class="td-cliente">${l.cliente}</div></td><td>${l.destino}</td><td>${statusPill(l.estado)}</td></tr>`).join('')
+    :`<tr><td colspan="4"><div class="empty-state"><p>Sin legajos aún</p></div></td></tr>`;
+  const urgentes=data.filter(l=>{const d=daysUntil(l.salida);return d!=null&&d>=0&&d<=15&&l.cobrado<l.total&&l.estado!=='anulado'});
+  const sinPago=data.filter(l=>l.cobrado===0&&l.estado==='cotizado');
+  let html='';
+  if(urgentes.length) html+=urgentes.map(l=>`<div onclick="openDetail('${l.fbKey}')" style="background:#FFF1F2;border:1px solid #fecdd3;border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:transform .15s" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="background:#f43f5e;color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px">URGENTE</span><span style="font-size:12px;font-weight:700;color:#AC0A10">${l.num}</span></div><div style="font-size:13px;font-weight:600">${l.cliente} — ${l.destino}</div><div style="font-size:12px;color:#9f1239;margin-top:2px">Saldo ${fmtMoney(l.total-l.cobrado)} · Salida en ${daysUntil(l.salida)} días</div></div>`).join('');
+  if(sinPago.length) html+=`<div style="background:#FFF7ED;border:1px solid #fed7aa;border-radius:10px;padding:12px 14px;margin-bottom:8px"><div style="font-size:12px;font-weight:700;color:#c2410c;margin-bottom:4px">SIN PAGO INICIAL</div><div style="font-size:13px;color:#7c2d12">${sinPago.length} legajo${sinPago.length>1?'s':''} cotizado${sinPago.length>1?'s':''} sin seña</div></div>`;
+  if(!html) html=`<div style="background:var(--gray-100);border-radius:10px;padding:20px;text-align:center;color:var(--gray-400);font-size:13px">Sin alertas pendientes ✓</div>`;
+  document.getElementById('alertasContainer').innerHTML=html;
 }
 
-/* ─── LEGAJOS TABLE ──────────────────────────────────────── */
-function filterLegajos() { renderLegajosTable(); }
+/* ─── BADGES ─────────────────────────────────────────── */
+function updateBadges(){
+  const data=getLegajos();
+  document.getElementById('badgeLegajos').textContent=data.length;
+  document.getElementById('badgeProximos').textContent=data.filter(l=>{const d=daysUntil(l.salida);return d!=null&&d>=0&&d<=30}).length;
+  document.getElementById('badgeSaldos').textContent=data.filter(l=>l.cobrado<l.total&&l.estado!=='anulado').length;
+}
 
-function populateVendedoraFilter() {
-  if (currentUser.role!=='admin') return;
-  const sel = document.getElementById('filterVendedora');
-  // clear old options except first
-  while(sel.options.length > 1) sel.remove(1);
-  Object.entries(USERS).filter(([,u])=>u.role==='seller').forEach(([,u])=>{
-    const o = document.createElement('option');
-    o.value = u.vendedora; o.textContent = u.vendedora;
-    sel.appendChild(o);
+/* ─── LEGAJOS TABLE ──────────────────────────────────── */
+function populateVendedoraFilter(){
+  if(currentUser.role!=='admin') return;
+  const sel=document.getElementById('filterVendedora');
+  while(sel.options.length>1) sel.remove(1);
+  Object.values(USERS).filter(u=>u.role==='seller').forEach(u=>{
+    const o=document.createElement('option');o.value=u.vendedora;o.textContent=u.vendedora;sel.appendChild(o);
   });
 }
 
-function renderLegajosTable() {
-  let data = getLegajos();
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  const fE = document.getElementById('filterEstado').value;
-  const fV = document.getElementById('filterVendedora').value;
-  if (q) data = data.filter(l=>
-    l.cliente.toLowerCase().includes(q)||
-    l.destino.toLowerCase().includes(q)||
-    l.num.toLowerCase().includes(q)
-  );
-  if (fE) data = data.filter(l=>l.estado===fE);
-  if (fV) data = data.filter(l=>l.vendedora===fV);
-  data = [...data].sort((a,b)=>b.ts-a.ts);
-  document.getElementById('legajosCount').textContent = data.length;
-  const tbody = document.getElementById('legajosTbody');
-  tbody.innerHTML = data.length ? data.map(l=>{
-    const saldo = l.total - l.cobrado;
-    const saldoClass = saldo<=0 ? 'saldo-ok' : 'saldo-pend';
-    return `<tr onclick="openDetail(${l.id})">
-      <td><div class="td-legajo">${l.num}</div></td>
-      <td><div class="td-cliente">${l.cliente}</div>
-          <div class="td-sub">${l.email||''}</div></td>
-      <td><strong>${l.destino}</strong></td>
-      <td>${fmtDate(l.salida)}</td>
-      <td>${l.vendedora}</td>
-      <td>${fmtMoney(l.total)}</td>
-      <td class="${saldoClass}">${fmtMoney(saldo)}</td>
-      <td>${statusPill(l.estado)}</td>
-      <td>
-        <div class="row-actions">
-          <button class="row-btn" onclick="event.stopPropagation();editLegajo(${l.id})" title="Editar">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-          </button>
-          <button class="row-btn" onclick="event.stopPropagation();openPagoModal(${l.id})" title="Pago">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V7m0 1v8m0 0v1"/></svg>
-          </button>
-        </div>
-      </td>
-    </tr>`;
-  }).join('') : `<tr><td colspan="9"><div class="empty-state">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6M9 16h6M9 8h6M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/></svg>
-    <h4>Sin legajos</h4><p>No hay resultados para tu búsqueda</p></div></td></tr>`;
-}
-
-/* ─── PRÓXIMOS ───────────────────────────────────────────── */
-function renderProximos() {
-  let data = getLegajos().filter(l=>{
-    const d=daysUntil(l.salida); return d!==null&&d>=0&&d<=30&&l.estado!=='anulado';
-  }).sort((a,b)=>daysUntil(a.salida)-daysUntil(b.salida));
-  document.getElementById('proximosTbody').innerHTML = data.length ? data.map(l=>{
-    const dias = daysUntil(l.salida);
-    const urgColor = dias<=7 ? '#AC0A10' : dias<=15 ? '#d97706' : '#15803d';
-    return `<tr onclick="openDetail(${l.id})">
-      <td><div class="td-legajo">${l.num}</div></td>
-      <td><strong>${l.cliente}</strong></td>
-      <td>${l.destino}</td>
-      <td>${fmtDate(l.salida)}</td>
-      <td><span style="font-weight:700;color:${urgColor}">${dias===0?'HOY':dias===1?'MAÑANA':dias+' días'}</span></td>
-      <td>${statusPill(l.estado)}</td>
-      <td><button class="row-btn" onclick="event.stopPropagation();openDetail(${l.id})" title="Ver">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-      </button></td>
-    </tr>`;
-  }).join('') : `<tr><td colspan="7"><div class="empty-state"><h4>Sin viajes próximos</h4><p>No hay viajes en los próximos 30 días</p></div></td></tr>`;
-}
-
-/* ─── SALDOS ─────────────────────────────────────────────── */
-function renderSaldos() {
-  let data = getLegajos().filter(l=>l.cobrado<l.total&&l.estado!=='anulado').sort((a,b)=>(b.total-b.cobrado)-(a.total-a.cobrado));
-  document.getElementById('saldosTbody').innerHTML = data.length ? data.map(l=>{
+window.renderLegajosTable = function(){
+  let data=getLegajos();
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  const fE=document.getElementById('filterEstado').value;
+  const fV=document.getElementById('filterVendedora').value;
+  if(q) data=data.filter(l=>l.cliente.toLowerCase().includes(q)||l.destino.toLowerCase().includes(q)||l.num.toLowerCase().includes(q));
+  if(fE) data=data.filter(l=>l.estado===fE);
+  if(fV) data=data.filter(l=>l.vendedora===fV);
+  data=[...data].sort((a,b)=>b.ts-a.ts);
+  document.getElementById('legajosCount').textContent=data.length;
+  document.getElementById('legajosTbody').innerHTML=data.length?data.map(l=>{
     const saldo=l.total-l.cobrado;
-    return `<tr onclick="openDetail(${l.id})">
-      <td><div class="td-legajo">${l.num}</div></td>
-      <td><strong>${l.cliente}</strong></td>
-      <td>${l.destino}</td>
-      <td>${fmtDate(l.salida)}</td>
-      <td>${fmtMoney(l.total)}</td>
-      <td>${fmtMoney(l.cobrado)}</td>
-      <td class="saldo-pend">${fmtMoney(saldo)}</td>
-      <td>${statusPill(l.estado)}</td>
-      <td><button class="row-btn" onclick="event.stopPropagation();openPagoModal(${l.id})" title="Registrar pago" style="background:rgba(34,197,94,.1);color:#15803d">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 4v16m8-8H4"/></svg>
-      </button></td>
-    </tr>`;
-  }).join('') : `<tr><td colspan="9"><div class="empty-state"><h4>Sin saldos pendientes</h4><p>Todos los legajos están al día</p></div></td></tr>`;
+    return `<tr onclick="openDetail('${l.fbKey}')"><td><div class="td-legajo">${l.num}</div></td><td><div class="td-cliente">${l.cliente}</div><div class="td-sub">${l.email||''}</div></td><td><strong>${l.destino}</strong></td><td>${fmtDate(l.salida)}</td><td>${l.vendedora}</td><td>${fmtMoney(l.total)}</td><td class="${saldo<=0?'saldo-ok':'saldo-pend'}">${fmtMoney(saldo)}</td><td>${statusPill(l.estado)}</td><td><div class="row-actions"><button class="row-btn" onclick="event.stopPropagation();editLegajo('${l.fbKey}')" title="Editar"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button><button class="row-btn" onclick="event.stopPropagation();openPagoModal('${l.fbKey}')" title="Pago"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2"/></svg></button></div></td></tr>`;
+  }).join(''):`<tr><td colspan="9"><div class="empty-state"><h4>Sin legajos</h4><p>No hay resultados</p></div></td></tr>`;
+};
+
+/* ─── PRÓXIMOS ───────────────────────────────────────── */
+function renderProximos(){
+  const data=getLegajos().filter(l=>{const d=daysUntil(l.salida);return d!=null&&d>=0&&d<=30&&l.estado!=='anulado'}).sort((a,b)=>daysUntil(a.salida)-daysUntil(b.salida));
+  document.getElementById('proximosTbody').innerHTML=data.length?data.map(l=>{
+    const d=daysUntil(l.salida);const c=d<=7?'#AC0A10':d<=15?'#d97706':'#15803d';
+    return `<tr onclick="openDetail('${l.fbKey}')"><td><div class="td-legajo">${l.num}</div></td><td><strong>${l.cliente}</strong></td><td>${l.destino}</td><td>${fmtDate(l.salida)}</td><td><span style="font-weight:700;color:${c}">${d===0?'HOY':d===1?'MAÑANA':d+' días'}</span></td><td>${statusPill(l.estado)}</td><td><button class="row-btn" onclick="event.stopPropagation();openDetail('${l.fbKey}')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button></td></tr>`;
+  }).join(''):`<tr><td colspan="7"><div class="empty-state"><h4>Sin viajes próximos</h4></div></td></tr>`;
 }
 
-/* ─── USUARIOS ───────────────────────────────────────────── */
-function renderUsuarios() {
-  const data = getData();
-  const users = Object.entries(USERS);
-  document.getElementById('usuariosCount').textContent = users.length;
-  document.getElementById('usersGrid').innerHTML = users.map(([uid,u])=>{
-    const legs = u.vendedora ? data.filter(l=>l.vendedora===u.vendedora) : data;
-    const saldo = legs.filter(l=>l.cobrado<l.total&&l.estado!=='anulado').length;
-    return `<div class="user-card">
-      <div class="user-card-header">
-        <div class="user-card-avatar" style="background:${u.color}">${u.initials}</div>
-        <div>
-          <div class="user-card-name">${u.name}</div>
-          <div class="user-card-role">${uid}</div>
-        </div>
-        <span class="${u.role==='admin'?'role-admin':'role-seller'}" style="margin-left:auto">${u.role==='admin'?'Admin':'Vendedora'}</span>
-      </div>
-      <div class="user-card-stats">
-        <div class="ucs"><div class="ucs-val">${u.vendedora?legs.length:'Todos'}</div><div class="ucs-lbl">Legajos</div></div>
-        <div class="ucs"><div class="ucs-val ${saldo>0?'saldo-pend':''}">${saldo}</div><div class="ucs-lbl">Saldos</div></div>
-      </div>
-    </div>`;
+/* ─── SALDOS ─────────────────────────────────────────── */
+function renderSaldos(){
+  const data=getLegajos().filter(l=>l.cobrado<l.total&&l.estado!=='anulado').sort((a,b)=>(b.total-b.cobrado)-(a.total-a.cobrado));
+  document.getElementById('saldosTbody').innerHTML=data.length?data.map(l=>{
+    return `<tr onclick="openDetail('${l.fbKey}')"><td><div class="td-legajo">${l.num}</div></td><td><strong>${l.cliente}</strong></td><td>${l.destino}</td><td>${fmtDate(l.salida)}</td><td>${fmtMoney(l.total)}</td><td>${fmtMoney(l.cobrado)}</td><td class="saldo-pend">${fmtMoney(l.total-l.cobrado)}</td><td>${statusPill(l.estado)}</td><td><button class="row-btn" onclick="event.stopPropagation();openPagoModal('${l.fbKey}')" title="Pago" style="background:rgba(34,197,94,.1);color:#15803d"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 4v16m8-8H4"/></svg></button></td></tr>`;
+  }).join(''):`<tr><td colspan="9"><div class="empty-state"><h4>Sin saldos pendientes</h4></div></td></tr>`;
+}
+
+/* ─── USUARIOS ───────────────────────────────────────── */
+function renderUsuarios(){
+  const data=getLegajos();
+  const users=Object.entries(USERS);
+  document.getElementById('usuariosCount').textContent=users.length;
+  document.getElementById('usersGrid').innerHTML=users.map(([uid,u])=>{
+    const legs=u.vendedora?data.filter(l=>l.vendedora===u.vendedora):data;
+    const s=legs.filter(l=>l.cobrado<l.total&&l.estado!=='anulado').length;
+    return `<div class="user-card"><div class="user-card-header"><div class="user-card-avatar" style="background:${u.color}">${u.initials}</div><div><div class="user-card-name">${u.name}</div><div class="user-card-role">${uid}</div></div><span class="${u.role==='admin'?'role-admin':'role-seller'}" style="margin-left:auto">${u.role==='admin'?'Admin':'Vendedora'}</span></div><div class="user-card-stats"><div class="ucs"><div class="ucs-val">${u.vendedora?legs.length:'Todos'}</div><div class="ucs-lbl">Legajos</div></div><div class="ucs"><div class="ucs-val ${s>0?'saldo-pend':''}">${s}</div><div class="ucs-lbl">Saldos</div></div></div></div>`;
   }).join('');
 }
 
-/* ─── NUEVO / EDITAR LEGAJO ──────────────────────────────── */
-function openNewLegajo() {
-  currentLegajoEdit = null;
-  document.getElementById('modalLegajoTitle').textContent = 'Nuevo legajo';
-  document.getElementById('modalLegajoSub').textContent = 'Completá los datos del viaje';
-  document.getElementById('btnSaveLegajo').textContent = 'Guardar legajo';
-  // Clear form
+/* ─── NUEVO / EDITAR LEGAJO ──────────────────────────── */
+window.openNewLegajo = function(){
+  currentEdit=null;
+  document.getElementById('modalLegajoTitle').textContent='Nuevo legajo';
+  document.getElementById('modalLegajoSub').textContent='Completá los datos del viaje';
+  document.getElementById('btnSaveLegajo').textContent='Guardar legajo';
   ['fCliente','fEmail','fTel','fCuit','fDestino','fSalida','fRegreso','fTotal','fCobrado','fObs'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('fEstado').value='cotizado';
-  if (currentUser.role==='seller') document.getElementById('fVendedora').value=currentUser.vendedora;
-  // Auto fill num
-  const data = getData();
-  const nextNum = 'L2024-' + String(data.length+1).padStart(3,'0');
-  document.getElementById('fNumLegajo').value = nextNum;
+  if(currentUser.role==='seller') document.getElementById('fVendedora').value=currentUser.vendedora;
+  // auto num
+  const count=Object.keys(allLegajos).length;
+  document.getElementById('fNumLegajo').value='L2025-'+String(count+1).padStart(3,'0');
   openModal('modalLegajo');
-}
+};
 
-function editLegajo(id) {
-  const data = getData();
-  const l = data.find(x=>x.id===id);
-  if (!l) return;
-  currentLegajoEdit = id;
-  document.getElementById('modalLegajoTitle').textContent = 'Editar legajo';
-  document.getElementById('modalLegajoSub').textContent = l.num + ' — ' + l.cliente;
-  document.getElementById('btnSaveLegajo').textContent = 'Guardar cambios';
-  document.getElementById('fNumLegajo').value = l.num;
-  document.getElementById('fCliente').value = l.cliente;
-  document.getElementById('fEmail').value = l.email||'';
-  document.getElementById('fTel').value = l.tel||'';
-  document.getElementById('fCuit').value = l.cuit||'';
-  document.getElementById('fDestino').value = l.destino;
-  document.getElementById('fSalida').value = l.salida;
-  document.getElementById('fRegreso').value = l.regreso||'';
-  document.getElementById('fVendedora').value = l.vendedora;
-  document.getElementById('fEstado').value = l.estado;
-  document.getElementById('fTotal').value = l.total||'';
-  document.getElementById('fCobrado').value = l.cobrado||'';
-  document.getElementById('fObs').value = l.obs||'';
+window.editLegajo = function(fbKey){
+  const l=allLegajos[fbKey];if(!l) return;
+  currentEdit=fbKey;
+  document.getElementById('modalLegajoTitle').textContent='Editar legajo';
+  document.getElementById('modalLegajoSub').textContent=l.num+' — '+l.cliente;
+  document.getElementById('btnSaveLegajo').textContent='Guardar cambios';
+  document.getElementById('fNumLegajo').value=l.num;
+  document.getElementById('fCliente').value=l.cliente;
+  document.getElementById('fEmail').value=l.email||'';
+  document.getElementById('fTel').value=l.tel||'';
+  document.getElementById('fCuit').value=l.cuit||'';
+  document.getElementById('fDestino').value=l.destino;
+  document.getElementById('fSalida').value=l.salida;
+  document.getElementById('fRegreso').value=l.regreso||'';
+  document.getElementById('fVendedora').value=l.vendedora;
+  document.getElementById('fEstado').value=l.estado;
+  document.getElementById('fTotal').value=l.total||'';
+  document.getElementById('fCobrado').value=l.cobrado||'';
+  document.getElementById('fObs').value=l.obs||'';
   openModal('modalLegajo');
-}
+};
 
-function saveLegajo() {
-  const cliente = document.getElementById('fCliente').value.trim();
-  const destino = document.getElementById('fDestino').value.trim();
-  const salida  = document.getElementById('fSalida').value;
-  if (!cliente||!destino||!salida) { showToast('Completá los campos obligatorios','error'); return; }
-
-  const data = getData();
-  const obj = {
-    num:      document.getElementById('fNumLegajo').value.trim()||'',
-    cliente,
-    email:    document.getElementById('fEmail').value.trim(),
-    tel:      document.getElementById('fTel').value.trim(),
-    cuit:     document.getElementById('fCuit').value.trim(),
-    destino,
-    salida,
-    regreso:  document.getElementById('fRegreso').value,
+window.saveLegajo = async function(){
+  const cliente=document.getElementById('fCliente').value.trim();
+  const destino=document.getElementById('fDestino').value.trim();
+  const salida=document.getElementById('fSalida').value;
+  if(!cliente||!destino||!salida){toast('Completá los campos obligatorios','error');return;}
+  const btn=document.getElementById('btnSaveLegajo');
+  btn.disabled=true;btn.textContent='Guardando...';
+  const obj={
+    num:document.getElementById('fNumLegajo').value.trim(),
+    cliente,email:document.getElementById('fEmail').value.trim(),
+    tel:document.getElementById('fTel').value.trim(),cuit:document.getElementById('fCuit').value.trim(),
+    destino,salida,regreso:document.getElementById('fRegreso').value,
     vendedora:document.getElementById('fVendedora').value,
-    estado:   document.getElementById('fEstado').value,
-    total:    parseFloat(document.getElementById('fTotal').value)||0,
-    cobrado:  parseFloat(document.getElementById('fCobrado').value)||0,
-    obs:      document.getElementById('fObs').value.trim(),
-    ts: Date.now(),
+    estado:document.getElementById('fEstado').value,
+    total:parseFloat(document.getElementById('fTotal').value)||0,
+    cobrado:parseFloat(document.getElementById('fCobrado').value)||0,
+    obs:document.getElementById('fObs').value.trim(),
+    ts:Date.now(),
   };
+  try{
+    if(currentEdit){
+      await update(ref(db,`legajos/${currentEdit}`),obj);
+      toast('Legajo actualizado','success');
+    } else {
+      obj.acomps=[];obj.pagos=[];obj.operadores=[];obj.itin=[];
+      await push(ref(db,'legajos'),obj);
+      toast('Legajo creado','success');
+    }
+    closeModal('modalLegajo');
+  }catch(e){toast('Error al guardar','error');}
+  btn.disabled=false;btn.textContent=currentEdit?'Guardar cambios':'Guardar legajo';
+};
 
-  if (currentLegajoEdit) {
-    const idx = data.findIndex(x=>x.id===currentLegajoEdit);
-    data[idx] = { ...data[idx], ...obj };
-    setData(data);
-    showToast('Legajo actualizado', 'success');
-  } else {
-    obj.id = Date.now();
-    obj.acomps = [];
-    obj.pagos = [];
-    obj.operadores = [];
-    obj.itin = [];
-    data.push(obj);
-    setData(data);
-    showToast('Legajo creado correctamente', 'success');
-  }
-  closeModal('modalLegajo');
-  renderAll();
-}
-
-/* ─── PAGOS ──────────────────────────────────────────────── */
-function openPagoModal(id) {
-  const data = getData();
-  const l = data.find(x=>x.id===id);
-  if (!l) return;
-  currentLegajoPago = id;
-  document.getElementById('pagoLegajoSub').textContent = l.num + ' — ' + l.cliente;
-  document.getElementById('pFecha').value = new Date().toISOString().split('T')[0];
-  document.getElementById('pMonto').value = '';
-  document.getElementById('pComprobante').value = '';
+/* ─── PAGOS ──────────────────────────────────────────── */
+window.openPagoModal = function(fbKey){
+  const l=allLegajos[fbKey];if(!l) return;
+  currentPagoId=fbKey;
+  document.getElementById('pagoLegajoSub').textContent=l.num+' — '+l.cliente;
+  document.getElementById('pFecha').value=new Date().toISOString().split('T')[0];
+  document.getElementById('pMonto').value='';
+  document.getElementById('pComprobante').value='';
   openModal('modalPago');
-}
+};
 
-function savePago() {
-  const monto = parseFloat(document.getElementById('pMonto').value);
-  if (!monto || monto<=0) { showToast('Ingresá un monto válido','error'); return; }
-  const data = getData();
-  const idx = data.findIndex(x=>x.id===currentLegajoPago);
-  if (idx===-1) return;
-  const pago = {
-    fecha:       document.getElementById('pFecha').value,
-    medio:       document.getElementById('pMedio').value,
-    moneda:      document.getElementById('pMoneda').value,
-    cotizacion:  parseFloat(document.getElementById('pCotizacion').value)||1,
-    monto,
-    comp:        document.getElementById('pComprobante').value,
+window.savePago = async function(){
+  const monto=parseFloat(document.getElementById('pMonto').value);
+  if(!monto||monto<=0){toast('Ingresá un monto válido','error');return;}
+  const btn=document.getElementById('btnSavePago');
+  btn.disabled=true;btn.textContent='Guardando...';
+  const l=allLegajos[currentPagoId];
+  const pago={
+    fecha:document.getElementById('pFecha').value,
+    medio:document.getElementById('pMedio').value,
+    moneda:document.getElementById('pMoneda').value,
+    cotizacion:parseFloat(document.getElementById('pCotizacion').value)||1,
+    monto,comp:document.getElementById('pComprobante').value,
   };
-  data[idx].pagos = data[idx].pagos||[];
-  data[idx].pagos.push(pago);
-  // Update cobrado
-  const totalARS = pago.moneda==='USD' ? monto*pago.cotizacion : monto;
-  data[idx].cobrado = (data[idx].cobrado||0) + totalARS;
-  data[idx].ts = Date.now();
-  // Auto update estado
-  if (data[idx].cobrado >= data[idx].total && data[idx].total>0) {
-    data[idx].estado = 'pago completo';
-  } else if (data[idx].cobrado>0 && data[idx].estado==='cotizado') {
-    data[idx].estado = 'señado';
-  } else if (data[idx].cobrado>0) {
-    if (data[idx].estado==='señado') data[idx].estado='parcialmente pago';
-  }
-  setData(data);
-  closeModal('modalPago');
-  renderAll();
-  if (currentDetailId===currentLegajoPago) openDetail(currentLegajoPago);
-  showToast(`Pago de ${fmtMoney(monto)} registrado`, 'success');
-}
+  const pagos=[...(l.pagos||[]),pago];
+  const totalARS=pago.moneda==='USD'?monto*pago.cotizacion:monto;
+  let cobrado=(l.cobrado||0)+totalARS;
+  let estado=l.estado;
+  if(cobrado>=l.total&&l.total>0) estado='pago completo';
+  else if(cobrado>0&&estado==='cotizado') estado='señado';
+  else if(cobrado>0&&estado==='señado') estado='parcialmente pago';
+  try{
+    await update(ref(db,`legajos/${currentPagoId}`),{pagos,cobrado,estado,ts:Date.now()});
+    closeModal('modalPago');
+    toast(`Pago de ${fmtMoney(monto)} registrado`,'success');
+  }catch(e){toast('Error al registrar pago','error');}
+  btn.disabled=false;btn.textContent='Registrar pago';
+};
 
-/* ─── DETAIL PANEL ───────────────────────────────────────── */
-let currentDetailId = null;
-
-function openDetail(id) {
-  const data = getData();
-  const l = data.find(x=>x.id===id);
-  if (!l) return;
-  currentDetailId = id;
-  document.getElementById('dLegajoNum').textContent = l.num;
-  document.getElementById('dDestino').textContent = l.destino;
-  document.getElementById('dMeta').textContent = `${l.vendedora} · ${fmtDate(l.salida)}${l.regreso?' → '+fmtDate(l.regreso):''}`;
-
-  const saldo = (l.total||0)-(l.cobrado||0);
-  document.getElementById('dStats').innerHTML = `
-    <div class="detail-stat">
-      <div class="detail-stat-val">${fmtMoney(l.total)}</div>
-      <div class="detail-stat-lbl">Total venta</div>
-    </div>
-    <div class="detail-stat">
-      <div class="detail-stat-val">${fmtMoney(l.cobrado)}</div>
-      <div class="detail-stat-lbl">Cobrado</div>
-    </div>
-    <div class="detail-stat">
-      <div class="detail-stat-val" style="color:${saldo>0?'#f87171':'#4ade80'}">${fmtMoney(saldo)}</div>
-      <div class="detail-stat-lbl">Saldo</div>
-    </div>
-  `;
-
-  let body = '';
-  // Estado + cliente
-  body += `<div class="detail-section">
-    <div class="detail-section-title">Estado del legajo</div>
-    ${statusPill(l.estado)}
-    <div style="margin-top:14px">
-      <div class="detail-section-title">Cliente</div>
-      <div class="detail-row"><span class="detail-row-key">Nombre</span><span class="detail-row-val">${l.cliente}</span></div>
-      ${l.email?`<div class="detail-row"><span class="detail-row-key">Email</span><span class="detail-row-val">${l.email}</span></div>`:''}
-      ${l.tel?`<div class="detail-row"><span class="detail-row-key">Teléfono</span><span class="detail-row-val">${l.tel}</span></div>`:''}
-      ${l.cuit?`<div class="detail-row"><span class="detail-row-key">CUIT</span><span class="detail-row-val">${l.cuit}</span></div>`:''}
-    </div>
-  </div>`;
-
-  // Acompañantes
-  if (l.acomps && l.acomps.length) {
-    body += `<div class="detail-section">
-      <div class="detail-section-title">Acompañantes (${l.acomps.length})</div>
-      ${l.acomps.map(a=>`<div class="acomp-item">
-        <div class="acomp-avatar">${a.nombre.charAt(0)}</div>
-        <div><div class="acomp-name">${a.nombre}</div><div class="acomp-dni">DNI ${a.dni} · ${a.nac2||''}</div></div>
-      </div>`).join('')}
-    </div>`;
-  }
-
-  // Itinerario
-  if (l.itin && l.itin.length) {
-    body += `<div class="detail-section">
-      <div class="detail-section-title">Itinerario</div>
-      <table class="itin-table">
-        <tr><th>Fecha</th><th>Ciudad</th><th>Hotel</th><th>Vuelo</th><th>Servicio</th></tr>
-        ${l.itin.map(d=>`<tr>
-          <td class="itin-date">${fmtDate(d.fecha)}</td>
-          <td>${d.ciudad}</td>
-          <td>${d.hotel||'—'}</td>
-          <td>${d.vuelo||'—'}</td>
-          <td>${d.svc||'—'}</td>
-        </tr>`).join('')}
-      </table>
-    </div>`;
-  }
-
-  // Operadores
-  if (l.operadores && l.operadores.length) {
-    body += `<div class="detail-section">
-      <div class="detail-section-title">Operadores</div>
-      ${l.operadores.map(o=>{
-        const pend = (o.total||0)-(o.pagado||0);
-        return `<div class="op-item">
-          <div class="op-header">
-            <span class="op-name">${o.nombre}</span>
-            <span class="${pend>0?'op-saldo-pend':'op-saldo-ok'}">${pend>0?'Debe '+o.moneda+' '+pend.toLocaleString():'Pagado'}</span>
-          </div>
-          <div class="op-row"><span>Neto</span><span>${o.moneda} ${(o.neto||0).toLocaleString()}</span></div>
-          <div class="op-row"><span>Total</span><span>${o.moneda} ${(o.total||0).toLocaleString()}</span></div>
-          <div class="op-row"><span>Pagado</span><span>${o.moneda} ${(o.pagado||0).toLocaleString()}</span></div>
-        </div>`;
-      }).join('')}
-    </div>`;
-  }
-
-  // Pagos cliente
-  body += `<div class="detail-section">
-    <div class="detail-section-title">Pagos del cliente</div>
-    ${(l.pagos||[]).length ? l.pagos.map(p=>`<div class="pago-item">
-      <div class="pago-left">
-        <div class="pago-fecha">${fmtDate(p.fecha)}</div>
-        <div class="pago-medio">${p.medio} · ${p.moneda}</div>
-        ${p.comp?`<div style="font-size:11px;color:var(--gray-400)">${p.comp}</div>`:''}
-      </div>
-      <div class="pago-monto">${p.moneda} ${Number(p.monto).toLocaleString('es-AR')}</div>
-    </div>`).join('') : `<div style="font-size:13px;color:var(--gray-400);padding:8px 0">Sin pagos registrados</div>`}
-    <button class="add-pago-btn" onclick="openPagoModal(${l.id})">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 4v16m8-8H4"/></svg>
-      Registrar pago
-    </button>
-  </div>`;
-
-  if (l.obs) body += `<div class="detail-section">
-    <div class="detail-section-title">Observaciones</div>
-    <div style="font-size:13.5px;color:var(--black);background:var(--gray-100);border-radius:8px;padding:12px 14px;line-height:1.6">${l.obs}</div>
-  </div>`;
-
-  document.getElementById('dBody').innerHTML = body;
+/* ─── DETAIL PANEL ───────────────────────────────────── */
+window.openDetail = function(fbKey){
+  currentDetailId=fbKey;
+  renderDetail(fbKey);
   document.getElementById('detailPanel').classList.add('open');
+};
+
+function renderDetail(fbKey){
+  const l=allLegajos[fbKey];if(!l) return;
+  document.getElementById('dLegajoNum').textContent=l.num;
+  document.getElementById('dDestino').textContent=l.destino;
+  document.getElementById('dMeta').textContent=`${l.vendedora} · ${fmtDate(l.salida)}${l.regreso?' → '+fmtDate(l.regreso):''}`;
+  const saldo=(l.total||0)-(l.cobrado||0);
+  document.getElementById('dStats').innerHTML=`
+    <div class="detail-stat"><div class="detail-stat-val">${fmtMoney(l.total)}</div><div class="detail-stat-lbl">Total venta</div></div>
+    <div class="detail-stat"><div class="detail-stat-val">${fmtMoney(l.cobrado)}</div><div class="detail-stat-lbl">Cobrado</div></div>
+    <div class="detail-stat"><div class="detail-stat-val" style="color:${saldo>0?'#f87171':'#4ade80'}">${fmtMoney(saldo)}</div><div class="detail-stat-lbl">Saldo</div></div>`;
+  let body=`<div class="detail-section">${statusPill(l.estado)}<div style="margin-top:14px"><div class="detail-section-title">Cliente</div>
+    <div class="detail-row"><span class="detail-row-key">Nombre</span><span class="detail-row-val">${l.cliente}</span></div>
+    ${l.email?`<div class="detail-row"><span class="detail-row-key">Email</span><span class="detail-row-val">${l.email}</span></div>`:''}
+    ${l.tel?`<div class="detail-row"><span class="detail-row-key">Teléfono</span><span class="detail-row-val">${l.tel}</span></div>`:''}
+    ${l.cuit?`<div class="detail-row"><span class="detail-row-key">CUIT</span><span class="detail-row-val">${l.cuit}</span></div>`:''}
+    </div></div>`;
+  if(l.acomps&&l.acomps.length) body+=`<div class="detail-section"><div class="detail-section-title">Acompañantes (${l.acomps.length})</div>${l.acomps.map(a=>`<div class="acomp-item"><div class="acomp-avatar">${a.nombre.charAt(0)}</div><div><div class="acomp-name">${a.nombre}</div><div class="acomp-dni">DNI ${a.dni}</div></div></div>`).join('')}</div>`;
+  if(l.itin&&l.itin.length) body+=`<div class="detail-section"><div class="detail-section-title">Itinerario</div><table class="itin-table"><tr><th>Fecha</th><th>Ciudad</th><th>Hotel</th><th>Vuelo</th><th>Servicio</th></tr>${l.itin.map(d=>`<tr><td class="itin-date">${fmtDate(d.fecha)}</td><td>${d.ciudad}</td><td>${d.hotel||'—'}</td><td>${d.vuelo||'—'}</td><td>${d.svc||'—'}</td></tr>`).join('')}</table></div>`;
+  if(l.operadores&&l.operadores.length) body+=`<div class="detail-section"><div class="detail-section-title">Operadores</div>${l.operadores.map(o=>{const p=(o.total||0)-(o.pagado||0);return `<div class="op-item"><div class="op-header"><span class="op-name">${o.nombre}</span><span class="${p>0?'op-saldo-pend':'op-saldo-ok'}">${p>0?'Debe '+o.moneda+' '+p.toLocaleString():'Pagado'}</span></div><div class="op-row"><span>Neto</span><span>${o.moneda} ${(o.neto||0).toLocaleString()}</span></div><div class="op-row"><span>Total</span><span>${o.moneda} ${(o.total||0).toLocaleString()}</span></div></div>`;}).join('')}</div>`;
+  body+=`<div class="detail-section"><div class="detail-section-title">Pagos del cliente</div>${(l.pagos||[]).length?l.pagos.map(p=>`<div class="pago-item"><div class="pago-left"><div class="pago-fecha">${fmtDate(p.fecha)}</div><div class="pago-medio">${p.medio} · ${p.moneda}</div>${p.comp?`<div style="font-size:11px;color:var(--gray-400)">${p.comp}</div>`:''}</div><div class="pago-monto">${p.moneda} ${Number(p.monto).toLocaleString('es-AR')}</div></div>`).join(''):'<div style="font-size:13px;color:var(--gray-400);padding:8px 0">Sin pagos registrados</div>'}<button class="add-pago-btn" onclick="openPagoModal('${fbKey}')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 4v16m8-8H4"/></svg>Registrar pago</button></div>`;
+  if(l.obs) body+=`<div class="detail-section"><div class="detail-section-title">Observaciones</div><div style="font-size:13.5px;background:var(--gray-100);border-radius:8px;padding:12px 14px;line-height:1.6">${l.obs}</div></div>`;
+  document.getElementById('dBody').innerHTML=body;
 }
 
-function closeDetail() {
+window.closeDetail = function(){
   document.getElementById('detailPanel').classList.remove('open');
-  currentDetailId = null;
-}
+  currentDetailId=null;
+};
 
-/* ─── MODALS ─────────────────────────────────────────────── */
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-// Close on overlay click
+/* ─── MODALS ─────────────────────────────────────────── */
+window.openModal = id=>document.getElementById(id).classList.add('open');
+window.closeModal= id=>document.getElementById(id).classList.remove('open');
 document.querySelectorAll('.modal-overlay').forEach(o=>{
-  o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('open'); });
+  o.addEventListener('click',e=>{if(e.target===o) o.classList.remove('open');});
 });
-
-/* ─── TOAST ──────────────────────────────────────────────── */
-function showToast(msg, type='info') {
-  const icons = {
-    success:`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
-    error:  `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
-    info:   `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
-  };
-  const t = document.createElement('div');
-  t.className = `toast ${type}`;
-  t.innerHTML = `<div class="toast-icon">${icons[type]||icons.info}</div><span>${msg}</span>`;
-  document.getElementById('toastContainer').appendChild(t);
-  setTimeout(()=>t.remove(), 3500);
-}
-
-/* ─── KEYBOARD ───────────────────────────────────────────── */
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape') {
+  if(e.key==='Escape'){
     document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open'));
     closeDetail();
   }
 });
+
+/* ─── INIT: quitar loading y mostrar login ───────────── */
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    document.getElementById('loading-screen').style.opacity='0';
+    document.getElementById('loading-screen').style.transition='opacity .4s';
+    setTimeout(()=>{
+      document.getElementById('loading-screen').style.display='none';
+      document.getElementById('screen-login').classList.add('active');
+    },400);
+  },1800);
+});
+
+window.toast = toast;
 </script>
 </body>
 </html>
