@@ -517,28 +517,47 @@ input,select,textarea{font-family:var(--font)}
 .file-preview-name{font-size:13px;font-weight:600;flex:1;color:var(--black)}
 .file-preview-size{font-size:11px;color:var(--gray-400)}
 
-/* ── COMISIONES ──────────────────────────────────────────── */
-.comision-mes-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--surface);border:1.5px solid var(--gray-200);border-radius:var(--radius);cursor:pointer;transition:all .2s;margin-bottom:4px}
-.comision-mes-header:hover{box-shadow:var(--shadow)}
-.comision-mes-titulo{font-size:15px;font-weight:700;color:var(--black)}
-.comision-mes-stats{display:flex;gap:24px;font-size:13px}
-.comision-mes-stat{text-align:right}
-.comision-mes-stat-val{font-weight:700;color:var(--black)}
-.comision-mes-stat-lbl{font-size:11px;color:var(--gray-400)}
-.comision-detalle{display:none;border:1.5px solid var(--gray-200);border-top:none;border-radius:0 0 var(--radius) var(--radius);overflow:hidden;margin-bottom:12px}
-.comision-detalle.open{display:block}
-.comision-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;align-items:center;padding:12px 20px;border-bottom:1px solid var(--gray-100);font-size:13.5px}
-.comision-row:last-child{border-bottom:none}
-.comision-row:hover{background:rgba(172,10,16,.02)}
-.comision-vendedora{font-weight:600}
-.comision-monto{font-weight:700;color:var(--black)}
-.comision-pct{font-size:12px;color:var(--gray-400)}
-.comision-estado-pagada{background:#F0FDF4;color:#15803d;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;display:inline-block}
-.comision-estado-pendiente{background:#FFF7ED;color:#c2410c;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;display:inline-block}
-.comision-summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:24px}
-.comision-summary-card{background:var(--surface);border:1.5px solid var(--gray-200);border-radius:12px;padding:18px 20px}
-.comision-summary-val{font-size:24px;font-weight:700;color:var(--black);letter-spacing:-.5px}
-.comision-summary-lbl{font-size:12px;color:var(--gray-400);margin-top:4px;text-transform:uppercase;letter-spacing:.4px}
+/* ── COMISIONES FINANCIERO ────────────────────────────────── */
+.com-fin-card{background:var(--surface);border:1.5px solid var(--gray-200);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+.com-fin-header{display:grid;grid-template-columns:1fr 1fr;background:var(--black);padding:14px 20px;gap:16px;cursor:pointer}
+.com-fin-header:hover{background:#162a38}
+.com-fin-title{font-size:14px;font-weight:700;color:white}
+.com-fin-subtitle{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
+.com-fin-totals{display:flex;gap:20px;justify-content:flex-end;align-items:center}
+.com-fin-total{text-align:right}
+.com-fin-total-val{font-size:15px;font-weight:700;color:white}
+.com-fin-total-lbl{font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px}
+.com-fin-body{padding:0}
+.com-vendedora-block{border-bottom:1px solid var(--gray-100)}
+.com-vendedora-block:last-child{border-bottom:none}
+.com-vendedora-name{background:rgba(172,10,16,.04);padding:12px 20px;font-size:13px;font-weight:700;color:var(--black);display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--gray-100)}
+.com-fin-row{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;font-size:13px;border-bottom:1px solid var(--gray-100)}
+.com-fin-row:last-child{border-bottom:none}
+.com-fin-row-lbl{color:var(--gray-600)}
+.com-fin-row-val{font-weight:600;color:var(--black)}
+.com-fin-row.destacado{background:rgba(172,10,16,.03)}
+.com-fin-row.total-row{background:var(--gray-100);font-weight:700}
+.com-fin-row.total-row .com-fin-row-lbl{font-weight:700;color:var(--black)}
+.com-fin-row.total-row .com-fin-row-val{font-size:15px;color:var(--red)}
+.com-fin-row.positivo .com-fin-row-val{color:#15803d}
+.com-fin-row.negativo .com-fin-row-val{color:#c2410c}
+.com-fin-divider{height:1px;background:var(--gray-200);margin:0 20px}
+/* ── OPERADORES EN LEGAJO ─────────────────────────────────── */
+.op-grid{display:flex;flex-direction:column;gap:8px}
+.op-card-detail{background:var(--gray-100);border-radius:10px;padding:14px 16px}
+.op-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.op-card-name{font-size:14px;font-weight:700;color:var(--black)}
+.op-card-saldo{font-size:12px;font-weight:700;padding:3px 9px;border-radius:6px}
+.op-progress-bar{height:4px;background:var(--gray-200);border-radius:2px;overflow:hidden;margin-bottom:8px}
+.op-progress-fill{height:100%;border-radius:2px;background:#15803d;transition:width .4s ease}
+.op-amounts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.op-amount-item{background:white;border-radius:7px;padding:8px 10px;text-align:center}
+.op-amount-val{font-size:13px;font-weight:700;color:var(--black)}
+.op-amount-lbl{font-size:10px;color:var(--gray-400);margin-top:1px;text-transform:uppercase;letter-spacing:.4px}
+.op-pagos-list{margin-top:10px;display:flex;flex-direction:column;gap:4px}
+.op-pago-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:6px 8px;background:white;border-radius:6px}
+.op-pago-fecha{color:var(--gray-400)}
+.op-pago-monto{font-weight:700;color:#15803d}
 
 /* ── LEGAJOS MEJORADO ────────────────────────────────────── */
 .legajo-num-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(172,10,16,.08);color:var(--red);border-radius:6px;padding:2px 8px;font-size:12px;font-weight:700;letter-spacing:.3px}
@@ -911,31 +930,79 @@ input,select,textarea{font-family:var(--font)}
 
       <!-- TRANSFERENCIAS -->
       <div class="view" id="view-transferencias">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-          <div>
-            <h3 style="font-size:16px;font-weight:700;color:var(--black)">Transferencias</h3>
-            <p style="font-size:13px;color:var(--gray-400);margin-top:2px" id="transfSubtitle">Cargá y gestioná transferencias de clientes</p>
-          </div>
-          <button class="topbar-btn primary" onclick="openNuevaTransf()">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M12 4v16m8-8H4"/></svg>
-            Nueva transferencia
+        <!-- Tabs tipo/sección -->
+        <div style="display:flex;gap:0;margin-bottom:24px;background:var(--surface);border:1.5px solid var(--gray-200);border-radius:12px;overflow:hidden">
+          <button id="ttab-ingresos" onclick="switchTransfSection('ingresos')" style="flex:1;height:52px;font-size:14px;font-weight:600;color:var(--black);background:rgba(21,128,61,.08);border-right:1.5px solid var(--gray-200);display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:background .2s">
+            <svg fill="none" viewBox="0 0 24 24" stroke="#15803d" stroke-width="2" width="16" height="16"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+            <span style="color:#15803d">Ingresos de clientes</span>
+            <span id="badgeIngresos" style="background:#15803d;color:white;font-size:10px;font-weight:700;border-radius:10px;padding:2px 7px">0</span>
+          </button>
+          <button id="ttab-egresos" onclick="switchTransfSection('egresos')" style="flex:1;height:52px;font-size:14px;font-weight:600;color:var(--black);background:transparent;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:background .2s">
+            <svg fill="none" viewBox="0 0 24 24" stroke="#AC0A10" stroke-width="2" width="16" height="16"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+            <span style="color:#AC0A10">Egresos a operadores</span>
+            <span id="badgeEgresos" style="background:#AC0A10;color:white;font-size:10px;font-weight:700;border-radius:10px;padding:2px 7px">0</span>
           </button>
         </div>
-        <div class="transf-tabs" id="transfTabs">
-          <button class="transf-tab active" onclick="filterTransf('todas',this)">Todas</button>
-          <button class="transf-tab" onclick="filterTransf('pendiente',this)">Pendientes</button>
-          <button class="transf-tab" onclick="filterTransf('revision',this)">En revisión</button>
-          <button class="transf-tab" onclick="filterTransf('confirmada',this)">Confirmadas</button>
-          <button class="transf-tab" onclick="filterTransf('rechazada',this)">Rechazadas</button>
+
+        <!-- INGRESOS -->
+        <div id="transf-section-ingresos">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:#15803d">Transferencias de clientes</div>
+              <div style="font-size:12px;color:var(--gray-400);margin-top:2px">Pagos recibidos de clientes · verificación de administración</div>
+            </div>
+            <button class="topbar-btn primary" style="background:#15803d;box-shadow:0 2px 10px rgba(21,128,61,.25)" onclick="openNuevaTransf('ingreso')">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 4v16m8-8H4"/></svg>
+              Registrar ingreso
+            </button>
+          </div>
+          <div class="transf-tabs" id="transfTabsIng">
+            <button class="transf-tab active" onclick="filterTransfSec('ingreso','todas',this)">Todas</button>
+            <button class="transf-tab" onclick="filterTransfSec('ingreso','pendiente',this)">Pendientes</button>
+            <button class="transf-tab" onclick="filterTransfSec('ingreso','confirmada',this)">Confirmadas</button>
+            <button class="transf-tab" onclick="filterTransfSec('ingreso','rechazada',this)">Rechazadas</button>
+          </div>
+          <div id="transfListIng"></div>
         </div>
-        <div id="transfList"></div>
+
+        <!-- EGRESOS -->
+        <div id="transf-section-egresos" style="display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:#AC0A10">Transferencias a operadores</div>
+              <div style="font-size:12px;color:var(--gray-400);margin-top:2px">Pagos realizados a proveedores y operadores turísticos</div>
+            </div>
+            <button class="topbar-btn primary" onclick="openNuevaTransf('egreso')">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 4v16m8-8H4"/></svg>
+              Registrar egreso
+            </button>
+          </div>
+          <div class="transf-tabs" id="transfTabsEgr">
+            <button class="transf-tab active" onclick="filterTransfSec('egreso','todas',this)">Todas</button>
+            <button class="transf-tab" onclick="filterTransfSec('egreso','pendiente',this)">Pendientes</button>
+            <button class="transf-tab" onclick="filterTransfSec('egreso','confirmada',this)">Confirmadas</button>
+            <button class="transf-tab" onclick="filterTransfSec('egreso','rechazada',this)">Rechazadas</button>
+          </div>
+          <div id="transfListEgr"></div>
+        </div>
       </div>
 
       <!-- COMISIONES -->
       <div class="view" id="view-comisiones">
+        <!-- Configuración sueldo base (admin only) -->
+        <div id="comisionConfigPanel" style="display:none;margin-bottom:20px">
+          <div class="settings-card" style="padding:18px 24px">
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+              <div style="font-size:13px;font-weight:700;color:var(--black)">Configuración de sueldos</div>
+              <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap" id="sueldosConfig"></div>
+              <button class="topbar-btn primary" onclick="saveSueldos()" style="height:36px;font-size:12.5px;margin-left:auto">Guardar</button>
+            </div>
+          </div>
+        </div>
+        <!-- Resumen mes actual -->
         <div class="comision-summary-grid" id="comisionSummary"></div>
         <div class="section-header" style="margin-bottom:16px">
-          <h3>Historial de comisiones</h3>
+          <h3>Detalle por mes · vendedoras</h3>
           <span class="count" id="comisionCount">0 meses</span>
         </div>
         <div id="comisionList"></div>
@@ -1050,26 +1117,32 @@ input,select,textarea{font-family:var(--font)}
 
 <!-- MODAL: NUEVA TRANSFERENCIA -->
 <div class="modal-overlay" id="modalTransf">
-  <div class="modal" style="max-width:520px">
+  <div class="modal" style="max-width:480px">
     <div class="modal-header">
-      <div class="modal-header-icon" style="background:#d97706">
+      <div class="modal-header-icon" id="transfModalIcon" style="background:#15803d">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7h12m0 0l-4-4m4 4l-4 4M4 17h12m0 0l-4-4m4 4l-4 4"/></svg>
       </div>
       <div>
-        <div class="modal-title">Nueva transferencia</div>
-        <div class="modal-subtitle">Completá los datos y adjuntá el comprobante</div>
+        <div class="modal-title" id="transfModalTitle">Registrar ingreso</div>
+        <div class="modal-subtitle" id="transfModalSub">Transferencia recibida de cliente</div>
       </div>
       <button class="modal-close" onclick="closeModal('modalTransf')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
     </div>
     <div class="modal-body">
+      <input type="hidden" id="tTipo" value="ingreso">
       <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label">Legajo relacionado</label>
-          <input type="text" class="form-input" id="tLegajo" placeholder="L2025-001 (opcional)">
+        <!-- INGRESO: nombre cliente | EGRESO: nombre operador -->
+        <div class="form-group full">
+          <label class="form-label" id="tNombreLbl">Cliente *</label>
+          <input type="text" class="form-input" id="tCliente" placeholder="Nombre">
         </div>
         <div class="form-group">
-          <label class="form-label">Cliente *</label>
-          <input type="text" class="form-input" id="tCliente" placeholder="Nombre del cliente">
+          <label class="form-label">Legajo relacionado</label>
+          <input type="text" class="form-input" id="tLegajo" placeholder="Ej: 42 (opcional)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha *</label>
+          <input type="date" class="form-input" id="tFecha">
         </div>
         <div class="form-group">
           <label class="form-label">Monto *</label>
@@ -1079,22 +1152,14 @@ input,select,textarea{font-family:var(--font)}
           <label class="form-label">Moneda</label>
           <select class="form-select" id="tMoneda"><option>ARS</option><option>USD</option></select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Fecha de transferencia *</label>
-          <input type="date" class="form-input" id="tFecha">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Banco / Entidad</label>
-          <input type="text" class="form-input" id="tBanco" placeholder="Ej: Galicia, Mercado Pago">
-        </div>
         <div class="form-group full">
-          <label class="form-label">Referencia / CBU / CVU</label>
-          <input type="text" class="form-input" id="tRef" placeholder="Número de referencia o CBU">
+          <label class="form-label">Referencia / N° operación (opcional)</label>
+          <input type="text" class="form-input" id="tRef" placeholder="Nº de transferencia">
         </div>
         <div class="form-group full">
           <label class="form-label">Comprobante</label>
           <div class="upload-area" onclick="document.getElementById('tFile').click()">
-            <svg fill="none" viewBox="0 0 24 24" stroke="var(--gray-400)" stroke-width="2" width="28" height="28"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+            <svg fill="none" viewBox="0 0 24 24" stroke="var(--gray-400)" stroke-width="2" width="24" height="24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
             <div class="upload-area-text">Hacé click para subir imagen o PDF</div>
             <input type="file" id="tFile" accept="image/*,.pdf" style="display:none" onchange="previewFile(this)">
           </div>
@@ -1108,7 +1173,38 @@ input,select,textarea{font-family:var(--font)}
     </div>
     <div class="modal-footer">
       <button class="btn-modal-cancel" onclick="closeModal('modalTransf')">Cancelar</button>
-      <button class="btn-modal-primary" onclick="saveTransferencia()" id="btnSaveTransf">Enviar transferencia</button>
+      <button class="btn-modal-primary" onclick="saveTransferencia()" id="btnSaveTransf">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: AGREGAR OPERADOR A LEGAJO -->
+<div class="modal-overlay" id="modalOperador">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <div class="modal-header-icon" style="background:#6d28d9">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 00-1-1h-2a1 1 0 00-1 1v5m4 0H9"/></svg>
+      </div>
+      <div>
+        <div class="modal-title">Agregar operador</div>
+        <div class="modal-subtitle" id="opLegajoSub">Legajo —</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modalOperador')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label class="form-label">Nombre del operador *</label><input type="text" class="form-input" id="opNombre" placeholder="Ej: Hotetur Cancún, Air France"></div>
+        <div class="form-group"><label class="form-label">Precio neto</label><input type="number" class="form-input" id="opNeto" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">Precio total *</label><input type="number" class="form-input" id="opTotal" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">Moneda</label>
+          <select class="form-select" id="opMoneda"><option>ARS</option><option>USD</option></select>
+        </div>
+        <div class="form-group"><label class="form-label">Ya pagado</label><input type="number" class="form-input" id="opPagado" placeholder="0"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" onclick="closeModal('modalOperador')">Cancelar</button>
+      <button class="btn-modal-primary" onclick="saveOperador()" id="btnSaveOp" style="background:#6d28d9;box-shadow:0 2px 10px rgba(109,40,217,.25)">Agregar operador</button>
     </div>
   </div>
 </div>
@@ -1181,7 +1277,8 @@ input,select,textarea{font-family:var(--font)}
           </select>
         </div>
         <div class="form-section-title">Financiero</div>
-        <div class="form-group"><label class="form-label">Total venta (ARS)</label><input type="number" class="form-input" id="fTotal" placeholder="1500000"></div>
+        <div class="form-group"><label class="form-label">Precio venta (ARS)</label><input type="number" class="form-input" id="fTotal" placeholder="1500000"></div>
+        <div class="form-group"><label class="form-label">Precio neto / costo (ARS)</label><input type="number" class="form-input" id="fNeto" placeholder="1200000"></div>
         <div class="form-group"><label class="form-label">Total cobrado (ARS)</label><input type="number" class="form-input" id="fCobrado" placeholder="750000"></div>
         <div class="form-group full"><label class="form-label">Observaciones</label><textarea class="form-textarea" id="fObs" placeholder="Notas adicionales..."></textarea></div>
       </div>
@@ -1195,7 +1292,7 @@ input,select,textarea{font-family:var(--font)}
 
 <!-- MODAL PAGO -->
 <div class="modal-overlay" id="modalPago">
-  <div class="modal" style="max-width:440px">
+  <div class="modal" style="max-width:480px">
     <div class="modal-header">
       <div class="modal-header-icon" style="background:#15803d"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
       <div><div class="modal-title">Registrar pago</div><div class="modal-subtitle" id="pagoLegajoSub">Legajo —</div></div>
@@ -1203,6 +1300,27 @@ input,select,textarea{font-family:var(--font)}
     </div>
     <div class="modal-body">
       <div class="form-grid">
+        <!-- Tipo de pago -->
+        <div class="form-group full">
+          <label class="form-label">Tipo de pago</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <label style="display:flex;align-items:center;gap:8px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:10px;padding:10px 14px;cursor:pointer;transition:all .2s;font-size:13.5px;font-weight:500" id="lblPagoCliente">
+              <input type="radio" name="pagoTipo" value="cliente" checked onchange="togglePagoTipo(this)" style="accent-color:var(--red)">
+              <span style="color:#15803d">↑ Del cliente</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:10px;padding:10px 14px;cursor:pointer;transition:all .2s;font-size:13.5px;font-weight:500" id="lblPagoOperador">
+              <input type="radio" name="pagoTipo" value="operador" onchange="togglePagoTipo(this)" style="accent-color:var(--red)">
+              <span style="color:#AC0A10">↓ A operador</span>
+            </label>
+          </div>
+        </div>
+        <!-- Selector operador (se muestra solo si tipo=operador) -->
+        <div class="form-group full" id="pagoOperadorWrap" style="display:none">
+          <label class="form-label">Operador *</label>
+          <select class="form-select" id="pOperador">
+            <option value="">Seleccionar operador</option>
+          </select>
+        </div>
         <div class="form-group"><label class="form-label">Fecha *</label><input type="date" class="form-input" id="pFecha"></div>
         <div class="form-group"><label class="form-label">Medio de pago *</label>
           <select class="form-select" id="pMedio"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta débito</option><option>Tarjeta crédito</option><option>Cheque</option></select>
@@ -1212,7 +1330,7 @@ input,select,textarea{font-family:var(--font)}
         </div>
         <div class="form-group"><label class="form-label">Monto *</label><input type="number" class="form-input" id="pMonto" placeholder="0"></div>
         <div class="form-group"><label class="form-label">Cotización (si USD)</label><input type="number" class="form-input" id="pCotizacion" placeholder="1000"></div>
-        <div class="form-group"><label class="form-label">Comprobante</label><input type="text" class="form-input" id="pComprobante" placeholder="Nº transferencia..."></div>
+        <div class="form-group"><label class="form-label">Comprobante / referencia</label><input type="text" class="form-input" id="pComprobante" placeholder="Nº transferencia..."></div>
       </div>
     </div>
     <div class="modal-footer">
@@ -1544,12 +1662,26 @@ window.openNewLegajo = function(){
   document.getElementById('modalLegajoTitle').textContent='Nuevo legajo';
   document.getElementById('modalLegajoSub').textContent='Completá los datos del viaje';
   document.getElementById('btnSaveLegajo').textContent='Guardar legajo';
-  ['fCliente','fEmail','fTel','fCuit','fDestino','fSalida','fRegreso','fTotal','fCobrado','fObs'].forEach(id=>document.getElementById(id).value='');
+  ['fCliente','fEmail','fTel','fCuit','fDestino','fSalida','fRegreso','fTotal','fNeto','fCobrado','fObs'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
   document.getElementById('fEstado').value='cotizado';
   if(currentUser.role==='seller') document.getElementById('fVendedora').value=currentUser.vendedora;
-  // auto num — numeración única global basada en Firebase
   document.getElementById('fNumLegajo').value = getNextLegajoNum();
   openModal('modalLegajo');
+};
+
+window.previewFile = function(input){
+  const file = input.files[0];
+  if(!file) return;
+  const wrap = document.getElementById('filePreviewWrap');
+  const kb = Math.round(file.size/1024);
+  wrap.innerHTML=`<div class="file-preview">
+    <svg fill="none" viewBox="0 0 24 24" stroke="var(--red)" stroke-width="2" width="20" height="20"><path d="M9 12h6M9 16h6M9 8h4m5 0l-4-4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V8z"/></svg>
+    <div class="file-preview-name">${file.name}</div>
+    <div class="file-preview-size">${kb} KB</div>
+    <button onclick="document.getElementById('tFile').value='';document.getElementById('filePreviewWrap').innerHTML=''" style="background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:18px;line-height:1">×</button>
+  </div>`;
 };
 
 window.editLegajo = function(fbKey){
@@ -1569,6 +1701,7 @@ window.editLegajo = function(fbKey){
   document.getElementById('fVendedora').value=l.vendedora;
   document.getElementById('fEstado').value=l.estado;
   document.getElementById('fTotal').value=l.total||'';
+  document.getElementById('fNeto').value=l.neto||'';
   document.getElementById('fCobrado').value=l.cobrado||'';
   document.getElementById('fObs').value=l.obs||'';
   openModal('modalLegajo');
@@ -1588,7 +1721,8 @@ window.saveLegajo = async function(){
     destino,salida,regreso:document.getElementById('fRegreso').value,
     vendedora:document.getElementById('fVendedora').value,
     estado:document.getElementById('fEstado').value,
-    total:parseFloat(document.getElementById('fTotal').value)||0,
+    total:  parseFloat(document.getElementById('fTotal').value)||0,
+    neto:   parseFloat(document.getElementById('fNeto').value)||0,
     cobrado:parseFloat(document.getElementById('fCobrado').value)||0,
     obs:document.getElementById('fObs').value.trim(),
     ts:Date.now(),
@@ -1607,7 +1741,48 @@ window.saveLegajo = async function(){
   btn.disabled=false;btn.textContent=currentEdit?'Guardar cambios':'Guardar legajo';
 };
 
-/* ─── PAGOS ──────────────────────────────────────────── */
+/* ─── OPERADORES EN LEGAJO ───────────────────────────── */
+let currentOpLegajoKey = null;
+
+window.openAddOperador = function(fbKey){
+  currentOpLegajoKey = fbKey;
+  const l = allLegajos[fbKey];
+  if(!l) return;
+  document.getElementById('opLegajoSub').textContent = 'Legajo ' + l.num + ' · ' + l.cliente;
+  ['opNombre','opNeto','opTotal','opPagado'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('opMoneda').value='ARS';
+  openModal('modalOperador');
+};
+
+window.saveOperador = async function(){
+  const nombre = document.getElementById('opNombre').value.trim();
+  const total  = parseFloat(document.getElementById('opTotal').value)||0;
+  if(!nombre||!total){ toast('Completá nombre y total','error'); return; }
+  const btn = document.getElementById('btnSaveOp');
+  btn.disabled=true; btn.textContent='Guardando...';
+  const l = allLegajos[currentOpLegajoKey];
+  const ops = [...(l.operadores||[]), {
+    nombre,
+    neto:   parseFloat(document.getElementById('opNeto').value)||0,
+    total,
+    moneda: document.getElementById('opMoneda').value,
+    pagado: parseFloat(document.getElementById('opPagado').value)||0,
+    pagos:  [],
+  }];
+  try{
+    await update(ref(db,`legajos/${currentOpLegajoKey}`),{operadores:ops, ts:Date.now()});
+    closeModal('modalOperador');
+    toast('Operador agregado','success');
+  } catch(e){ toast('Error al guardar','error'); }
+  btn.disabled=false; btn.textContent='Agregar operador';
+};
+
+/* ─── PAGOS (actualizado con tipo + operador) ────────── */
+window.togglePagoTipo = function(radio){
+  const isOp = radio.value==='operador';
+  document.getElementById('pagoOperadorWrap').style.display = isOp?'':'none';
+};
+
 window.openPagoModal = function(fbKey){
   const l=allLegajos[fbKey];if(!l) return;
   currentPagoId=fbKey;
@@ -1615,6 +1790,18 @@ window.openPagoModal = function(fbKey){
   document.getElementById('pFecha').value=new Date().toISOString().split('T')[0];
   document.getElementById('pMonto').value='';
   document.getElementById('pComprobante').value='';
+  // Reset tipo
+  document.querySelector('[name="pagoTipo"][value="cliente"]').checked=true;
+  document.getElementById('pagoOperadorWrap').style.display='none';
+  // Llenar operadores del legajo
+  const sel=document.getElementById('pOperador');
+  sel.innerHTML='<option value="">Seleccionar operador</option>';
+  (l.operadores||[]).forEach((op,i)=>{
+    const saldo=(op.total||0)-(op.pagado||0);
+    const o=document.createElement('option');
+    o.value=i; o.textContent=`${op.nombre} (debe ${op.moneda} ${saldo.toLocaleString('es-AR')})`;
+    sel.appendChild(o);
+  });
   openModal('modalPago');
 };
 
@@ -1624,24 +1811,43 @@ window.savePago = async function(){
   const btn=document.getElementById('btnSavePago');
   btn.disabled=true;btn.textContent='Guardando...';
   const l=allLegajos[currentPagoId];
+  const tipo=document.querySelector('[name="pagoTipo"]:checked')?.value||'cliente';
   const pago={
     fecha:document.getElementById('pFecha').value,
     medio:document.getElementById('pMedio').value,
     moneda:document.getElementById('pMoneda').value,
     cotizacion:parseFloat(document.getElementById('pCotizacion').value)||1,
-    monto,comp:document.getElementById('pComprobante').value,
+    monto,comp:document.getElementById('pComprobante').value,tipo,
   };
-  const pagos=[...(l.pagos||[]),pago];
-  const totalARS=pago.moneda==='USD'?monto*pago.cotizacion:monto;
-  let cobrado=(l.cobrado||0)+totalARS;
-  let estado=l.estado;
-  if(cobrado>=l.total&&l.total>0) estado='pago completo';
-  else if(cobrado>0&&estado==='cotizado') estado='señado';
-  else if(cobrado>0&&estado==='señado') estado='parcialmente pago';
+  const updates={ts:Date.now()};
+  if(tipo==='cliente'){
+    const pagos=[...(l.pagos||[]),pago];
+    const totalARS=pago.moneda==='USD'?monto*pago.cotizacion:monto;
+    let cobrado=(l.cobrado||0)+totalARS;
+    let estado=l.estado;
+    if(cobrado>=(l.total||0)&&(l.total||0)>0) estado='pago completo';
+    else if(cobrado>0&&estado==='cotizado') estado='señado';
+    else if(cobrado>0&&estado==='señado') estado='parcialmente pago';
+    updates.pagos=pagos;updates.cobrado=cobrado;updates.estado=estado;
+  } else {
+    const opIdx=parseInt(document.getElementById('pOperador').value);
+    if(isNaN(opIdx)||opIdx<0){
+      toast('Seleccioná un operador','error');
+      btn.disabled=false;btn.textContent='Registrar pago';return;
+    }
+    const ops=[...(l.operadores||[])];
+    ops[opIdx]={...ops[opIdx]};
+    ops[opIdx].pagado=(ops[opIdx].pagado||0)+monto;
+    ops[opIdx].pagos=[...(ops[opIdx].pagos||[]),{
+      fecha:pago.fecha,monto,moneda:pago.moneda,medio:pago.medio,comp:pago.comp
+    }];
+    updates.operadores=ops;
+  }
   try{
-    await update(ref(db,`legajos/${currentPagoId}`),{pagos,cobrado,estado,ts:Date.now()});
+    await update(ref(db,`legajos/${currentPagoId}`),updates);
     closeModal('modalPago');
-    toast(`Pago de ${fmtMoney(monto)} registrado`,'success');
+    if(currentDetailId===currentPagoId) renderDetail(currentPagoId);
+    toast(`Pago de ${fmtMoney(monto)} registrado${tipo==='operador'?' al operador':''}`, 'success');
   }catch(e){toast('Error al registrar pago','error');}
   btn.disabled=false;btn.textContent='Registrar pago';
 };
@@ -1655,21 +1861,26 @@ window.openDetail = function(fbKey){
 
 function renderDetail(fbKey){
   const l=allLegajos[fbKey];if(!l) return;
-  document.getElementById('dLegajoNum').textContent=l.num;
+  const rent = (l.total||0)-(l.neto||0);
+  const saldo=(l.total||0)-(l.cobrado||0);
+  document.getElementById('dLegajoNum').textContent='#'+l.num;
   document.getElementById('dDestino').textContent=l.destino;
   document.getElementById('dMeta').textContent=`${l.vendedora} · ${fmtDate(l.salida)}${l.regreso?' → '+fmtDate(l.regreso):''}`;
-  const saldo=(l.total||0)-(l.cobrado||0);
   document.getElementById('dStats').innerHTML=`
-    <div class="detail-stat"><div class="detail-stat-val">${fmtMoney(l.total)}</div><div class="detail-stat-lbl">Total venta</div></div>
-    <div class="detail-stat"><div class="detail-stat-val">${fmtMoney(l.cobrado)}</div><div class="detail-stat-lbl">Cobrado</div></div>
-    <div class="detail-stat"><div class="detail-stat-val" style="color:${saldo>0?'#f87171':'#4ade80'}">${fmtMoney(saldo)}</div><div class="detail-stat-lbl">Saldo</div></div>`;
+    <div class="detail-stat"><div class="detail-stat-val">${fmtMoney(l.total)}</div><div class="detail-stat-lbl">Precio venta</div></div>
+    <div class="detail-stat"><div class="detail-stat-val" style="color:${saldo>0?'#f87171':'#4ade80'}">${fmtMoney(saldo)}</div><div class="detail-stat-lbl">Saldo cliente</div></div>
+    <div class="detail-stat"><div class="detail-stat-val" style="color:#f59e0b">${rent>0?fmtMoney(rent):'—'}</div><div class="detail-stat-lbl">Rentabilidad</div></div>`;
+
   let body=`<div class="detail-section">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px">
       ${statusPill(l.estado)}
-      ${l.estado!=='anulado'?`<button onclick="openDeleteLegajo('${fbKey}')" style="margin-left:auto;height:28px;padding:0 10px;background:rgba(239,68,68,.08);border:1.5px solid rgba(239,68,68,.2);border-radius:7px;font-size:11.5px;font-weight:600;color:#ef4444;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s" onmouseover="this.style.background='rgba(239,68,68,.15)'" onmouseout="this.style.background='rgba(239,68,68,.08)'">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-        Anular
-      </button>`:'<span style="margin-left:auto;font-size:11px;color:var(--gray-400)">Legajo anulado</span>'}
+      ${l.estado!=='anulado'?`
+        <button onclick="editLegajo('${fbKey}');closeDetail()" style="height:28px;padding:0 10px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:7px;font-size:11.5px;font-weight:600;color:var(--gray-600);cursor:pointer;display:flex;align-items:center;gap:4px">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Editar
+        </button>
+        <button onclick="openDeleteLegajo('${fbKey}')" style="margin-left:auto;height:28px;padding:0 10px;background:rgba(239,68,68,.08);border:1.5px solid rgba(239,68,68,.2);border-radius:7px;font-size:11.5px;font-weight:600;color:#ef4444;cursor:pointer;display:flex;align-items:center;gap:4px">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>Anular
+        </button>`:'<span style="margin-left:auto;font-size:11px;color:var(--gray-400)">Legajo anulado</span>'}
     </div>
     <div class="detail-section-title">Cliente</div>
     <div class="detail-row"><span class="detail-row-key">Nombre</span><span class="detail-row-val">${l.cliente}</span></div>
@@ -1678,10 +1889,74 @@ function renderDetail(fbKey){
     ${l.cuit?`<div class="detail-row"><span class="detail-row-key">CUIT</span><span class="detail-row-val">${l.cuit}</span></div>`:''}
     ${l.motivoAnulacion?`<div class="detail-row"><span class="detail-row-key">Motivo anulación</span><span class="detail-row-val" style="color:var(--red)">${l.motivoAnulacion}</span></div>`:''}
   </div>`;
+
+  // Financiero del legajo
+  if(l.total||l.neto){
+    body+=`<div class="detail-section">
+      <div class="detail-section-title">Financiero</div>
+      ${l.total?`<div class="detail-row"><span class="detail-row-key">Precio venta</span><span class="detail-row-val">${fmtMoney(l.total)}</span></div>`:''}
+      ${l.neto?`<div class="detail-row"><span class="detail-row-key">Precio neto / costo</span><span class="detail-row-val">${fmtMoney(l.neto)}</span></div>`:''}
+      ${rent>0?`<div class="detail-row"><span class="detail-row-key">Rentabilidad</span><span class="detail-row-val" style="color:#d97706;font-weight:700">${fmtMoney(rent)}</span></div>`:''}
+      ${rent>0?`<div class="detail-row"><span class="detail-row-key">Comisión vendedora (25%)</span><span class="detail-row-val">${fmtMoney(rent*0.25)}</span></div>`:''}
+      <div class="detail-row"><span class="detail-row-key">Cobrado</span><span class="detail-row-val">${fmtMoney(l.cobrado)}</span></div>
+      <div class="detail-row"><span class="detail-row-key">Saldo pendiente</span><span class="detail-row-val" style="color:${saldo>0?'var(--red)':'#15803d'}">${fmtMoney(saldo)}</span></div>
+    </div>`;
+  }
+
   if(l.acomps&&l.acomps.length) body+=`<div class="detail-section"><div class="detail-section-title">Acompañantes (${l.acomps.length})</div>${l.acomps.map(a=>`<div class="acomp-item"><div class="acomp-avatar">${a.nombre.charAt(0)}</div><div><div class="acomp-name">${a.nombre}</div><div class="acomp-dni">DNI ${a.dni}</div></div></div>`).join('')}</div>`;
   if(l.itin&&l.itin.length) body+=`<div class="detail-section"><div class="detail-section-title">Itinerario</div><table class="itin-table"><tr><th>Fecha</th><th>Ciudad</th><th>Hotel</th><th>Vuelo</th><th>Servicio</th></tr>${l.itin.map(d=>`<tr><td class="itin-date">${fmtDate(d.fecha)}</td><td>${d.ciudad}</td><td>${d.hotel||'—'}</td><td>${d.vuelo||'—'}</td><td>${d.svc||'—'}</td></tr>`).join('')}</table></div>`;
-  if(l.operadores&&l.operadores.length) body+=`<div class="detail-section"><div class="detail-section-title">Operadores</div>${l.operadores.map(o=>{const p=(o.total||0)-(o.pagado||0);return `<div class="op-item"><div class="op-header"><span class="op-name">${o.nombre}</span><span class="${p>0?'op-saldo-pend':'op-saldo-ok'}">${p>0?'Debe '+o.moneda+' '+p.toLocaleString():'Pagado'}</span></div><div class="op-row"><span>Neto</span><span>${o.moneda} ${(o.neto||0).toLocaleString()}</span></div><div class="op-row"><span>Total</span><span>${o.moneda} ${(o.total||0).toLocaleString()}</span></div></div>`;}).join('')}</div>`;
-  body+=`<div class="detail-section"><div class="detail-section-title">Pagos del cliente</div>${(l.pagos||[]).length?l.pagos.map(p=>`<div class="pago-item"><div class="pago-left"><div class="pago-fecha">${fmtDate(p.fecha)}</div><div class="pago-medio">${p.medio} · ${p.moneda}</div>${p.comp?`<div style="font-size:11px;color:var(--gray-400)">${p.comp}</div>`:''}</div><div class="pago-monto">${p.moneda} ${Number(p.monto).toLocaleString('es-AR')}</div></div>`).join(''):'<div style="font-size:13px;color:var(--gray-400);padding:8px 0">Sin pagos registrados</div>'}${l.estado!=='anulado'?`<button class="add-pago-btn" onclick="openPagoModal('${fbKey}')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 4v16m8-8H4"/></svg>Registrar pago</button>`:''}</div>`;
+
+  // Operadores — nueva vista premium
+  body+=`<div class="detail-section">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="detail-section-title" style="margin-bottom:0">Operadores</div>
+      ${l.estado!=='anulado'?`<button onclick="openAddOperador('${fbKey}')" style="height:26px;padding:0 10px;background:rgba(109,40,217,.08);border:1.5px solid rgba(109,40,217,.2);border-radius:7px;font-size:11px;font-weight:600;color:#6d28d9;cursor:pointer;display:flex;align-items:center;gap:4px">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M12 4v16m8-8H4"/></svg>Agregar
+      </button>`:''}
+    </div>
+    <div class="op-grid">
+    ${(l.operadores||[]).length?(l.operadores||[]).map((o,i)=>{
+      const saldoOp=(o.total||0)-(o.pagado||0);
+      const pct=o.total>0?Math.min(100,Math.round((o.pagado||0)/o.total*100)):0;
+      const pagosHist=(o.pagos||[]).map(p=>`<div class="op-pago-row"><span class="op-pago-fecha">${fmtDate(p.fecha)} · ${p.medio||''}</span><span class="op-pago-monto">+${p.moneda} ${Number(p.monto).toLocaleString('es-AR')}</span></div>`).join('');
+      return `<div class="op-card-detail">
+        <div class="op-card-header">
+          <span class="op-card-name">${o.nombre}</span>
+          <span class="op-card-saldo ${saldoOp>0?'op-saldo-pend':'op-saldo-ok'}">${saldoOp>0?'Debe '+o.moneda+' '+saldoOp.toLocaleString('es-AR'):'Pagado ✓'}</span>
+        </div>
+        <div class="op-progress-bar"><div class="op-progress-fill" style="width:${pct}%;background:${pct===100?'#15803d':'#3b82f6'}"></div></div>
+        <div style="font-size:11px;color:var(--gray-400);margin-bottom:8px">${pct}% pagado</div>
+        <div class="op-amounts">
+          <div class="op-amount-item"><div class="op-amount-val">${o.moneda} ${(o.neto||0).toLocaleString('es-AR')}</div><div class="op-amount-lbl">Neto</div></div>
+          <div class="op-amount-item"><div class="op-amount-val">${o.moneda} ${(o.total||0).toLocaleString('es-AR')}</div><div class="op-amount-lbl">Total</div></div>
+          <div class="op-amount-item"><div class="op-amount-val" style="color:${saldoOp>0?'var(--red)':'#15803d'}">${o.moneda} ${saldoOp.toLocaleString('es-AR')}</div><div class="op-amount-lbl">Saldo</div></div>
+        </div>
+        ${pagosHist?`<div class="op-pagos-list">${pagosHist}</div>`:''}
+      </div>`;
+    }).join(''):`<div style="font-size:13px;color:var(--gray-400);padding:4px 0">Sin operadores cargados</div>`}
+    </div>
+  </div>`;
+
+  // Pagos del cliente
+  body+=`<div class="detail-section">
+    <div class="detail-section-title">Pagos del cliente</div>
+    ${(l.pagos||[]).filter(p=>!p.tipo||p.tipo==='cliente').length
+      ?(l.pagos||[]).filter(p=>!p.tipo||p.tipo==='cliente').map(p=>`
+        <div class="pago-item">
+          <div class="pago-left">
+            <div class="pago-fecha">${fmtDate(p.fecha)}</div>
+            <div class="pago-medio">${p.medio} · ${p.moneda}</div>
+            ${p.comp?`<div style="font-size:11px;color:var(--gray-400)">${p.comp}</div>`:''}
+          </div>
+          <div class="pago-monto" style="color:#15803d">+${p.moneda} ${Number(p.monto).toLocaleString('es-AR')}</div>
+        </div>`).join('')
+      :'<div style="font-size:13px;color:var(--gray-400);padding:8px 0">Sin pagos registrados</div>'}
+    ${l.estado!=='anulado'?`<button class="add-pago-btn" onclick="openPagoModal('${fbKey}')">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 4v16m8-8H4"/></svg>
+      Registrar pago
+    </button>`:''}
+  </div>`;
+
   if(l.obs) body+=`<div class="detail-section"><div class="detail-section-title">Observaciones</div><div style="font-size:13.5px;background:var(--gray-100);border-radius:8px;padding:12px 14px;line-height:1.6">${l.obs}</div></div>`;
   document.getElementById('dBody').innerHTML=body;
 }
@@ -1903,12 +2178,13 @@ window.saveEmail = function(){
   toast('Email guardado correctamente','success');
 };
 
-/* ─── LEGAJOS: NUMERACIÓN AUTOMÁTICA ─────────────────── */
+/* ─── LEGAJOS: NUMERACIÓN SIMPLE (1, 2, 3…) ─────────── */
 function getNextLegajoNum(){
   const nums = Object.values(allLegajos)
-    .map(l => parseInt((l.num||'').replace(/\D/g,''))||0);
+    .map(l => parseInt(l.num)||0)
+    .filter(n=>!isNaN(n));
   const max = nums.length ? Math.max(...nums) : 0;
-  return 'L2025-' + String(max+1).padStart(3,'0');
+  return String(max+1);
 }
 
 /* ─── LEGAJOS: ELIMINAR (anulación lógica) ───────────── */
@@ -1940,9 +2216,11 @@ window.confirmDeleteLegajo = async function(){
   legajoToDelete=null;
 };
 
-/* ─── TRANSFERENCIAS ─────────────────────────────────── */
+/* ─── TRANSFERENCIAS REESTRUCTURADAS ─────────────────── */
 let allTransf = {};
-let currentTransfFilter = 'todas';
+let currentTransfSection = 'ingresos';
+let filterIngreso = 'todas';
+let filterEgreso  = 'todas';
 
 function startTransfListener(){
   onValue(ref(db,'transferencias'), snap=>{
@@ -1954,119 +2232,133 @@ function startTransfListener(){
 }
 
 function updateBadgeTransf(){
-  const pend = Object.values(allTransf).filter(t=>t.estado==='pendiente').length;
+  const ingPend = Object.values(allTransf).filter(t=>t.tipo==='ingreso'&&t.estado==='pendiente').length;
+  const egrPend = Object.values(allTransf).filter(t=>t.tipo==='egreso'&&t.estado==='pendiente').length;
   const el = document.getElementById('badgeTransf');
-  if(el){ el.textContent=pend; el.style.display=pend>0?'':'none'; }
+  if(el){ const tot=ingPend+egrPend; el.textContent=tot; el.style.display=tot>0?'':'none'; }
+  const bi=document.getElementById('badgeIngresos'); if(bi) bi.textContent=ingPend;
+  const be=document.getElementById('badgeEgresos');  if(be) be.textContent=egrPend;
 }
 
-window.openNuevaTransf = function(){
-  ['tLegajo','tCliente','tMonto','tRef','tBanco','tObs'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
-  });
-  document.getElementById('tFecha').value = new Date().toISOString().split('T')[0];
+window.switchTransfSection = function(sec){
+  currentTransfSection=sec;
+  document.getElementById('transf-section-ingresos').style.display=sec==='ingresos'?'':'none';
+  document.getElementById('transf-section-egresos').style.display=sec==='egresos'?'':'none';
+  const ti=document.getElementById('ttab-ingresos');
+  const te=document.getElementById('ttab-egresos');
+  if(ti) ti.style.background=sec==='ingresos'?'rgba(21,128,61,.08)':'transparent';
+  if(te) te.style.background=sec==='egresos'?'rgba(172,10,16,.06)':'transparent';
+  renderTransferencias();
+};
+
+window.openNuevaTransf = function(tipo){
+  document.getElementById('tTipo').value = tipo||'ingreso';
+  const isIng = (tipo||'ingreso')==='ingreso';
+  document.getElementById('transfModalTitle').textContent = isIng?'Registrar ingreso de cliente':'Registrar pago a operador';
+  document.getElementById('transfModalSub').textContent  = isIng?'Transferencia recibida de cliente':'Pago realizado a proveedor/operador';
+  document.getElementById('transfModalIcon').style.background = isIng?'#15803d':'#AC0A10';
+  document.getElementById('tNombreLbl').textContent = isIng?'Cliente *':'Operador *';
+  document.getElementById('tCliente').placeholder = isIng?'Nombre del cliente':'Nombre del operador';
+  ['tCliente','tMonto','tRef','tObs'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('tLegajo').value='';
+  document.getElementById('tFecha').value=new Date().toISOString().split('T')[0];
   document.getElementById('tMoneda').value='ARS';
   document.getElementById('filePreviewWrap').innerHTML='';
   openModal('modalTransf');
 };
 
-window.previewFile = function(input){
-  const file = input.files[0];
-  if(!file) return;
-  const wrap = document.getElementById('filePreviewWrap');
-  const kb = Math.round(file.size/1024);
-  wrap.innerHTML=`<div class="file-preview">
-    <svg fill="none" viewBox="0 0 24 24" stroke="var(--red)" stroke-width="2" width="20" height="20"><path d="M9 12h6M9 16h6M9 8h4m5 0l-4-4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V8z"/></svg>
-    <div class="file-preview-name">${file.name}</div>
-    <div class="file-preview-size">${kb} KB</div>
-    <button onclick="document.getElementById('tFile').value='';document.getElementById('filePreviewWrap').innerHTML=''" style="background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:16px">×</button>
-  </div>`;
-};
-
 window.saveTransferencia = async function(){
-  const cliente = document.getElementById('tCliente').value.trim();
-  const monto   = parseFloat(document.getElementById('tMonto').value);
-  const fecha   = document.getElementById('tFecha').value;
-  const btn = document.getElementById('btnSaveTransf');
-  if(!cliente||!monto||!fecha){ toast('Completá los campos obligatorios','error'); return; }
-  btn.disabled=true; btn.textContent='Enviando...';
+  const nombre = document.getElementById('tCliente').value.trim();
+  const monto  = parseFloat(document.getElementById('tMonto').value);
+  const fecha  = document.getElementById('tFecha').value;
+  const tipo   = document.getElementById('tTipo').value;
+  const btn    = document.getElementById('btnSaveTransf');
+  if(!nombre||!monto||!fecha){ toast('Completá los campos obligatorios','error'); return; }
+  btn.disabled=true; btn.textContent='Guardando...';
   const obj = {
+    tipo,
+    nombre,
     legajoRef: document.getElementById('tLegajo').value.trim(),
-    cliente,
-    monto,
-    moneda:    document.getElementById('tMoneda').value,
-    fecha,
-    banco:     document.getElementById('tBanco').value.trim(),
-    referencia:document.getElementById('tRef').value.trim(),
-    obs:       document.getElementById('tObs').value.trim(),
-    estado:    'pendiente',
-    vendedora: currentUser.vendedora||currentUser.name,
+    monto, moneda: document.getElementById('tMoneda').value, fecha,
+    referencia: document.getElementById('tRef').value.trim(),
+    obs:        document.getElementById('tObs').value.trim(),
+    estado:     'pendiente',
+    vendedora:  currentUser.vendedora||currentUser.name,
     ts: Date.now(),
   };
   try{
     await push(ref(db,'transferencias'),obj);
     closeModal('modalTransf');
-    toast('Transferencia enviada — esperando confirmación','success');
-  } catch(e){ toast('Error al enviar','error'); }
-  btn.disabled=false; btn.textContent='Enviar transferencia';
+    toast(tipo==='ingreso'?'Ingreso registrado — pendiente de confirmación':'Egreso registrado','success');
+  } catch(e){ toast('Error al guardar','error'); }
+  btn.disabled=false; btn.textContent='Guardar';
 };
 
-window.filterTransf = function(estado, btn){
-  currentTransfFilter=estado;
-  document.querySelectorAll('.transf-tab').forEach(t=>t.classList.remove('active'));
+window.filterTransfSec = function(tipo, estado, btn){
+  if(tipo==='ingreso') filterIngreso=estado;
+  else filterEgreso=estado;
+  const tabsId = tipo==='ingreso'?'transfTabsIng':'transfTabsEgr';
+  document.querySelectorAll(`#${tabsId} .transf-tab`).forEach(t=>t.classList.remove('active'));
   if(btn) btn.classList.add('active');
+  renderTransferencias();
+};
+
+// keep old filterTransf for compatibility
+window.filterTransf = function(estado, btn){
+  filterIngreso=estado; filterEgreso=estado;
   renderTransferencias();
 };
 
 window.setTransfEstado = async function(fbKey, estado){
   try{
     await update(ref(db,`transferencias/${fbKey}`),{estado, tsUpdate:Date.now()});
-    const labels={revision:'En revisión',confirmada:'Confirmada',rechazada:'Rechazada'};
-    toast(`Transferencia marcada como: ${labels[estado]||estado}`, estado==='confirmada'?'success':'info');
+    toast(estado==='confirmada'?'Confirmada ✓':'Estado actualizado', estado==='confirmada'?'success':'info');
   } catch(e){ toast('Error al actualizar','error'); }
 };
 
-function renderTransferencias(){
-  if(!document.getElementById('view-transferencias').classList.contains('active')) return;
-  let data = Object.entries(allTransf).map(([k,v])=>({...v,fbKey:k}));
+function renderTransfSection(tipo, filtro, containerId){
+  let data = Object.entries(allTransf).map(([k,v])=>({...v,fbKey:k})).filter(t=>(t.tipo||'ingreso')===tipo);
   if(currentUser.role==='seller') data=data.filter(t=>t.vendedora===currentUser.vendedora);
-  if(currentTransfFilter!=='todas') data=data.filter(t=>t.estado===currentTransfFilter);
+  if(filtro!=='todas') data=data.filter(t=>t.estado===filtro);
   data.sort((a,b)=>b.ts-a.ts);
-  const isAdmin = currentUser.role==='admin';
-  const list = document.getElementById('transfList');
-  if(!data.length){
-    list.innerHTML=`<div class="empty-state"><h4>Sin transferencias</h4><p>No hay resultados para este filtro</p></div>`;
-    return;
-  }
-  list.innerHTML = data.map(t=>{
-    const estadoClass={pendiente:'te-pendiente',revision:'te-revision',confirmada:'te-confirmada',rechazada:'te-rechazada'}[t.estado]||'te-pendiente';
-    const acciones = isAdmin ? `
-      <div class="transf-actions">
-        ${t.estado==='pendiente'?`<button class="btn-revision" onclick="setTransfEstado('${t.fbKey}','revision')">En revisión</button>`:''}
-        ${t.estado!=='confirmada'?`<button class="btn-confirmar" onclick="setTransfEstado('${t.fbKey}','confirmada')">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" width="13" height="13"><path d="M20 6L9 17l-5-5"/></svg> Confirmar
-        </button>`:''}
-        ${t.estado!=='rechazada'&&t.estado!=='confirmada'?`<button class="btn-rechazar" onclick="setTransfEstado('${t.fbKey}','rechazada')">Rechazar</button>`:''}
-      </div>` : `<div style="font-size:12px;color:var(--gray-400)">${t.estado==='pendiente'?'Aguardando verificación':t.estado==='revision'?'En revisión bancaria':t.estado==='confirmada'?'✓ Confirmada por administración':'✗ Rechazada'}</div>`;
-    return `<div class="transf-card">
+  const isAdmin=currentUser.role==='admin';
+  const isIng=tipo==='ingreso';
+  const cont=document.getElementById(containerId);
+  if(!cont) return;
+  if(!data.length){ cont.innerHTML=`<div class="empty-state"><h4>Sin ${isIng?'ingresos':'egresos'}</h4><p>No hay resultados</p></div>`; return; }
+  cont.innerHTML=data.map(t=>{
+    const estadoClass={pendiente:'te-pendiente',confirmada:'te-confirmada',rechazada:'te-rechazada'}[t.estado]||'te-pendiente';
+    const accentColor=isIng?'#15803d':'#AC0A10';
+    const acciones = isAdmin ? `<div class="transf-actions">
+      ${t.estado!=='confirmada'?`<button class="btn-confirmar" style="background:${accentColor}" onclick="setTransfEstado('${t.fbKey}','confirmada')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" width="12" height="12"><path d="M20 6L9 17l-5-5"/></svg> Confirmar</button>`:''}
+      ${t.estado==='pendiente'?`<button class="btn-rechazar" onclick="setTransfEstado('${t.fbKey}','rechazada')">Rechazar</button>`:''}
+    </div>` : `<div style="font-size:12px;color:var(--gray-400)">${t.estado==='pendiente'?'Aguardando confirmación':t.estado==='confirmada'?'✓ Confirmado':'✗ Rechazado'}</div>`;
+    return `<div class="transf-card" style="border-left:3px solid ${accentColor}">
       <div class="transf-card-header">
         <div>
-          <div class="transf-card-id">${t.legajoRef||'SIN LEGAJO'}</div>
-          <div class="transf-card-vendedora">${t.cliente}</div>
+          <div style="font-size:11px;font-weight:700;color:${accentColor};letter-spacing:.5px">${t.legajoRef?'LEG '+t.legajoRef:isIng?'INGRESO':'EGRESO'}</div>
+          <div class="transf-card-vendedora">${t.nombre}</div>
           <div style="font-size:11px;color:var(--gray-400)">${t.vendedora} · ${fmtDate(t.fecha)}</div>
         </div>
         <div style="text-align:right">
-          <div class="transf-card-monto">${t.moneda} ${Number(t.monto).toLocaleString('es-AR')}</div>
+          <div class="transf-card-monto" style="color:${accentColor}">${isIng?'+':'-'} ${t.moneda} ${Number(t.monto).toLocaleString('es-AR')}</div>
           <div style="margin-top:6px"><span class="transf-estado ${estadoClass}">${t.estado}</span></div>
         </div>
       </div>
-      <div class="transf-card-body">
-        ${t.banco?`<div class="transf-field"><div class="transf-field-lbl">Banco</div><div class="transf-field-val">${t.banco}</div></div>`:''}
-        ${t.referencia?`<div class="transf-field"><div class="transf-field-lbl">Referencia</div><div class="transf-field-val">${t.referencia}</div></div>`:''}
-        ${t.obs?`<div class="transf-field"><div class="transf-field-lbl">Obs.</div><div class="transf-field-val">${t.obs}</div></div>`:''}
+      <div style="display:flex;gap:16px;margin-bottom:10px;font-size:12px">
+        ${t.referencia?`<span style="color:var(--gray-400)">Ref: <strong style="color:var(--black)">${t.referencia}</strong></span>`:''}
+        ${t.obs?`<span style="color:var(--gray-400)">Obs: <strong style="color:var(--black)">${t.obs}</strong></span>`:''}
       </div>
       ${acciones}
     </div>`;
   }).join('');
+}
+
+function renderTransferencias(){
+  const v=document.getElementById('view-transferencias');
+  if(!v||!v.classList.contains('active')) return;
+  renderTransfSection('ingreso', filterIngreso, 'transfListIng');
+  renderTransfSection('egreso',  filterEgreso,  'transfListEgr');
 }
 
 function renderDashTransf(){
@@ -2074,32 +2366,55 @@ function renderDashTransf(){
   const el = document.getElementById('dashTransfPend');
   if(!el) return;
   if(!pend.length){ el.innerHTML=`<div style="font-size:13px;color:var(--gray-400);padding:4px 0">Sin transferencias pendientes ✓</div>`; return; }
-  el.innerHTML = pend.map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--gray-100);font-size:13px">
-    <div><div style="font-weight:600">${t.cliente}</div><div style="font-size:11px;color:var(--gray-400)">${t.vendedora}</div></div>
-    <div style="font-weight:700">${t.moneda} ${Number(t.monto).toLocaleString('es-AR')}</div>
-  </div>`).join('');
+  el.innerHTML=pend.map(t=>{
+    const isIng=(t.tipo||'ingreso')==='ingreso';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--gray-100);font-size:13px">
+      <div><div style="font-weight:600">${t.nombre}</div><div style="font-size:11px;color:var(--gray-400)">${t.vendedora} · ${isIng?'Ingreso':'Egreso'}</div></div>
+      <div style="font-weight:700;color:${isIng?'#15803d':'#AC0A10'}">${isIng?'+':'-'} ${t.moneda} ${Number(t.monto).toLocaleString('es-AR')}</div>
+    </div>`;}).join('');
 }
 
-/* ─── COMISIONES ─────────────────────────────────────── */
-const COM_PCT = 0.05; // 5% comisión base por defecto
+/* ─── COMISIONES — LÓGICA REAL ───────────────────────── */
+const COM_PCT = 0.25; // 25% de la rentabilidad para la vendedora
+// Sueldos base por vendedora (ARS) — editables por admin
+let sueldosBase = {};
+const SUELDO_DEFAULT = 300000;
+
+function getSueldo(vendedora){
+  return sueldosBase[vendedora] || SUELDO_DEFAULT;
+}
+
+function calcRentabilidad(legajo){
+  // rentabilidad = precio venta - precio neto (costo)
+  const venta = legajo.total || 0;
+  const neto  = legajo.neto  || 0;
+  return venta - neto;
+}
 
 function calcComisiones(){
-  const data = Object.values(allLegajos).filter(l=>l.estado==='viajado'||l.estado==='cerrado');
+  const data = Object.values(allLegajos).filter(l=>
+    (l.estado==='viajado'||l.estado==='cerrado') && l.salida
+  );
   const byMonth = {};
   data.forEach(l=>{
-    if(!l.salida) return;
     const [y,m] = l.salida.split('-');
     const key = `${y}-${m}`;
-    if(!byMonth[key]) byMonth[key]={ mes:key, legajos:[], total:0, comision:0, vendedoras:{} };
-    const com = (l.total||0)*COM_PCT;
+    if(!byMonth[key]) byMonth[key]={ mes:key, legajos:[], totalVenta:0, totalRent:0, vendedoras:{} };
+    const rent = calcRentabilidad(l);
+    const comVendedora = rent * COM_PCT;
+    const comEmpresa   = rent * (1-COM_PCT);
     byMonth[key].legajos.push(l);
-    byMonth[key].total += (l.total||0);
-    byMonth[key].comision += com;
+    byMonth[key].totalVenta += (l.total||0);
+    byMonth[key].totalRent  += rent;
     const v = l.vendedora||'Sin asignar';
-    if(!byMonth[key].vendedoras[v]) byMonth[key].vendedoras[v]={legajos:0,total:0,comision:0};
+    if(!byMonth[key].vendedoras[v]){
+      byMonth[key].vendedoras[v]={legajos:0,totalVenta:0,totalRent:0,comision:0,empresa:0};
+    }
     byMonth[key].vendedoras[v].legajos++;
-    byMonth[key].vendedoras[v].total += (l.total||0);
-    byMonth[key].vendedoras[v].comision += com;
+    byMonth[key].vendedoras[v].totalVenta  += (l.total||0);
+    byMonth[key].vendedoras[v].totalRent   += rent;
+    byMonth[key].vendedoras[v].comision    += comVendedora;
+    byMonth[key].vendedoras[v].empresa     += comEmpresa;
   });
   return Object.values(byMonth).sort((a,b)=>b.mes.localeCompare(a.mes));
 }
@@ -2107,50 +2422,97 @@ function calcComisiones(){
 function renderComisiones(){
   if(!document.getElementById('view-comisiones').classList.contains('active')) return;
   const data = calcComisiones();
-  document.getElementById('comisionCount').textContent = data.length + ' meses';
+  document.getElementById('comisionCount').textContent = data.length + ' mes' + (data.length!==1?'es':'');
 
-  // Summary
-  const totalComisiones = data.reduce((s,m)=>s+m.comision,0);
-  const totalVentas = data.reduce((s,m)=>s+m.total,0);
-  const mesActual = data[0]||null;
+  // Panel config sueldos (solo admin)
+  const cfgPanel = document.getElementById('comisionConfigPanel');
+  if(cfgPanel){
+    cfgPanel.style.display = currentUser.role==='admin' ? '' : 'none';
+    if(currentUser.role==='admin'){
+      const sellers = Object.values(USERS).filter(u=>u.role==='seller');
+      document.getElementById('sueldosConfig').innerHTML = sellers.map(u=>`
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:12px;color:var(--gray-600);font-weight:600">${u.name}:</span>
+          <input type="number" id="sueldo_${u.vendedora}" value="${getSueldo(u.vendedora)}" style="width:110px;height:32px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:8px;padding:0 10px;font-size:13px;font-family:var(--font);outline:none" placeholder="300000">
+        </div>`).join('');
+    }
+  }
+
+  // Summary cards
+  const totVenta  = data.reduce((s,m)=>s+m.totalVenta,0);
+  const totRent   = data.reduce((s,m)=>s+m.totalRent,0);
+  const totCom    = totRent * COM_PCT;
+  const totEmp    = totRent * (1-COM_PCT);
   document.getElementById('comisionSummary').innerHTML=`
-    <div class="comision-summary-card"><div class="comision-summary-val">${fmtMoney(totalComisiones)}</div><div class="comision-summary-lbl">Total comisiones</div></div>
-    <div class="comision-summary-card"><div class="comision-summary-val">${fmtMoney(totalVentas)}</div><div class="comision-summary-lbl">Total ventas</div></div>
-    <div class="comision-summary-card"><div class="comision-summary-val">${data.length}</div><div class="comision-summary-lbl">Meses con comisiones</div></div>
-    <div class="comision-summary-card"><div class="comision-summary-val">${mesActual?fmtMoney(mesActual.comision):'$0'}</div><div class="comision-summary-lbl">Mes más reciente</div></div>`;
+    <div class="comision-summary-card"><div class="comision-summary-val">${fmtMoney(totVenta)}</div><div class="comision-summary-lbl">Total ventas</div></div>
+    <div class="comision-summary-card"><div class="comision-summary-val">${fmtMoney(totRent)}</div><div class="comision-summary-lbl">Rentabilidad total</div></div>
+    <div class="comision-summary-card"><div class="comision-summary-val" style="color:var(--red)">${fmtMoney(totCom)}</div><div class="comision-summary-lbl">Comisiones (25%)</div></div>
+    <div class="comision-summary-card"><div class="comision-summary-val" style="color:#15803d">${fmtMoney(totEmp)}</div><div class="comision-summary-lbl">Para la empresa (75%)</div></div>`;
 
   const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  document.getElementById('comisionList').innerHTML = data.length ? data.map((m,i)=>{
+  if(!data.length){
+    document.getElementById('comisionList').innerHTML=`<div class="empty-state"><h4>Sin comisiones aún</h4><p>Las comisiones se calculan cuando un viaje pasa a "viajado"</p></div>`;
+    return;
+  }
+  document.getElementById('comisionList').innerHTML = data.map((m,i)=>{
     const [y,mon] = m.mes.split('-');
     const mesNombre = meses[parseInt(mon)-1]+' '+y;
-    const rows = Object.entries(m.vendedoras).map(([v,d])=>`
-      <div class="comision-row">
-        <div class="comision-vendedora">${v}</div>
-        <div>${d.legajos} legajo${d.legajos!==1?'s':''}</div>
-        <div class="comision-monto">${fmtMoney(d.comision)}</div>
-        <div><span class="comision-estado-pendiente">Pendiente</span></div>
-      </div>`).join('');
-    return `<div>
-      <div class="comision-mes-header" onclick="this.nextElementSibling.classList.toggle('open')">
+
+    const vendedorasHTML = Object.entries(m.vendedoras).map(([v,d])=>{
+      const sueldo     = getSueldo(v);
+      const comBruta   = d.comision;               // 25% de rentabilidad
+      const diff       = comBruta - sueldo;        // positivo = cobro extra, negativo = no llega
+      const totalCobrar= comBruta > sueldo ? comBruta : sueldo; // siempre cobra al menos el sueldo
+
+      return `<div class="com-vendedora-block">
+        <div class="com-vendedora-name">
+          <div style="width:26px;height:26px;border-radius:50%;background:${USERS[v]?.color||'#9E9898'};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white">${USERS[v]?.initials||v.substring(0,2).toUpperCase()}</div>
+          ${v} · ${d.legajos} legajo${d.legajos!==1?'s':''}
+        </div>
+        <div class="com-fin-row"><span class="com-fin-row-lbl">Ventas totales</span><span class="com-fin-row-val">${fmtMoney(d.totalVenta)}</span></div>
+        <div class="com-fin-row destacado"><span class="com-fin-row-lbl">Rentabilidad (venta − costo)</span><span class="com-fin-row-val">${fmtMoney(d.totalRent)}</span></div>
+        <div class="com-fin-divider"></div>
+        <div class="com-fin-row"><span class="com-fin-row-lbl">Comisión bruta (25% rentabilidad)</span><span class="com-fin-row-val">${fmtMoney(comBruta)}</span></div>
+        <div class="com-fin-row"><span class="com-fin-row-lbl">Para la empresa (75%)</span><span class="com-fin-row-val" style="color:#15803d">${fmtMoney(d.empresa)}</span></div>
+        <div class="com-fin-divider"></div>
+        <div class="com-fin-row"><span class="com-fin-row-lbl">Sueldo base</span><span class="com-fin-row-val">${fmtMoney(sueldo)}</span></div>
+        <div class="com-fin-row ${diff>=0?'positivo':'negativo'}">
+          <span class="com-fin-row-lbl">${diff>=0?'Comisión supera el sueldo (extra)':'Comisión no cubre el sueldo (diferencia)'}</span>
+          <span class="com-fin-row-val">${diff>=0?'+':''}${fmtMoney(diff)}</span>
+        </div>
+        <div class="com-fin-row total-row">
+          <span class="com-fin-row-lbl">Total a cobrar ${v}</span>
+          <span class="com-fin-row-val">${fmtMoney(totalCobrar)}</span>
+        </div>
+      </div>`;
+    }).join('');
+
+    return `<div class="com-fin-card">
+      <div class="com-fin-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'':'none'">
         <div>
-          <div class="comision-mes-titulo">${mesNombre}</div>
-          <div style="font-size:12px;color:var(--gray-400);margin-top:2px">${m.legajos.length} viaje${m.legajos.length!==1?'s':''} completado${m.legajos.length!==1?'s':''}</div>
+          <div class="com-fin-title">${mesNombre}</div>
+          <div class="com-fin-subtitle">${m.legajos.length} viaje${m.legajos.length!==1?'s':''} completado${m.legajos.length!==1?'s':''}</div>
         </div>
-        <div class="comision-mes-stats">
-          <div class="comision-mes-stat"><div class="comision-mes-stat-val">${fmtMoney(m.total)}</div><div class="comision-mes-stat-lbl">Ventas</div></div>
-          <div class="comision-mes-stat"><div class="comision-mes-stat-val" style="color:var(--red)">${fmtMoney(m.comision)}</div><div class="comision-mes-stat-lbl">Comisión (5%)</div></div>
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16" style="color:var(--gray-400)"><path d="m6 9 6 6 6-6"/></svg>
+        <div class="com-fin-totals">
+          <div class="com-fin-total"><div class="com-fin-total-val">${fmtMoney(m.totalRent)}</div><div class="com-fin-total-lbl">Rentabilidad</div></div>
+          <div class="com-fin-total"><div class="com-fin-total-val" style="color:#f59e0b">${fmtMoney(m.totalRent*COM_PCT)}</div><div class="com-fin-total-lbl">Comisiones</div></div>
+          <svg fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,.4)" stroke-width="2" width="16" height="16"><path d="m6 9 6 6 6-6"/></svg>
         </div>
       </div>
-      <div class="comision-detalle ${i===0?'open':''}">
-        <div class="comision-row" style="background:var(--gray-100);font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--gray-600)">
-          <div>Vendedora</div><div>Legajos</div><div>Comisión</div><div>Estado</div>
-        </div>
-        ${rows}
-      </div>
+      <div class="com-fin-body" style="${i===0?'':'display:none'}">${vendedorasHTML}</div>
     </div>`;
-  }).join('') : `<div class="empty-state"><h4>Sin comisiones aún</h4><p>Las comisiones aparecen cuando un viaje pasa a estado "viajado"</p></div>`;
+  }).join('');
 }
+
+window.saveSueldos = function(){
+  const sellers = Object.values(USERS).filter(u=>u.role==='seller');
+  sellers.forEach(u=>{
+    const el=document.getElementById(`sueldo_${u.vendedora}`);
+    if(el) sueldosBase[u.vendedora]=parseFloat(el.value)||SUELDO_DEFAULT;
+  });
+  toast('Sueldos actualizados','success');
+  renderComisiones();
+};
 
 /* ─── DASHBOARD PREMIUM RENDER ───────────────────────── */
 function renderDashPremium(){
