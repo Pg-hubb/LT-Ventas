@@ -690,40 +690,55 @@ input,select,textarea{font-family:var(--font)}
 
 </div>
 
-<!-- MODAL: RECUPERAR CONTRASEÑA -->
+<!-- MODAL: RECUPERAR CONTRASEÑA (por email) -->
 <div class="modal-overlay" id="modalForgot">
   <div class="modal" style="max-width:420px">
     <div class="modal-header">
       <div class="modal-header-icon" style="background:#1d4ed8">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
       </div>
       <div>
         <div class="modal-title">Recuperar contraseña</div>
-        <div class="modal-subtitle">Creá una nueva contraseña para tu cuenta</div>
+        <div class="modal-subtitle" id="forgotSubtitle">Ingresá tu email para continuar</div>
       </div>
       <button class="modal-close" onclick="closeForgotModal()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
     </div>
+
+    <!-- PASO 1: Ingresar email -->
     <div id="forgotStep1" class="modal-body">
-      <div class="form-group" style="margin-bottom:16px">
-        <label class="form-label">Usuario</label>
-        <select class="form-select" id="forgotUser">
-          <option value="">Seleccionar usuario</option>
-          <option value="Carolina">Carolina</option><option value="Claudia">Claudia</option>
-          <option value="Fernando">Fernando</option><option value="Lucas">Lucas</option>
-          <option value="Luciana">Luciana</option><option value="Lujan">Lujan</option>
-          <option value="Pilar">Pilar</option><option value="Silvia">Silvia</option>
-          <option value="Xiomara">Xiomara</option>
-        </select>
-        <div class="settings-field-error" id="errForgotUser"></div>
+      <div style="background:rgba(29,78,216,.06);border:1px solid rgba(29,78,216,.15);border-radius:8px;padding:12px 14px;font-size:12.5px;color:#1d4ed8;line-height:1.6;margin-bottom:18px;display:flex;gap:10px;align-items:flex-start">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="15" height="15" style="flex-shrink:0;margin-top:2px"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Si el email está registrado en el sistema, recibirás un link de recuperación. Por seguridad no confirmamos si el email existe.</span>
       </div>
-      <div style="background:var(--gray-100);border-radius:8px;padding:12px 14px;font-size:12.5px;color:var(--gray-600);line-height:1.6">
-        Seleccioná tu usuario y podrás crear una nueva contraseña directamente.
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="forgotEmail" placeholder="tu@email.com" autocomplete="email">
+        <div class="settings-field-error" id="errForgotEmail"></div>
       </div>
     </div>
-    <div id="forgotStep2" class="modal-body" style="display:none">
-      <div class="form-group" style="margin-bottom:16px">
+
+    <!-- PASO 2: Email enviado (confirmación neutral) -->
+    <div id="forgotStep2" class="modal-body" style="display:none;text-align:center;padding:32px 28px">
+      <div style="width:60px;height:60px;background:rgba(29,78,216,.08);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px">
+        <svg fill="none" viewBox="0 0 24 24" stroke="#1d4ed8" stroke-width="2" width="28" height="28"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      </div>
+      <div style="font-size:16px;font-weight:700;color:var(--black);margin-bottom:8px">Revisá tu correo</div>
+      <div style="font-size:13px;color:var(--gray-400);line-height:1.7;margin-bottom:20px">Si existe una cuenta asociada a ese email, enviamos un link de recuperación.<br>El link expira en <strong style="color:var(--black)">30 minutos</strong>.</div>
+      <div style="background:var(--gray-100);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--gray-600);line-height:1.6;text-align:left">
+        <strong>¿No recibiste el email?</strong><br>
+        Verificá que el email esté correctamente cargado en Ajustes → Perfil, o contactá a un administrador.
+      </div>
+    </div>
+
+    <!-- PASO 3: Nueva contraseña (acceso desde link interno) -->
+    <div id="forgotStep3" class="modal-body" style="display:none">
+      <div style="background:#F0FDF4;border:1px solid rgba(21,128,61,.2);border-radius:8px;padding:10px 14px;font-size:12.5px;color:#15803d;margin-bottom:16px;display:flex;gap:8px;align-items:center">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M20 6L9 17l-5-5"/></svg>
+        Link válido · Ingresá tu nueva contraseña
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
         <label class="form-label">Nueva contraseña</label>
-        <input type="password" class="form-input" id="forgotNewPass" placeholder="Mínimo 6 caracteres">
+        <input type="password" class="form-input" id="forgotNewPass" placeholder="Mínimo 6 caracteres · al menos 1 número" oninput="checkPassStrength(this.value)">
         <div style="margin-top:8px;display:flex;gap:4px">
           <div style="height:3px;flex:1;border-radius:2px;background:var(--gray-200);transition:background .3s" id="fsb1"></div>
           <div style="height:3px;flex:1;border-radius:2px;background:var(--gray-200);transition:background .3s" id="fsb2"></div>
@@ -738,16 +753,44 @@ input,select,textarea{font-family:var(--font)}
         <div class="settings-field-error" id="errForgotConfirm"></div>
       </div>
     </div>
-    <div id="forgotStep3" class="modal-body" style="display:none;text-align:center;padding:40px 28px">
-      <div style="width:56px;height:56px;background:#F0FDF4;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
-        <svg fill="none" viewBox="0 0 24 24" stroke="#15803d" stroke-width="2.5" width="26" height="26"><path d="M20 6L9 17l-5-5"/></svg>
+
+    <!-- PASO 4: Contraseña cambiada OK -->
+    <div id="forgotStep4" class="modal-body" style="display:none;text-align:center;padding:36px 28px">
+      <div style="width:60px;height:60px;background:#F0FDF4;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px">
+        <svg fill="none" viewBox="0 0 24 24" stroke="#15803d" stroke-width="2.5" width="28" height="28"><path d="M20 6L9 17l-5-5"/></svg>
       </div>
-      <div style="font-size:16px;font-weight:700;color:var(--black);margin-bottom:6px">Contraseña actualizada</div>
-      <div style="font-size:13px;color:var(--gray-400);line-height:1.6">Tu contraseña fue cambiada correctamente.<br>Ingresá con tu nueva contraseña.</div>
+      <div style="font-size:17px;font-weight:700;color:var(--black);margin-bottom:8px">Contraseña actualizada</div>
+      <div style="font-size:13px;color:var(--gray-400);line-height:1.6">Tu contraseña fue cambiada correctamente.<br>Ya podés ingresar con tus nuevas credenciales.</div>
     </div>
+
     <div class="modal-footer" id="forgotFooter">
       <button class="btn-modal-cancel" onclick="closeForgotModal()">Cancelar</button>
-      <button class="btn-modal-primary" id="btnForgotNext" onclick="forgotNext()">Continuar</button>
+      <button class="btn-modal-primary" id="btnForgotNext" onclick="forgotNext()">Enviar link</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: PREVIEW COMPROBANTE -->
+<div class="modal-overlay" id="modalComprobante" style="align-items:center;padding:20px">
+  <div style="background:var(--black);border-radius:16px;max-width:720px;width:100%;overflow:hidden;box-shadow:var(--shadow-lg);animation:fadeUp .3s ease">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.1)">
+      <div style="font-size:14px;font-weight:600;color:white" id="comprobanteTitle">Comprobante</div>
+      <div style="display:flex;gap:8px">
+        <a id="comprobanteOpenLink" href="#" target="_blank" style="height:32px;padding:0 14px;background:rgba(255,255,255,.1);color:white;border-radius:8px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;text-decoration:none;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.18)'" onmouseout="this.style.background='rgba(255,255,255,.1)'">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          Abrir
+        </a>
+        <button onclick="closeModal('modalComprobante')" style="width:32px;height:32px;background:rgba(255,255,255,.1);border-radius:8px;color:white;display:flex;align-items:center;justify-content:center;transition:background .2s" onmouseover="this.style.background='rgba(172,10,16,.4)'" onmouseout="this.style.background='rgba(255,255,255,.1)'">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+    <div style="padding:20px;max-height:70vh;overflow:auto;display:flex;align-items:center;justify-content:center;background:#111">
+      <img id="comprobanteImg" src="" alt="Comprobante" style="max-width:100%;max-height:65vh;border-radius:6px;display:block">
+      <div id="comprobantePDFMsg" style="display:none;color:rgba(255,255,255,.5);font-size:14px;text-align:center;padding:40px">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" width="48" height="48" style="color:rgba(255,255,255,.2);margin-bottom:12px;display:block;margin-left:auto;margin-right:auto"><path d="M9 12h6M9 16h6M9 8h4m5 0l-4-4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V8z"/></svg>
+        Archivo PDF adjunto<br><small style="font-size:12px">Hacé click en "Abrir" para verlo</small>
+      </div>
     </div>
   </div>
 </div>
@@ -1032,9 +1075,16 @@ input,select,textarea{font-family:var(--font)}
                 <div class="settings-card-sub" id="settingsProfileSub">—</div>
               </div>
             </div>
+
+            <!-- Aviso email obligatorio -->
+            <div id="emailAlertBanner" style="display:none;background:#FFF7ED;border:1px solid rgba(217,119,6,.3);border-radius:8px;padding:11px 14px;font-size:12.5px;color:#92400e;line-height:1.6;margin-bottom:16px;display:flex;gap:10px;align-items:flex-start">
+              <svg fill="none" viewBox="0 0 24 24" stroke="#d97706" stroke-width="2" width="15" height="15" style="flex-shrink:0;margin-top:2px"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+              <span><strong>Email no configurado.</strong> Necesitás un email para poder recuperar tu contraseña. Cargalo a continuación.</span>
+            </div>
+
             <div class="form-group" style="margin-bottom:16px">
-              <label class="form-label">Email</label>
-              <input type="email" class="form-input" id="settingsEmail" placeholder="tu@email.com">
+              <label class="form-label">Email <span style="color:#d97706;font-size:10px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;margin-left:4px">Requerido para recuperar contraseña</span></label>
+              <input type="email" class="form-input" id="settingsEmail" placeholder="tu@email.com" autocomplete="email">
               <div class="settings-field-error" id="errSettingsEmail"></div>
             </div>
             <button class="topbar-btn primary" onclick="saveEmail()" style="height:40px;font-size:13px">
@@ -1042,7 +1092,7 @@ input,select,textarea{font-family:var(--font)}
             </button>
             <div id="emailSuccessMsg" style="display:none;align-items:center;gap:6px;font-size:13px;color:#15803d;font-weight:600;margin-top:10px">
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" width="15" height="15"><path d="M20 6L9 17l-5-5"/></svg>
-              Email guardado correctamente
+              Email guardado — podés usar recuperación de contraseña
             </div>
           </div>
 
@@ -1676,11 +1726,15 @@ window.previewFile = function(input){
   if(!file) return;
   const wrap = document.getElementById('filePreviewWrap');
   const kb = Math.round(file.size/1024);
+  // Store as base64 so it can be saved to Firebase
+  const reader = new FileReader();
+  reader.onload = e=>{ input._base64 = e.target.result; };
+  reader.readAsDataURL(file);
   wrap.innerHTML=`<div class="file-preview">
     <svg fill="none" viewBox="0 0 24 24" stroke="var(--red)" stroke-width="2" width="20" height="20"><path d="M9 12h6M9 16h6M9 8h4m5 0l-4-4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V8z"/></svg>
     <div class="file-preview-name">${file.name}</div>
-    <div class="file-preview-size">${kb} KB</div>
-    <button onclick="document.getElementById('tFile').value='';document.getElementById('filePreviewWrap').innerHTML=''" style="background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:18px;line-height:1">×</button>
+    <div class="file-preview-size">${kb} KB · listo para adjuntar</div>
+    <button onclick="document.getElementById('tFile').value='';document.getElementById('filePreviewWrap').innerHTML='';document.getElementById('tFile')._base64=null;" style="background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:18px;line-height:1">×</button>
   </div>`;
 };
 
@@ -1997,10 +2051,14 @@ window.switchView = function(v){
 function loadSettingsView(){
   if(!currentUser) return;
   document.getElementById('settingsProfileSub').textContent=currentUser.name+' · '+currentUser.display;
-  // cargar email guardado
+  const emailVal = currentUser.email || USERS[currentUser.id]?.email || '';
   const emailEl=document.getElementById('settingsEmail');
-  if(emailEl) emailEl.value=currentUser.email||USERS[currentUser.id].email||'';
-  // reset campos contraseña
+  if(emailEl) emailEl.value=emailVal;
+
+  // Mostrar aviso si no tiene email
+  const banner=document.getElementById('emailAlertBanner');
+  if(banner) banner.style.display = emailVal ? 'none' : 'flex';
+
   ['passActual','passNueva','passConfirm'].forEach(id=>{
     const el=document.getElementById(id);if(el) el.value='';
   });
@@ -2100,55 +2158,78 @@ window.changePassword = function(){
   toast('Contraseña actualizada correctamente','success');
 };
 
-/* ─── FORGOT PASSWORD FLOW ───────────────────────────── */
+/* ─── FORGOT PASSWORD — FLUJO SEGURO POR EMAIL ────────── */
 let forgotStep=1;
+let forgotTargetUser=null; // solo se setea internamente, nunca desde UI
 
 window.openForgotPassword = function(){
-  forgotStep=1;
-  document.getElementById('forgotUser').value='';
-  document.getElementById('forgotNewPass').value='';
-  document.getElementById('forgotConfirmPass').value='';
-  ['errForgotUser','errForgotNew','errForgotConfirm'].forEach(id=>document.getElementById(id).textContent='');
+  forgotStep=1; forgotTargetUser=null;
+  const emailEl=document.getElementById('forgotEmail');
+  if(emailEl) emailEl.value='';
+  ['errForgotEmail','errForgotNew','errForgotConfirm'].forEach(id=>{
+    const el=document.getElementById(id);if(el) el.textContent='';
+  });
+  const np=document.getElementById('forgotNewPass'); if(np) np.value='';
+  const cp=document.getElementById('forgotConfirmPass'); if(cp) cp.value='';
   resetStrengthBars('fsb');
   document.getElementById('forgotStep1').style.display='';
   document.getElementById('forgotStep2').style.display='none';
   document.getElementById('forgotStep3').style.display='none';
+  document.getElementById('forgotStep4').style.display='none';
   document.getElementById('forgotFooter').style.display='';
-  document.getElementById('btnForgotNext').textContent='Continuar';
+  document.getElementById('btnForgotNext').textContent='Enviar link';
+  document.getElementById('forgotSubtitle').textContent='Ingresá tu email para continuar';
   openModal('modalForgot');
 };
 
 window.closeForgotModal = function(){
   closeModal('modalForgot');
-  if(forgotStep===3){
-    // si se completó, limpiar login pass
-    document.getElementById('loginPass').value='';
-  }
+  forgotTargetUser=null;
 };
 
 window.forgotNext = function(){
   if(forgotStep===1){
-    const uid=document.getElementById('forgotUser').value;
-    const err=document.getElementById('errForgotUser');
-    if(!uid){ err.textContent='Seleccioná un usuario'; return; }
-    err.textContent='';
-    forgotStep=2;
-    document.getElementById('forgotStep1').style.display='none';
-    document.getElementById('forgotStep2').style.display='';
-    document.getElementById('btnForgotNext').textContent='Actualizar contraseña';
-    document.getElementById('forgotNewPass').focus();
+    const email=(document.getElementById('forgotEmail').value||'').trim().toLowerCase();
+    const errEl=document.getElementById('errForgotEmail');
+    if(!email||!email.includes('@')||!email.includes('.')){
+      errEl.textContent='Ingresá un email válido'; return;
+    }
+    errEl.textContent='';
+    // Buscar por email en USERS — búsqueda interna, nunca revelamos si existe
+    const match = Object.entries(USERS).find(([uid,u])=>
+      (u.email||'').toLowerCase()===email
+    );
+    if(match){
+      forgotTargetUser = match[0]; // id interno del usuario
+      // Modo demo: ir directo a paso de nueva contraseña
+      // En producción: enviar email real con link + token temporal
+      forgotStep=3;
+      document.getElementById('forgotStep1').style.display='none';
+      document.getElementById('forgotStep3').style.display='';
+      document.getElementById('btnForgotNext').textContent='Actualizar contraseña';
+      document.getElementById('forgotSubtitle').textContent='Creá tu nueva contraseña';
+      document.getElementById('forgotNewPass').focus();
+    } else {
+      // Email no encontrado — mostrar paso 2 igualmente (no revelar existencia)
+      forgotStep=2;
+      document.getElementById('forgotStep1').style.display='none';
+      document.getElementById('forgotStep2').style.display='';
+      document.getElementById('forgotFooter').style.display='none';
+    }
     return;
   }
-  if(forgotStep===2){
-    const nueva    = document.getElementById('forgotNewPass').value;
-    const confirma = document.getElementById('forgotConfirmPass').value;
-    if(!validateNewPass(nueva, confirma, 'errForgotNew', 'errForgotConfirm')) return;
-    const uid=document.getElementById('forgotUser').value;
-    USERS[uid].pass=nueva;
-    forgotStep=3;
-    document.getElementById('forgotStep2').style.display='none';
-    document.getElementById('forgotStep3').style.display='';
+  if(forgotStep===3){
+    const nueva   = document.getElementById('forgotNewPass').value;
+    const confirma= document.getElementById('forgotConfirmPass').value;
+    if(!validateNewPass(nueva,confirma,'errForgotNew','errForgotConfirm')) return;
+    if(forgotTargetUser && USERS[forgotTargetUser]){
+      USERS[forgotTargetUser].pass = nueva;
+    }
+    forgotStep=4;
+    document.getElementById('forgotStep3').style.display='none';
+    document.getElementById('forgotStep4').style.display='';
     document.getElementById('forgotFooter').style.display='none';
+    forgotTargetUser=null;
     return;
   }
 };
@@ -2171,11 +2252,15 @@ window.saveEmail = function(){
   const err = document.getElementById('errSettingsEmail');
   const ok  = document.getElementById('emailSuccessMsg');
   err.textContent=''; ok.style.display='none';
-  if(!email || !email.includes('@')){ err.textContent='Ingresá un email válido'; return; }
+  if(!email || !email.includes('@') || !email.includes('.')){
+    err.textContent='Ingresá un email válido (ej: nombre@dominio.com)'; return;
+  }
   USERS[currentUser.id].email = email;
   currentUser.email = email;
+  const banner=document.getElementById('emailAlertBanner');
+  if(banner) banner.style.display='none';
   ok.style.display='flex';
-  toast('Email guardado correctamente','success');
+  toast('Email guardado — ya podés usar la recuperación de contraseña','success');
 };
 
 /* ─── LEGAJOS: NUMERACIÓN SIMPLE (1, 2, 3…) ─────────── */
@@ -2275,6 +2360,9 @@ window.saveTransferencia = async function(){
   const btn    = document.getElementById('btnSaveTransf');
   if(!nombre||!monto||!fecha){ toast('Completá los campos obligatorios','error'); return; }
   btn.disabled=true; btn.textContent='Guardando...';
+  const fileInput = document.getElementById('tFile');
+  const comprobanteBase64 = fileInput?._base64||null;
+  const comprobanteName = fileInput?.files?.[0]?.name||null;
   const obj = {
     tipo,
     nombre,
@@ -2284,6 +2372,8 @@ window.saveTransferencia = async function(){
     obs:        document.getElementById('tObs').value.trim(),
     estado:     'pendiente',
     vendedora:  currentUser.vendedora||currentUser.name,
+    comprobante:comprobanteBase64,
+    comprobanteName,
     ts: Date.now(),
   };
   try{
@@ -2329,14 +2419,20 @@ function renderTransfSection(tipo, filtro, containerId){
   cont.innerHTML=data.map(t=>{
     const estadoClass={pendiente:'te-pendiente',confirmada:'te-confirmada',rechazada:'te-rechazada'}[t.estado]||'te-pendiente';
     const accentColor=isIng?'#15803d':'#AC0A10';
-    const acciones = isAdmin ? `<div class="transf-actions">
-      ${t.estado!=='confirmada'?`<button class="btn-confirmar" style="background:${accentColor}" onclick="setTransfEstado('${t.fbKey}','confirmada')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" width="12" height="12"><path d="M20 6L9 17l-5-5"/></svg> Confirmar</button>`:''}
+    const comprobanteBtn = t.comprobante ? `
+      <button onclick="openComprobante('${t.comprobante}','${(t.comprobanteName||'Comprobante').replace(/'/g,"\\'")} — ${t.nombre}')" style="height:30px;padding:0 12px;background:rgba(29,78,216,.08);border:1.5px solid rgba(29,78,216,.2);border-radius:7px;font-size:12px;font-weight:600;color:#1d4ed8;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s" onmouseover="this.style.background='rgba(29,78,216,.14)'" onmouseout="this.style.background='rgba(29,78,216,.08)'">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+        Ver comprobante
+      </button>` : `<span style="font-size:11px;color:var(--gray-400);font-style:italic">Sin comprobante</span>`;
+    const acciones = isAdmin ? `<div class="transf-actions" style="flex-wrap:wrap;gap:6px">
+      ${comprobanteBtn}
+      ${t.estado!=='confirmada'?`<button class="btn-confirmar" style="background:${accentColor}" onclick="setTransfEstado('${t.fbKey}','confirmada')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" width="12" height="12"><path d="M20 6L9 17l-5-5"/></svg> Confirmar</button>`:'<span style="font-size:12px;font-weight:600;color:#15803d">✓ Confirmado</span>'}
       ${t.estado==='pendiente'?`<button class="btn-rechazar" onclick="setTransfEstado('${t.fbKey}','rechazada')">Rechazar</button>`:''}
-    </div>` : `<div style="font-size:12px;color:var(--gray-400)">${t.estado==='pendiente'?'Aguardando confirmación':t.estado==='confirmada'?'✓ Confirmado':'✗ Rechazado'}</div>`;
+    </div>` : `<div style="display:flex;align-items:center;gap:10px">${comprobanteBtn}<span style="font-size:12px;color:var(--gray-400)">${t.estado==='pendiente'?'Aguardando confirmación':t.estado==='confirmada'?'✓ Confirmado':'✗ Rechazado'}</span></div>`;
     return `<div class="transf-card" style="border-left:3px solid ${accentColor}">
       <div class="transf-card-header">
         <div>
-          <div style="font-size:11px;font-weight:700;color:${accentColor};letter-spacing:.5px">${t.legajoRef?'LEG '+t.legajoRef:isIng?'INGRESO':'EGRESO'}</div>
+          <div style="font-size:11px;font-weight:700;color:${accentColor};letter-spacing:.5px">${t.legajoRef?'LEG #'+t.legajoRef:isIng?'INGRESO':'EGRESO'}</div>
           <div class="transf-card-vendedora">${t.nombre}</div>
           <div style="font-size:11px;color:var(--gray-400)">${t.vendedora} · ${fmtDate(t.fecha)}</div>
         </div>
@@ -2374,7 +2470,24 @@ function renderDashTransf(){
     </div>`;}).join('');
 }
 
-/* ─── COMISIONES — LÓGICA REAL ───────────────────────── */
+/* ─── COMPROBANTE PREVIEW ────────────────────────────── */
+window.openComprobante = function(src, nombre){
+  if(!src){ toast('Sin comprobante adjunto','info'); return; }
+  document.getElementById('comprobanteTitle').textContent = nombre||'Comprobante';
+  document.getElementById('comprobanteOpenLink').href = src;
+  const img = document.getElementById('comprobanteImg');
+  const pdfMsg = document.getElementById('comprobantePDFMsg');
+  const isPDF = src.toLowerCase().includes('application/pdf') || src.toLowerCase().endsWith('.pdf');
+  if(isPDF){
+    img.style.display='none';
+    pdfMsg.style.display='block';
+  } else {
+    img.src = src;
+    img.style.display='block';
+    pdfMsg.style.display='none';
+  }
+  openModal('modalComprobante');
+};
 const COM_PCT = 0.25; // 25% de la rentabilidad para la vendedora
 // Sueldos base por vendedora (ARS) — editables por admin
 let sueldosBase = {};
@@ -2408,13 +2521,18 @@ function calcComisiones(){
     byMonth[key].totalRent  += rent;
     const v = l.vendedora||'Sin asignar';
     if(!byMonth[key].vendedoras[v]){
-      byMonth[key].vendedoras[v]={legajos:0,totalVenta:0,totalRent:0,comision:0,empresa:0};
+      byMonth[key].vendedoras[v]={
+        legajos:0, totalVenta:0, totalRent:0,
+        comision:0, empresa:0,
+        legajosDetalle:[]          // ← lista de legajos para desglose por venta
+      };
     }
     byMonth[key].vendedoras[v].legajos++;
-    byMonth[key].vendedoras[v].totalVenta  += (l.total||0);
-    byMonth[key].vendedoras[v].totalRent   += rent;
-    byMonth[key].vendedoras[v].comision    += comVendedora;
-    byMonth[key].vendedoras[v].empresa     += comEmpresa;
+    byMonth[key].vendedoras[v].totalVenta     += (l.total||0);
+    byMonth[key].vendedoras[v].totalRent      += rent;
+    byMonth[key].vendedoras[v].comision       += comVendedora;
+    byMonth[key].vendedoras[v].empresa        += comEmpresa;
+    byMonth[key].vendedoras[v].legajosDetalle.push(l);  // ← guardar legajo completo
   });
   return Object.values(byMonth).sort((a,b)=>b.mes.localeCompare(a.mes));
 }
@@ -2433,56 +2551,124 @@ function renderComisiones(){
       document.getElementById('sueldosConfig').innerHTML = sellers.map(u=>`
         <div style="display:flex;align-items:center;gap:6px">
           <span style="font-size:12px;color:var(--gray-600);font-weight:600">${u.name}:</span>
-          <input type="number" id="sueldo_${u.vendedora}" value="${getSueldo(u.vendedora)}" style="width:110px;height:32px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:8px;padding:0 10px;font-size:13px;font-family:var(--font);outline:none" placeholder="300000">
+          <input type="number" id="sueldo_${u.vendedora}" value="${getSueldo(u.vendedora)}"
+            style="width:110px;height:32px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:8px;padding:0 10px;font-size:13px;font-family:var(--font);outline:none"
+            placeholder="300000">
         </div>`).join('');
     }
   }
 
-  // Summary cards
-  const totVenta  = data.reduce((s,m)=>s+m.totalVenta,0);
-  const totRent   = data.reduce((s,m)=>s+m.totalRent,0);
-  const totCom    = totRent * COM_PCT;
-  const totEmp    = totRent * (1-COM_PCT);
+  // Summary cards globales
+  const totVenta = data.reduce((s,m)=>s+m.totalVenta,0);
+  const totRent  = data.reduce((s,m)=>s+m.totalRent,0);
+  const totCom   = totRent * COM_PCT;
+  const totEmp   = totRent * (1-COM_PCT);
   document.getElementById('comisionSummary').innerHTML=`
     <div class="comision-summary-card"><div class="comision-summary-val">${fmtMoney(totVenta)}</div><div class="comision-summary-lbl">Total ventas</div></div>
     <div class="comision-summary-card"><div class="comision-summary-val">${fmtMoney(totRent)}</div><div class="comision-summary-lbl">Rentabilidad total</div></div>
-    <div class="comision-summary-card"><div class="comision-summary-val" style="color:var(--red)">${fmtMoney(totCom)}</div><div class="comision-summary-lbl">Comisiones (25%)</div></div>
-    <div class="comision-summary-card"><div class="comision-summary-val" style="color:#15803d">${fmtMoney(totEmp)}</div><div class="comision-summary-lbl">Para la empresa (75%)</div></div>`;
+    <div class="comision-summary-card"><div class="comision-summary-val" style="color:var(--red)">${fmtMoney(totCom)}</div><div class="comision-summary-lbl">Comisiones 25%</div></div>
+    <div class="comision-summary-card"><div class="comision-summary-val" style="color:#15803d">${fmtMoney(totEmp)}</div><div class="comision-summary-lbl">Para la empresa 75%</div></div>`;
 
   const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   if(!data.length){
     document.getElementById('comisionList').innerHTML=`<div class="empty-state"><h4>Sin comisiones aún</h4><p>Las comisiones se calculan cuando un viaje pasa a "viajado"</p></div>`;
     return;
   }
+
   document.getElementById('comisionList').innerHTML = data.map((m,i)=>{
     const [y,mon] = m.mes.split('-');
     const mesNombre = meses[parseInt(mon)-1]+' '+y;
 
     const vendedorasHTML = Object.entries(m.vendedoras).map(([v,d])=>{
-      const sueldo     = getSueldo(v);
-      const comBruta   = d.comision;               // 25% de rentabilidad
-      const diff       = comBruta - sueldo;        // positivo = cobro extra, negativo = no llega
-      const totalCobrar= comBruta > sueldo ? comBruta : sueldo; // siempre cobra al menos el sueldo
+      const sueldo = getSueldo(v);
+
+      // ─── LÓGICA REAL DEL NEGOCIO ─────────────────────────────────────────
+      // 1. Por cada venta: comisión = 25% de (venta − costo)
+      // 2. Todas las comisiones del mes se ACUMULAN
+      // 3. El sueldo base se descuenta UNA SOLA VEZ del total mensual
+      // 4. Excedente = comisión_total − sueldo
+      //    · Si positivo → cobra sueldo + excedente
+      //    · Si negativo → cobra sueldo (diferencia la cubre la empresa)
+      // Ejemplo: sueldo 100 USD, com1=250, com2=100 → total=350 → cobra 350
+      // ─────────────────────────────────────────────────────────────────────
+      const comTotal   = d.comision;                           // acumulado mensual 25%
+      const excedente  = comTotal - sueldo;                    // + cobra extra, - empresa cubre
+      const totalCobrar= excedente >= 0 ? comTotal : sueldo;  // siempre gana al menos el sueldo
+
+      // Acumulado corriente para mostrar running total en la tabla de ventas
+      let acumulado = 0;
+
+      // Desglose por venta (legajosDetalle ya existe en calcComisiones)
+      const legajosHTML = (d.legajosDetalle||[]).map((leg, idx)=>{
+        const r = calcRentabilidad(leg);
+        const c = r * COM_PCT;
+        acumulado += c;
+        const exced = acumulado - sueldo;
+        return `<tr style="font-size:12.5px">
+          <td style="padding:8px 20px;border-bottom:1px solid var(--gray-100);font-weight:600;color:var(--red)">#${leg.num}</td>
+          <td style="padding:8px 10px;border-bottom:1px solid var(--gray-100);color:var(--gray-600)">${leg.cliente}</td>
+          <td style="padding:8px 10px;border-bottom:1px solid var(--gray-100)">${fmtMoney(leg.total)}</td>
+          <td style="padding:8px 10px;border-bottom:1px solid var(--gray-100)">${fmtMoney(leg.neto||0)}</td>
+          <td style="padding:8px 10px;border-bottom:1px solid var(--gray-100);font-weight:600">${fmtMoney(r)}</td>
+          <td style="padding:8px 20px;border-bottom:1px solid var(--gray-100);font-weight:700;color:var(--red)">${fmtMoney(c)}</td>
+          <td style="padding:8px 20px;border-bottom:1px solid var(--gray-100);font-weight:700;color:${exced>=0?'#15803d':'#d97706'}">${fmtMoney(acumulado)}</td>
+        </tr>`;
+      }).join('');
+
+      const userObj = Object.values(USERS).find(u=>u.vendedora===v||u.name===v);
+      const color = userObj?.color||'#9E9898';
+      const initials = userObj?.initials||v.substring(0,2).toUpperCase();
 
       return `<div class="com-vendedora-block">
         <div class="com-vendedora-name">
-          <div style="width:26px;height:26px;border-radius:50%;background:${USERS[v]?.color||'#9E9898'};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white">${USERS[v]?.initials||v.substring(0,2).toUpperCase()}</div>
-          ${v} · ${d.legajos} legajo${d.legajos!==1?'s':''}
+          <div style="width:30px;height:30px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0">${initials}</div>
+          <span style="font-weight:700;font-size:14px">${v}</span>
+          <span style="font-size:12px;color:var(--gray-400);font-weight:400">${d.legajos} legajo${d.legajos!==1?'s':''}</span>
         </div>
-        <div class="com-fin-row"><span class="com-fin-row-lbl">Ventas totales</span><span class="com-fin-row-val">${fmtMoney(d.totalVenta)}</span></div>
-        <div class="com-fin-row destacado"><span class="com-fin-row-lbl">Rentabilidad (venta − costo)</span><span class="com-fin-row-val">${fmtMoney(d.totalRent)}</span></div>
+
+        ${legajosHTML ? `
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:12px">
+            <thead>
+              <tr style="background:var(--gray-100)">
+                <th style="padding:8px 20px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--gray-600)">Leg.</th>
+                <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--gray-600)">Cliente</th>
+                <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--gray-600)">Venta</th>
+                <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--gray-600)">Neto</th>
+                <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--gray-600)">Rentab.</th>
+                <th style="padding:8px 20px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--red)">Com. 25%</th>
+                <th style="padding:8px 20px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--gray-600)">Acum.</th>
+              </tr>
+            </thead>
+            <tbody>${legajosHTML}</tbody>
+          </table>
+        </div>` : ''}
+
         <div class="com-fin-divider"></div>
-        <div class="com-fin-row"><span class="com-fin-row-lbl">Comisión bruta (25% rentabilidad)</span><span class="com-fin-row-val">${fmtMoney(comBruta)}</span></div>
+        <div class="com-fin-row"><span class="com-fin-row-lbl">Rentabilidad total del mes</span><span class="com-fin-row-val">${fmtMoney(d.totalRent)}</span></div>
+        <div class="com-fin-row destacado"><span class="com-fin-row-lbl">Comisión acumulada del mes (25%)</span><span class="com-fin-row-val" style="color:var(--red)">${fmtMoney(comTotal)}</span></div>
         <div class="com-fin-row"><span class="com-fin-row-lbl">Para la empresa (75%)</span><span class="com-fin-row-val" style="color:#15803d">${fmtMoney(d.empresa)}</span></div>
+
         <div class="com-fin-divider"></div>
-        <div class="com-fin-row"><span class="com-fin-row-lbl">Sueldo base</span><span class="com-fin-row-val">${fmtMoney(sueldo)}</span></div>
-        <div class="com-fin-row ${diff>=0?'positivo':'negativo'}">
-          <span class="com-fin-row-lbl">${diff>=0?'Comisión supera el sueldo (extra)':'Comisión no cubre el sueldo (diferencia)'}</span>
-          <span class="com-fin-row-val">${diff>=0?'+':''}${fmtMoney(diff)}</span>
+        <div class="com-fin-row"><span class="com-fin-row-lbl">Sueldo base (se aplica una sola vez)</span><span class="com-fin-row-val">${fmtMoney(sueldo)}</span></div>
+        <div class="com-fin-row ${excedente>=0?'positivo':'negativo'}">
+          <span class="com-fin-row-lbl">${excedente>=0
+            ? 'Excedente sobre sueldo'
+            : 'Comisión no cubre el sueldo (diferencia'+(excedente<0?' '+fmtMoney(-excedente)+' a cargo empresa)':')')
+          }</span>
+          <span class="com-fin-row-val">${excedente>=0?'+':''}${fmtMoney(excedente)}</span>
         </div>
+
         <div class="com-fin-row total-row">
-          <span class="com-fin-row-lbl">Total a cobrar ${v}</span>
+          <span class="com-fin-row-lbl">TOTAL A COBRAR — ${v}</span>
           <span class="com-fin-row-val">${fmtMoney(totalCobrar)}</span>
+        </div>
+
+        <div style="padding:10px 20px 14px;font-size:12px;color:var(--gray-600);line-height:1.7;border-top:1px solid var(--gray-100);background:rgba(172,10,16,.015)">
+          ${excedente >= 0
+            ? `<strong>${v}</strong> cobra el sueldo base <strong>${fmtMoney(sueldo)}</strong> + excedente <strong style="color:#15803d">+${fmtMoney(excedente)}</strong> = <strong style="color:var(--red)">${fmtMoney(totalCobrar)}</strong>`
+            : `Comisión acumulada <strong>${fmtMoney(comTotal)}</strong> es menor al sueldo. <strong>${v}</strong> cobra el sueldo garantizado <strong>${fmtMoney(sueldo)}</strong>. La empresa cubre <strong style="color:#c2410c">${fmtMoney(-excedente)}</strong>.`
+          }
         </div>
       </div>`;
     }).join('');
