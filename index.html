@@ -1375,33 +1375,24 @@ input,select,textarea{font-family:var(--font)}
             <option value="cerrado">Cerrado</option><option value="anulado">Anulado</option>
           </select>
         </div>
-        <div class="form-section-title">Financiero</div>
-
-        <!-- Total cobrado al cliente (único campo manual de financiero) -->
-        <div class="form-group">
-          <label class="form-label">Total cobrado al cliente (ARS)</label>
-          <input type="number" class="form-input" id="fCobrado" placeholder="0" oninput="updateLegajoSummary()">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Total cobrado al cliente (USD)</label>
-          <input type="number" class="form-input" id="fCobradoUSD" placeholder="0" oninput="updateLegajoSummary()">
-        </div>
-
-        <!-- Operadores inline dentro del modal -->
-        <div class="full" style="grid-column:1/-1;margin-top:8px">
+        <!-- OPERADORES: se construye el viaje desde aquí -->
+        <div class="full" style="grid-column:1/-1;margin-top:4px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <span style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--red)">Operadores</span>
-            <button type="button" onclick="addOpRow()" style="height:28px;padding:0 12px;background:rgba(109,40,217,.08);border:1.5px solid rgba(109,40,217,.2);border-radius:7px;font-size:12px;font-weight:600;color:#6d28d9;cursor:pointer;display:flex;align-items:center;gap:5px">
+            <div>
+              <span style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--red)">Operadores</span>
+              <span style="font-size:11px;color:var(--gray-400);margin-left:8px">Los totales se calculan automáticamente</span>
+            </div>
+            <button type="button" onclick="addOpRow()" style="height:30px;padding:0 14px;background:rgba(172,10,16,.08);border:1.5px solid rgba(172,10,16,.2);border-radius:7px;font-size:12px;font-weight:600;color:var(--red);cursor:pointer;display:flex;align-items:center;gap:5px">
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 4v16m8-8H4"/></svg>
               Agregar operador
             </button>
           </div>
           <div id="opRowsContainer"></div>
 
-          <!-- Resumen financiero auto-calculado -->
-          <div id="legajoFinSummary" style="display:none;background:var(--black);border-radius:10px;padding:14px 16px;margin-top:10px">
-            <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:10px">Resumen del viaje</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px" id="finSummaryGrid"></div>
+          <!-- Totales auto-calculados -->
+          <div id="legajoFinSummary" style="display:none;background:var(--black);border-radius:10px;padding:16px 18px;margin-top:12px">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:12px">Totales del viaje</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" id="finSummaryGrid"></div>
           </div>
         </div>
 
@@ -1837,7 +1828,7 @@ window.openNewLegajo = function(){
   document.getElementById('modalLegajoTitle').textContent='Nuevo legajo';
   document.getElementById('modalLegajoSub').textContent='Completá los datos del viaje';
   document.getElementById('btnSaveLegajo').textContent='Guardar legajo';
-  ['fCliente','fEmail','fTel','fCuit','fDestino','fSalida','fRegreso','fCobrado','fCobradoUSD','fObs'].forEach(id=>{
+  ['fCliente','fEmail','fTel','fCuit','fDestino','fSalida','fRegreso','fObs'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.value='';
   });
   document.getElementById('fEstado').value='cotizado';
@@ -1881,8 +1872,6 @@ window.editLegajo = function(fbKey){
   document.getElementById('fRegreso').value=l.regreso||'';
   document.getElementById('fVendedora').value=l.vendedora;
   document.getElementById('fEstado').value=l.estado;
-  document.getElementById('fCobrado').value=l.cobrado||'';
-  document.getElementById('fCobradoUSD').value=l.cobradoUSD||'';
   document.getElementById('fObs').value=l.obs||'';
   opRowsData = (l.operadores||[]).map(o=>({...o}));
   renderOpRows();
@@ -1896,9 +1885,11 @@ window.saveLegajo = async function(){
   if(!cliente||!destino||!salida){toast('Completá los campos obligatorios','error');return;}
   const btn=document.getElementById('btnSaveLegajo');
   btn.disabled=true;btn.textContent='Guardando...';
-  const cobrado    = parseFloat(document.getElementById('fCobrado').value)||0;
-  const cobradoUSD = parseFloat(document.getElementById('fCobradoUSD')?.value)||0;
   const ops = opRowsData.filter(o=>o.nombre?.trim());
+  // Preservar cobrado existente si es edición
+  const existente = currentEdit ? allLegajos[currentEdit] : null;
+  const cobrado    = existente?.cobrado    || 0;
+  const cobradoUSD = existente?.cobradoUSD || 0;
   // Auto-calcular totales desde operadores
   const t = calcLegajoTotals(ops, cobrado, cobradoUSD);
   const obj={
@@ -1924,7 +1915,7 @@ window.saveLegajo = async function(){
       await update(ref(db,`legajos/${currentEdit}`),obj);
       toast('Legajo actualizado','success');
     } else {
-      obj.acomps=[];obj.pagos=[];obj.operadores=[];obj.itin=[];
+      obj.acomps=[];obj.pagos=[];obj.itin=[];
       await push(ref(db,'legajos'),obj);
       toast('Legajo creado','success');
     }
@@ -2593,47 +2584,62 @@ window.updateOpSaldo = function(i){
   if(el) el.innerHTML=opSaldoHTML(opRowsData[i]);
 };
 
-/* Calcular totales del legajo desde operadores */
-function calcLegajoTotals(ops, cobrado, cobradoUSD){
-  const totalARS = ops.filter(o=>(o.moneda||'ARS')==='ARS').reduce((s,o)=>s+(o.total||0),0);
-  const totalUSD = ops.filter(o=>o.moneda==='USD').reduce((s,o)=>s+(o.total||0),0);
-  const netoARS  = ops.filter(o=>(o.moneda||'ARS')==='ARS').reduce((s,o)=>s+(o.neto||0),0);
-  const netoUSD  = ops.filter(o=>o.moneda==='USD').reduce((s,o)=>s+(o.neto||0),0);
-  const pagadoARS= ops.filter(o=>(o.moneda||'ARS')==='ARS').reduce((s,o)=>s+(o.pagado||0),0);
-  const pagadoUSD= ops.filter(o=>o.moneda==='USD').reduce((s,o)=>s+(o.pagado||0),0);
-  const saldoOpARS = totalARS - pagadoARS;
-  const saldoOpUSD = totalUSD - pagadoUSD;
-  const saldoCliARS = totalARS - (cobrado||0);
-  const saldoCliUSD = totalUSD - (cobradoUSD||0);
-  return { totalARS, totalUSD, netoARS, netoUSD, pagadoARS, pagadoUSD, saldoOpARS, saldoOpUSD, saldoCliARS, saldoCliUSD };
-}
-
 window.updateLegajoSummary = function(){
   const sumDiv = document.getElementById('legajoFinSummary');
   const grid   = document.getElementById('finSummaryGrid');
   if(!sumDiv||!grid) return;
-  const cobrado    = parseFloat(document.getElementById('fCobrado')?.value)||0;
-  const cobradoUSD = parseFloat(document.getElementById('fCobradoUSD')?.value)||0;
+
   const ops = opRowsData.filter(o=>o.nombre||o.total);
-  if(!ops.length && !cobrado && !cobradoUSD){ sumDiv.style.display='none'; return; }
+  if(!ops.length){ sumDiv.style.display='none'; return; }
   sumDiv.style.display='';
-  const t = calcLegajoTotals(ops, cobrado, cobradoUSD);
-  const fmtN = (n,mon)=>`${mon} ${Number(n).toLocaleString('es-AR')}`;
-  const cells=[
-    {lbl:'Total viaje ARS',val:fmtN(t.totalARS,'ARS'),color:'white'},
-    {lbl:'Total viaje USD',val:fmtN(t.totalUSD,'USD'),color:'white'},
-    {lbl:'Neto ARS',val:fmtN(t.netoARS,'ARS'),color:'rgba(255,255,255,.55)'},
-    {lbl:'Neto USD',val:fmtN(t.netoUSD,'USD'),color:'rgba(255,255,255,.55)'},
-    {lbl:'Saldo cliente ARS',val:fmtN(t.saldoCliARS,'ARS'),color:t.saldoCliARS>0?'#f87171':'#4ade80'},
-    {lbl:'Saldo cliente USD',val:fmtN(t.saldoCliUSD,'USD'),color:t.saldoCliUSD>0?'#f87171':'#4ade80'},
-    {lbl:'Deuda a operad. ARS',val:fmtN(t.saldoOpARS,'ARS'),color:t.saldoOpARS>0?'#fbbf24':'#4ade80'},
-    {lbl:'Deuda a operad. USD',val:fmtN(t.saldoOpUSD,'USD'),color:t.saldoOpUSD>0?'#fbbf24':'#4ade80'},
-  ];
-  grid.innerHTML=cells.map(c=>`<div style="background:rgba(255,255,255,.07);border-radius:8px;padding:10px 12px">
-    <div style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${c.lbl}</div>
-    <div style="font-size:13px;font-weight:700;color:${c.color}">${c.val}</div>
-  </div>`).join('');
+
+  const totalARS = ops.filter(o=>(o.moneda||'ARS')==='ARS').reduce((s,o)=>s+(o.total||0),0);
+  const totalUSD = ops.filter(o=>o.moneda==='USD').reduce((s,o)=>s+(o.total||0),0);
+  const netoARS  = ops.filter(o=>(o.moneda||'ARS')==='ARS').reduce((s,o)=>s+(o.neto||0),0);
+  const netoUSD  = ops.filter(o=>o.moneda==='USD').reduce((s,o)=>s+(o.neto||0),0);
+
+  const cell=(lbl,val,color='white',sub='')=>`
+    <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:12px 14px">
+      <div style="font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">${lbl}</div>
+      <div style="font-size:17px;font-weight:700;color:${color};letter-spacing:-.5px">${val}</div>
+      ${sub?`<div style="font-size:11px;color:rgba(255,255,255,.3);margin-top:3px">${sub}</div>`:''}
+    </div>`;
+
+  const rentARS = totalARS - netoARS;
+  const rentUSD = totalUSD - netoUSD;
+
+  grid.innerHTML =
+    cell('Total ARS',   totalARS>0?'$'+Number(totalARS).toLocaleString('es-AR'):'—', '#fff') +
+    cell('Total USD',   totalUSD>0?'USD '+Number(totalUSD).toLocaleString('es-AR'):'—', '#fff') +
+    cell('Neto ARS',    netoARS>0?'$'+Number(netoARS).toLocaleString('es-AR'):'—', 'rgba(255,255,255,.6)') +
+    cell('Neto USD',    netoUSD>0?'USD '+Number(netoUSD).toLocaleString('es-AR'):'—', 'rgba(255,255,255,.6)') +
+    (rentARS>0||rentUSD>0 ? cell(
+      'Rentabilidad ARS',
+      rentARS>0?'$'+Number(rentARS).toLocaleString('es-AR'):'—',
+      '#f59e0b'
+    ) + cell(
+      'Rentabilidad USD',
+      rentUSD>0?'USD '+Number(rentUSD).toLocaleString('es-AR'):'—',
+      '#f59e0b'
+    ) : '');
 };
+
+/* Calcular totales desde array de operadores (usado por todo el sistema) */
+function calcLegajoTotals(ops, cobrado, cobradoUSD){
+  const totalARS  = ops.filter(o=>(o.moneda||'ARS')==='ARS').reduce((s,o)=>s+(o.total||0),0);
+  const totalUSD  = ops.filter(o=>o.moneda==='USD').reduce((s,o)=>s+(o.total||0),0);
+  const netoARS   = ops.filter(o=>(o.moneda||'ARS')==='ARS').reduce((s,o)=>s+(o.neto||0),0);
+  const netoUSD   = ops.filter(o=>o.moneda==='USD').reduce((s,o)=>s+(o.neto||0),0);
+  const pagadoARS = ops.filter(o=>(o.moneda||'ARS')==='ARS').reduce((s,o)=>s+(o.pagado||0),0);
+  const pagadoUSD = ops.filter(o=>o.moneda==='USD').reduce((s,o)=>s+(o.pagado||0),0);
+  return {
+    totalARS, totalUSD, netoARS, netoUSD, pagadoARS, pagadoUSD,
+    saldoOpARS:  totalARS - pagadoARS,
+    saldoOpUSD:  totalUSD - pagadoUSD,
+    saldoCliARS: totalARS - (cobrado||0),
+    saldoCliUSD: totalUSD - (cobradoUSD||0),
+  };
+}
 
 /* ─── TRANSFERENCIAS REESTRUCTURADAS ─────────────────── */
 let allTransf = {};
