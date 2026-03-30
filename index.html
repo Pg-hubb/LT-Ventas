@@ -559,7 +559,10 @@ input,select,textarea{font-family:var(--font)}
 .op-pago-fecha{color:var(--gray-400)}
 .op-pago-monto{font-weight:700;color:#15803d}
 
-/* ── LEGAJOS MEJORADO ────────────────────────────────────── */
+/* ── LEGAJOS ARCHIVADOS ──────────────────────────────────── */
+.row-archived td{opacity:.55}
+.archived-tag{display:inline-flex;align-items:center;gap:4px;background:#FFF7ED;color:#c2410c;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;letter-spacing:.3px;margin-left:6px}
+
 .legajo-num-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(172,10,16,.08);color:var(--red);border-radius:6px;padding:2px 8px;font-size:12px;font-weight:700;letter-spacing:.3px}
 .delete-confirm-box{background:#FFF1F2;border:1.5px solid rgba(172,10,16,.2);border-radius:10px;padding:14px 16px;margin-top:16px}
 .delete-confirm-title{font-size:13px;font-weight:700;color:var(--red);margin-bottom:4px}
@@ -937,6 +940,10 @@ input,select,textarea{font-family:var(--font)}
           <select class="filter-select" id="filterVendedora" onchange="renderLegajosTable()">
             <option value="">Todas las vendedoras</option>
           </select>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;color:var(--gray-600);cursor:pointer;white-space:nowrap">
+            <input type="checkbox" id="showArchived" onchange="renderLegajosTable()" style="accent-color:var(--red)">
+            Ver archivados
+          </label>
         </div>
         <div class="section-header">
           <h3>Legajos</h3><span class="count" id="legajosCount">0</span>
@@ -1036,17 +1043,30 @@ input,select,textarea{font-family:var(--font)}
         <div id="comisionConfigPanel" style="display:none;margin-bottom:20px">
           <div class="settings-card" style="padding:18px 24px">
             <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-              <div style="font-size:13px;font-weight:700;color:var(--black)">Configuración de sueldos</div>
+              <div style="font-size:13px;font-weight:700;color:var(--black)">Sueldos base</div>
               <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap" id="sueldosConfig"></div>
               <button class="topbar-btn primary" onclick="saveSueldos()" style="height:36px;font-size:12.5px;margin-left:auto">Guardar</button>
             </div>
           </div>
         </div>
-        <!-- Resumen mes actual -->
+
+        <!-- Filtros de comisiones -->
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+          <div style="display:flex;gap:4px;background:var(--gray-100);border-radius:10px;padding:4px;flex:1;max-width:420px">
+            <button class="transf-tab active" id="comFiltroTodas" onclick="setComisionFiltro('todas',this)">Todas</button>
+            <button class="transf-tab" id="comFiltroMes" onclick="setComisionFiltro('mes',this)">Este mes</button>
+            <button class="transf-tab" id="comFiltroAnio" onclick="setComisionFiltro('anio',this)">Este año</button>
+          </div>
+          <select id="comFiltroVendedora" class="filter-select" style="width:auto;min-width:160px" onchange="renderComisiones()">
+            <option value="">Todas las vendedoras</option>
+          </select>
+          <span class="count" id="comisionCount" style="margin-left:auto">0 meses</span>
+        </div>
+
+        <!-- Resumen -->
         <div class="comision-summary-grid" id="comisionSummary"></div>
         <div class="section-header" style="margin-bottom:16px">
           <h3>Detalle por mes · vendedoras</h3>
-          <span class="count" id="comisionCount">0 meses</span>
         </div>
         <div id="comisionList"></div>
       </div>
@@ -1259,34 +1279,63 @@ input,select,textarea{font-family:var(--font)}
   </div>
 </div>
 
-<!-- MODAL: ELIMINAR LEGAJO -->
+<!-- MODAL: ARCHIVAR LEGAJO -->
 <div class="modal-overlay" id="modalDeleteLegajo">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <div class="modal-header-icon" style="background:#d97706">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+      </div>
+      <div>
+        <div class="modal-title">Archivar legajo</div>
+        <div class="modal-subtitle" id="deleteLegajoSub">—</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modalDeleteLegajo')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div style="background:#FFFBEB;border:1.5px solid rgba(217,119,6,.2);border-radius:10px;padding:14px 16px;margin-bottom:16px">
+        <div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:5px">El legajo quedará archivado</div>
+        <div style="font-size:12.5px;color:var(--gray-600);line-height:1.6">No se elimina. Queda oculto de la lista principal pero recuperable en cualquier momento desde los filtros.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Motivo (opcional)</label>
+        <textarea class="form-textarea" id="deleteMotivo" placeholder="¿Por qué se archiva este legajo?"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" onclick="closeModal('modalDeleteLegajo')">Cancelar</button>
+      <button class="btn-modal-primary" style="background:#d97706;box-shadow:0 2px 10px rgba(217,119,6,.25)" onclick="confirmDeleteLegajo()" id="btnConfirmDelete">Archivar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ELIMINAR DEFINITIVO -->
+<div class="modal-overlay" id="modalHardDelete">
   <div class="modal" style="max-width:420px">
     <div class="modal-header">
       <div class="modal-header-icon" style="background:#ef4444">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
       </div>
       <div>
-        <div class="modal-title">Anular legajo</div>
-        <div class="modal-subtitle" id="deleteLegajoSub">—</div>
+        <div class="modal-title">Eliminar legajo</div>
+        <div class="modal-subtitle" id="hardDeleteSub">—</div>
       </div>
-      <button class="modal-close" onclick="closeModal('modalDeleteLegajo')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+      <button class="modal-close" onclick="closeModal('modalHardDelete')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
     </div>
     <div class="modal-body">
-      <div style="background:#FFF1F2;border:1.5px solid rgba(172,10,16,.15);border-radius:10px;padding:16px">
-        <div style="font-size:13px;font-weight:700;color:#9f1239;margin-bottom:6px">⚠ El legajo no se eliminará</div>
-        <div style="font-size:13px;color:var(--gray-600);line-height:1.6">
-          Pasará al estado <strong>anulado</strong> para mantener el historial completo. Podés reactivarlo en cualquier momento editando el estado.
-        </div>
+      <div style="background:#FFF1F2;border:1.5px solid rgba(239,68,68,.2);border-radius:10px;padding:14px 16px;margin-bottom:16px">
+        <div style="font-size:13px;font-weight:700;color:#9f1239;margin-bottom:5px">⚠ Esta acción es irreversible</div>
+        <div style="font-size:12.5px;color:var(--gray-600);line-height:1.6">El legajo se eliminará permanentemente de la base de datos. No hay forma de recuperarlo.</div>
       </div>
-      <div class="form-group" style="margin-top:16px">
-        <label class="form-label">Motivo de anulación (opcional)</label>
-        <textarea class="form-textarea" id="deleteMotivo" placeholder="¿Por qué se anula este legajo?"></textarea>
+      <div class="form-group">
+        <label class="form-label">Escribí <strong style="color:#ef4444">ELIMINAR</strong> para confirmar</label>
+        <input type="text" class="form-input" id="hardDeleteConfirm" placeholder="ELIMINAR">
+        <div class="settings-field-error" id="errHardDelete"></div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn-modal-cancel" onclick="closeModal('modalDeleteLegajo')">Cancelar</button>
-      <button class="btn-modal-primary" style="background:#ef4444;box-shadow:0 2px 10px rgba(239,68,68,.25)" onclick="confirmDeleteLegajo()" id="btnConfirmDelete">Anular legajo</button>
+      <button class="btn-modal-cancel" onclick="closeModal('modalHardDelete')">Cancelar</button>
+      <button class="btn-modal-primary" style="background:#ef4444;box-shadow:0 2px 10px rgba(239,68,68,.25)" onclick="confirmHardDelete()" id="btnHardDelete">Eliminar definitivamente</button>
     </div>
   </div>
 </div>
@@ -1330,6 +1379,19 @@ input,select,textarea{font-family:var(--font)}
         <div class="form-group"><label class="form-label">Precio venta (ARS)</label><input type="number" class="form-input" id="fTotal" placeholder="1500000"></div>
         <div class="form-group"><label class="form-label">Precio neto / costo (ARS)</label><input type="number" class="form-input" id="fNeto" placeholder="1200000"></div>
         <div class="form-group"><label class="form-label">Total cobrado (ARS)</label><input type="number" class="form-input" id="fCobrado" placeholder="750000"></div>
+
+        <!-- Operadores inline dentro del modal -->
+        <div class="full" style="grid-column:1/-1;margin-top:4px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <span style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--red)">Operadores</span>
+            <button type="button" onclick="addOpRow()" style="height:28px;padding:0 12px;background:rgba(109,40,217,.08);border:1.5px solid rgba(109,40,217,.2);border-radius:7px;font-size:12px;font-weight:600;color:#6d28d9;cursor:pointer;display:flex;align-items:center;gap:5px">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 4v16m8-8H4"/></svg>
+              Agregar operador
+            </button>
+          </div>
+          <div id="opRowsContainer"></div>
+        </div>
+
         <div class="form-group full"><label class="form-label">Observaciones</label><textarea class="form-textarea" id="fObs" placeholder="Notas adicionales..."></textarea></div>
       </div>
     </div>
@@ -1593,10 +1655,11 @@ window.doLogout = function(){
 const viewTitles={dashboard:'Dashboard',legajos:'Legajos',proximos:'Próximos viajes',saldos:'Saldos pendientes',usuarios:'Usuarios',ajustes:'Ajustes',transferencias:'Transferencias',comisiones:'Comisiones'};
 
 /* ─── DATA FILTER ────────────────────────────────────── */
-function getLegajos(){
+function getLegajos(includeArchived=false){
   const arr = Object.entries(allLegajos).map(([k,v])=>({...v,fbKey:k}));
-  if(currentUser.role==='seller') return arr.filter(l=>l.vendedora===currentUser.vendedora);
-  return arr;
+  const base = includeArchived ? arr : arr.filter(l=>!l.archivado);
+  if(currentUser.role==='seller') return base.filter(l=>l.vendedora===currentUser.vendedora);
+  return base;
 }
 
 /* ─── RENDER ALL ─────────────────────────────────────── */
@@ -1662,18 +1725,43 @@ function populateVendedoraFilter(){
 }
 
 window.renderLegajosTable = function(){
-  let data=getLegajos();
+  const showArch = document.getElementById('showArchived')?.checked||false;
+  let data=getLegajos(showArch);
   const q=document.getElementById('searchInput').value.toLowerCase();
   const fE=document.getElementById('filterEstado').value;
   const fV=document.getElementById('filterVendedora').value;
-  if(q) data=data.filter(l=>l.cliente.toLowerCase().includes(q)||l.destino.toLowerCase().includes(q)||l.num.toLowerCase().includes(q));
+  if(q) data=data.filter(l=>l.cliente.toLowerCase().includes(q)||l.destino.toLowerCase().includes(q)||String(l.num).toLowerCase().includes(q));
   if(fE) data=data.filter(l=>l.estado===fE);
   if(fV) data=data.filter(l=>l.vendedora===fV);
   data=[...data].sort((a,b)=>b.ts-a.ts);
   document.getElementById('legajosCount').textContent=data.length;
+  const isAdmin=currentUser.role==='admin';
   document.getElementById('legajosTbody').innerHTML=data.length?data.map(l=>{
     const saldo=l.total-l.cobrado;
-    return `<tr onclick="openDetail('${l.fbKey}')"><td><div class="td-legajo">${l.num}</div></td><td><div class="td-cliente">${l.cliente}</div><div class="td-sub">${l.email||''}</div></td><td><strong>${l.destino}</strong></td><td>${fmtDate(l.salida)}</td><td>${l.vendedora}</td><td>${fmtMoney(l.total)}</td><td class="${saldo<=0?'saldo-ok':'saldo-pend'}">${fmtMoney(saldo)}</td><td>${statusPill(l.estado)}</td><td><div class="row-actions"><button class="row-btn" onclick="event.stopPropagation();editLegajo('${l.fbKey}')" title="Editar"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button><button class="row-btn" onclick="event.stopPropagation();openPagoModal('${l.fbKey}')" title="Pago"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2"/></svg></button></div></td></tr>`;
+    const archStyle=l.archivado?'opacity:.6':'';
+    const archBadge=l.archivado?`<span style="background:#FFF7ED;color:#c2410c;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;margin-left:6px">ARCHIVADO</span>`:'';
+    const adminBtns=isAdmin?`
+      <button class="row-btn" onclick="event.stopPropagation();openDeleteLegajo('${l.fbKey}')" title="${l.archivado?'Restaurar':'Archivar'}" style="${l.archivado?'color:#15803d':'color:#d97706'}">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+      </button>
+      <button class="row-btn" onclick="event.stopPropagation();openHardDelete('${l.fbKey}')" title="Eliminar definitivo" style="color:#ef4444">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+      </button>`:'';
+    return `<tr onclick="openDetail('${l.fbKey}')" style="${archStyle}">
+      <td><div class="td-legajo">#${l.num}</div></td>
+      <td><div class="td-cliente">${l.cliente}${archBadge}</div><div class="td-sub">${l.email||''}</div></td>
+      <td><strong>${l.destino}</strong></td>
+      <td>${fmtDate(l.salida)}</td>
+      <td>${l.vendedora}</td>
+      <td>${fmtMoney(l.total)}</td>
+      <td class="${saldo<=0?'saldo-ok':'saldo-pend'}">${fmtMoney(saldo)}</td>
+      <td>${statusPill(l.estado)}</td>
+      <td><div class="row-actions">
+        <button class="row-btn" onclick="event.stopPropagation();editLegajo('${l.fbKey}')" title="Editar"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+        <button class="row-btn" onclick="event.stopPropagation();openPagoModal('${l.fbKey}')" title="Pago"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2"/></svg></button>
+        ${adminBtns}
+      </div></td>
+    </tr>`;
   }).join(''):`<tr><td colspan="9"><div class="empty-state"><h4>Sin legajos</h4><p>No hay resultados</p></div></td></tr>`;
 };
 
@@ -1718,6 +1806,8 @@ window.openNewLegajo = function(){
   document.getElementById('fEstado').value='cotizado';
   if(currentUser.role==='seller') document.getElementById('fVendedora').value=currentUser.vendedora;
   document.getElementById('fNumLegajo').value = getNextLegajoNum();
+  opRowsData=[];
+  renderOpRows();
   openModal('modalLegajo');
 };
 
@@ -1742,7 +1832,7 @@ window.editLegajo = function(fbKey){
   const l=allLegajos[fbKey];if(!l) return;
   currentEdit=fbKey;
   document.getElementById('modalLegajoTitle').textContent='Editar legajo';
-  document.getElementById('modalLegajoSub').textContent=l.num+' — '+l.cliente;
+  document.getElementById('modalLegajoSub').textContent='#'+l.num+' — '+l.cliente;
   document.getElementById('btnSaveLegajo').textContent='Guardar cambios';
   document.getElementById('fNumLegajo').value=l.num;
   document.getElementById('fCliente').value=l.cliente;
@@ -1758,6 +1848,9 @@ window.editLegajo = function(fbKey){
   document.getElementById('fNeto').value=l.neto||'';
   document.getElementById('fCobrado').value=l.cobrado||'';
   document.getElementById('fObs').value=l.obs||'';
+  // Cargar operadores existentes en el UI inline
+  opRowsData = (l.operadores||[]).map(o=>({...o}));
+  renderOpRows();
   openModal('modalLegajo');
 };
 
@@ -1779,6 +1872,7 @@ window.saveLegajo = async function(){
     neto:   parseFloat(document.getElementById('fNeto').value)||0,
     cobrado:parseFloat(document.getElementById('fCobrado').value)||0,
     obs:document.getElementById('fObs').value.trim(),
+    operadores: opRowsData.filter(o=>o.nombre.trim()),  // solo los que tienen nombre
     ts:Date.now(),
   };
   try{
@@ -1928,13 +2022,21 @@ function renderDetail(fbKey){
   let body=`<div class="detail-section">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px">
       ${statusPill(l.estado)}
-      ${l.estado!=='anulado'?`
+      ${l.archivado?`
+        <span class="archived-tag">ARCHIVADO</span>
+        ${currentUser.role==='admin'?`<button onclick="openDeleteLegajo('${fbKey}')" style="margin-left:auto;height:28px;padding:0 10px;background:rgba(21,128,61,.08);border:1.5px solid rgba(21,128,61,.2);border-radius:7px;font-size:11.5px;font-weight:600;color:#15803d;cursor:pointer;display:flex;align-items:center;gap:4px">Restaurar</button>`:''}
+      `:l.estado!=='anulado'?`
         <button onclick="editLegajo('${fbKey}');closeDetail()" style="height:28px;padding:0 10px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:7px;font-size:11.5px;font-weight:600;color:var(--gray-600);cursor:pointer;display:flex;align-items:center;gap:4px">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Editar
         </button>
-        <button onclick="openDeleteLegajo('${fbKey}')" style="margin-left:auto;height:28px;padding:0 10px;background:rgba(239,68,68,.08);border:1.5px solid rgba(239,68,68,.2);border-radius:7px;font-size:11.5px;font-weight:600;color:#ef4444;cursor:pointer;display:flex;align-items:center;gap:4px">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>Anular
-        </button>`:'<span style="margin-left:auto;font-size:11px;color:var(--gray-400)">Legajo anulado</span>'}
+        ${currentUser.role==='admin'?`
+          <button onclick="openDeleteLegajo('${fbKey}')" style="height:28px;padding:0 10px;background:rgba(217,119,6,.08);border:1.5px solid rgba(217,119,6,.2);border-radius:7px;font-size:11.5px;font-weight:600;color:#d97706;cursor:pointer;display:flex;align-items:center;gap:4px">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>Archivar
+          </button>
+          <button onclick="openHardDelete('${fbKey}')" style="margin-left:auto;height:28px;padding:0 10px;background:rgba(239,68,68,.08);border:1.5px solid rgba(239,68,68,.2);border-radius:7px;font-size:11.5px;font-weight:600;color:#ef4444;cursor:pointer;display:flex;align-items:center;gap:4px">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>Eliminar
+          </button>`:''}
+      `:'<span style="font-size:11px;color:var(--gray-400);margin-left:auto">Legajo anulado</span>'}
     </div>
     <div class="detail-section-title">Cliente</div>
     <div class="detail-row"><span class="detail-row-key">Nombre</span><span class="detail-row-val">${l.cliente}</span></div>
@@ -2272,33 +2374,144 @@ function getNextLegajoNum(){
   return String(max+1);
 }
 
-/* ─── LEGAJOS: ELIMINAR (anulación lógica) ───────────── */
+/* ─── LEGAJOS: ARCHIVAR (toggle) ─────────────────────── */
 let legajoToDelete = null;
 window.openDeleteLegajo = function(fbKey){
   const l = allLegajos[fbKey];
   if(!l) return;
   legajoToDelete = fbKey;
-  document.getElementById('deleteLegajoSub').textContent = l.num + ' · ' + l.cliente;
-  document.getElementById('deleteMotivo').value = '';
+  if(l.archivado){
+    // Restaurar directamente, sin modal
+    update(ref(db,`legajos/${fbKey}`),{archivado:false,ts:Date.now()})
+      .then(()=>toast('Legajo restaurado','success'))
+      .catch(()=>toast('Error al restaurar','error'));
+    legajoToDelete=null;
+    return;
+  }
+  document.getElementById('deleteLegajoSub').textContent = '#'+l.num+' · '+l.cliente;
+  document.getElementById('deleteMotivo').value='';
   openModal('modalDeleteLegajo');
 };
 window.confirmDeleteLegajo = async function(){
   if(!legajoToDelete) return;
   const motivo = document.getElementById('deleteMotivo').value.trim();
   const btn = document.getElementById('btnConfirmDelete');
-  btn.disabled=true; btn.textContent='Anulando...';
+  btn.disabled=true; btn.textContent='Archivando...';
   try{
     await update(ref(db,`legajos/${legajoToDelete}`),{
-      estado:'anulado',
-      motivoAnulacion: motivo||'Sin motivo especificado',
-      ts: Date.now()
+      archivado:true,
+      motivoArchivo:motivo||'',
+      ts:Date.now()
     });
     closeModal('modalDeleteLegajo');
     closeDetail();
-    toast('Legajo anulado correctamente','success');
-  } catch(e){ toast('Error al anular legajo','error'); }
-  btn.disabled=false; btn.textContent='Anular legajo';
+    toast('Legajo archivado · podés restaurarlo desde "Ver archivados"','success');
+  } catch(e){ toast('Error al archivar','error'); }
+  btn.disabled=false; btn.textContent='Archivar';
   legajoToDelete=null;
+};
+
+/* ─── LEGAJOS: ELIMINAR DEFINITIVO ──────────────────── */
+let legajoToHardDelete = null;
+window.openHardDelete = function(fbKey){
+  const l = allLegajos[fbKey];
+  if(!l) return;
+  legajoToHardDelete = fbKey;
+  document.getElementById('hardDeleteSub').textContent = '#'+l.num+' · '+l.cliente;
+  document.getElementById('hardDeleteConfirm').value='';
+  document.getElementById('errHardDelete').textContent='';
+  openModal('modalHardDelete');
+};
+window.confirmHardDelete = async function(){
+  const confirm = document.getElementById('hardDeleteConfirm').value.trim();
+  const errEl   = document.getElementById('errHardDelete');
+  if(confirm!=='ELIMINAR'){
+    errEl.textContent='Escribí exactamente ELIMINAR para confirmar';
+    return;
+  }
+  errEl.textContent='';
+  const btn=document.getElementById('btnHardDelete');
+  btn.disabled=true; btn.textContent='Eliminando...';
+  try{
+    await remove(ref(db,`legajos/${legajoToHardDelete}`));
+    closeModal('modalHardDelete');
+    closeDetail();
+    toast('Legajo eliminado definitivamente','success');
+  } catch(e){ toast('Error al eliminar','error'); }
+  btn.disabled=false; btn.textContent='Eliminar definitivamente';
+  legajoToHardDelete=null;
+};
+
+/* ─── OPERADORES INLINE EN MODAL LEGAJO ──────────────── */
+let opRowsData = []; // array de operadores en el modal actual
+
+window.addOpRow = function(){
+  opRowsData.push({nombre:'',neto:0,total:0,moneda:'ARS',pagado:0,pagos:[]});
+  renderOpRows();
+};
+
+window.removeOpRow = function(idx){
+  opRowsData.splice(idx,1);
+  renderOpRows();
+};
+
+function renderOpRows(){
+  const cont = document.getElementById('opRowsContainer');
+  if(!opRowsData.length){
+    cont.innerHTML=`<div style="font-size:12.5px;color:var(--gray-400);padding:8px 0;text-align:center">Sin operadores. Hacé click en "+ Agregar operador"</div>`;
+    return;
+  }
+  cont.innerHTML = opRowsData.map((op,i)=>`
+    <div style="background:var(--gray-100);border-radius:10px;padding:14px;margin-bottom:8px;position:relative">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:11px;font-weight:700;color:#6d28d9;text-transform:uppercase;letter-spacing:.5px">Operador ${i+1}</span>
+        <button type="button" onclick="removeOpRow(${i})" style="background:rgba(239,68,68,.08);border:1.5px solid rgba(239,68,68,.15);border-radius:6px;color:#ef4444;padding:2px 8px;font-size:11px;cursor:pointer">Quitar</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="grid-column:1/-1" class="form-group">
+          <label class="form-label">Nombre del operador *</label>
+          <input type="text" class="form-input" value="${op.nombre}" placeholder="Ej: Hotetur Cancún"
+            oninput="opRowsData[${i}].nombre=this.value" style="height:38px">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Precio neto</label>
+          <input type="number" class="form-input" value="${op.neto||''}" placeholder="0"
+            oninput="opRowsData[${i}].neto=parseFloat(this.value)||0;updateOpSaldo(${i})" style="height:38px">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Precio total *</label>
+          <input type="number" class="form-input" value="${op.total||''}" placeholder="0"
+            oninput="opRowsData[${i}].total=parseFloat(this.value)||0;updateOpSaldo(${i})" style="height:38px">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Moneda</label>
+          <select class="form-select" oninput="opRowsData[${i}].moneda=this.value" style="height:38px">
+            <option ${op.moneda==='ARS'?'selected':''}>ARS</option>
+            <option ${op.moneda==='USD'?'selected':''}>USD</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ya pagado</label>
+          <input type="number" class="form-input" value="${op.pagado||''}" placeholder="0"
+            oninput="opRowsData[${i}].pagado=parseFloat(this.value)||0;updateOpSaldo(${i})" style="height:38px">
+        </div>
+      </div>
+      <div id="opSaldo_${i}" style="margin-top:8px;font-size:12px;display:flex;gap:12px">
+        ${opSaldoHTML(op)}
+      </div>
+    </div>`).join('');
+}
+
+function opSaldoHTML(op){
+  const saldo=(op.total||0)-(op.pagado||0);
+  return `<span style="color:var(--gray-600)">Neto: <strong>${op.moneda} ${(op.neto||0).toLocaleString('es-AR')}</strong></span>
+    <span style="color:var(--gray-600)">Total: <strong>${op.moneda} ${(op.total||0).toLocaleString('es-AR')}</strong></span>
+    <span style="color:${saldo>0?'var(--red)':'#15803d'}">Saldo: <strong>${op.moneda} ${saldo.toLocaleString('es-AR')}</strong></span>`;
+}
+
+window.updateOpSaldo = function(i){
+  const el=document.getElementById(`opSaldo_${i}`);
+  if(el) el.innerHTML=opSaldoHTML(opRowsData[i]);
 };
 
 /* ─── TRANSFERENCIAS REESTRUCTURADAS ─────────────────── */
@@ -2488,8 +2701,21 @@ window.openComprobante = function(src, nombre){
   }
   openModal('modalComprobante');
 };
-const COM_PCT = 0.25; // 25% de la rentabilidad para la vendedora
-// Sueldos base por vendedora (ARS) — editables por admin
+
+/* ─── COMISIONES — ESTADO FILTROS ───────────────────── */
+let comisionFiltro = 'todas'; // 'todas' | 'mes' | 'anio'
+
+window.setComisionFiltro = function(f, btn){
+  comisionFiltro = f;
+  ['comFiltroTodas','comFiltroMes','comFiltroAnio'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList.remove('active');
+  });
+  if(btn) btn.classList.add('active');
+  renderComisiones();
+};
+
+const COM_PCT = 0.25;
 let sueldosBase = {};
 const SUELDO_DEFAULT = 300000;
 
@@ -2539,135 +2765,156 @@ function calcComisiones(){
 
 function renderComisiones(){
   if(!document.getElementById('view-comisiones').classList.contains('active')) return;
-  const data = calcComisiones();
-  document.getElementById('comisionCount').textContent = data.length + ' mes' + (data.length!==1?'es':'');
+  const allData = calcComisiones();
 
-  // Panel config sueldos (solo admin)
-  const cfgPanel = document.getElementById('comisionConfigPanel');
-  if(cfgPanel){
-    cfgPanel.style.display = currentUser.role==='admin' ? '' : 'none';
+  // Poblar filtro vendedoras
+  const selV = document.getElementById('comFiltroVendedora');
+  if(selV){
     if(currentUser.role==='admin'){
-      const sellers = Object.values(USERS).filter(u=>u.role==='seller');
-      document.getElementById('sueldosConfig').innerHTML = sellers.map(u=>`
-        <div style="display:flex;align-items:center;gap:6px">
-          <span style="font-size:12px;color:var(--gray-600);font-weight:600">${u.name}:</span>
-          <input type="number" id="sueldo_${u.vendedora}" value="${getSueldo(u.vendedora)}"
-            style="width:110px;height:32px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:8px;padding:0 10px;font-size:13px;font-family:var(--font);outline:none"
-            placeholder="300000">
-        </div>`).join('');
+      const current = selV.value;
+      const sellers=[...new Set(
+        Object.values(allLegajos)
+          .filter(l=>(l.estado==='viajado'||l.estado==='cerrado')&&l.salida)
+          .map(l=>l.vendedora||'Sin asignar')
+      )].sort();
+      selV.innerHTML='<option value="">Todas las vendedoras</option>'+
+        sellers.map(v=>`<option value="${v}"${v===current?' selected':''}>${v}</option>`).join('');
+      selV.style.display='';
+    } else {
+      selV.style.display='none';
+    }
+  }
+  const filtroV = (currentUser.role==='admin' ? selV?.value : currentUser.vendedora) || '';
+
+  // Filtro temporal
+  const now = new Date();
+  const mesActual  = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const anioActual = String(now.getFullYear());
+  let data = allData;
+  if(comisionFiltro==='mes')  data = data.filter(m=>m.mes===mesActual);
+  if(comisionFiltro==='anio') data = data.filter(m=>m.mes.startsWith(anioActual));
+
+  // Filtro vendedora por mes
+  let dataFiltrada = data;
+  if(filtroV){
+    dataFiltrada = data.map(m=>{
+      const vendedoras = Object.fromEntries(
+        Object.entries(m.vendedoras).filter(([v])=>v===filtroV)
+      );
+      if(!Object.keys(vendedoras).length) return null;
+      const legsV = m.legajos.filter(l=>(l.vendedora||'Sin asignar')===filtroV);
+      return {
+        ...m,
+        vendedoras,
+        legajos: legsV,
+        totalVenta: legsV.reduce((s,l)=>s+(l.total||0),0),
+        totalRent:  legsV.reduce((s,l)=>s+calcRentabilidad(l),0),
+      };
+    }).filter(Boolean);
+  }
+
+  document.getElementById('comisionCount').textContent =
+    dataFiltrada.length+' mes'+(dataFiltrada.length!==1?'es':'');
+
+  // Config sueldos (admin)
+  const cfgPanel=document.getElementById('comisionConfigPanel');
+  if(cfgPanel){
+    cfgPanel.style.display=currentUser.role==='admin'?'':'none';
+    if(currentUser.role==='admin'){
+      document.getElementById('sueldosConfig').innerHTML=
+        Object.values(USERS).filter(u=>u.role==='seller').map(u=>`
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:12px;color:var(--gray-600);font-weight:600">${u.name}:</span>
+            <input type="number" id="sueldo_${u.vendedora}" value="${getSueldo(u.vendedora)}"
+              style="width:110px;height:32px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:8px;padding:0 10px;font-size:13px;font-family:var(--font);outline:none"
+              placeholder="300000">
+          </div>`).join('');
     }
   }
 
-  // Summary cards globales
-  const totVenta = data.reduce((s,m)=>s+m.totalVenta,0);
-  const totRent  = data.reduce((s,m)=>s+m.totalRent,0);
-  const totCom   = totRent * COM_PCT;
-  const totEmp   = totRent * (1-COM_PCT);
+  // Summary cards
+  const totV=dataFiltrada.reduce((s,m)=>s+m.totalVenta,0);
+  const totR=dataFiltrada.reduce((s,m)=>s+m.totalRent,0);
   document.getElementById('comisionSummary').innerHTML=`
-    <div class="comision-summary-card"><div class="comision-summary-val">${fmtMoney(totVenta)}</div><div class="comision-summary-lbl">Total ventas</div></div>
-    <div class="comision-summary-card"><div class="comision-summary-val">${fmtMoney(totRent)}</div><div class="comision-summary-lbl">Rentabilidad total</div></div>
-    <div class="comision-summary-card"><div class="comision-summary-val" style="color:var(--red)">${fmtMoney(totCom)}</div><div class="comision-summary-lbl">Comisiones 25%</div></div>
-    <div class="comision-summary-card"><div class="comision-summary-val" style="color:#15803d">${fmtMoney(totEmp)}</div><div class="comision-summary-lbl">Para la empresa 75%</div></div>`;
+    <div class="comision-summary-card"><div class="comision-summary-val">${fmtMoney(totV)}</div><div class="comision-summary-lbl">Ventas${filtroV?' · '+filtroV:''}</div></div>
+    <div class="comision-summary-card"><div class="comision-summary-val">${fmtMoney(totR)}</div><div class="comision-summary-lbl">Rentabilidad</div></div>
+    <div class="comision-summary-card"><div class="comision-summary-val" style="color:var(--red)">${fmtMoney(totR*COM_PCT)}</div><div class="comision-summary-lbl">Comisiones 25%</div></div>
+    <div class="comision-summary-card"><div class="comision-summary-val" style="color:#15803d">${fmtMoney(totR*(1-COM_PCT))}</div><div class="comision-summary-lbl">Empresa 75%</div></div>`;
 
-  const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  if(!data.length){
-    document.getElementById('comisionList').innerHTML=`<div class="empty-state"><h4>Sin comisiones aún</h4><p>Las comisiones se calculan cuando un viaje pasa a "viajado"</p></div>`;
+  const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  if(!dataFiltrada.length){
+    document.getElementById('comisionList').innerHTML=`<div class="empty-state"><h4>Sin comisiones</h4><p>${
+      comisionFiltro==='mes'?'No hay viajes completados este mes':
+      comisionFiltro==='anio'?'No hay viajes completados este año':
+      'Los viajes en "viajado" generan comisiones'}</p></div>`;
     return;
   }
 
-  document.getElementById('comisionList').innerHTML = data.map((m,i)=>{
-    const [y,mon] = m.mes.split('-');
-    const mesNombre = meses[parseInt(mon)-1]+' '+y;
+  document.getElementById('comisionList').innerHTML = dataFiltrada.map((m,i)=>{
+    const [y,mon]=m.mes.split('-');
+    const mesNombre=MESES[parseInt(mon)-1]+' '+y;
 
-    const vendedorasHTML = Object.entries(m.vendedoras).map(([v,d])=>{
-      const sueldo = getSueldo(v);
+    const vHTML=Object.entries(m.vendedoras).map(([v,d])=>{
+      const sueldo=getSueldo(v);
+      const comTotal=d.comision;
+      const exc=comTotal-sueldo;
+      const cobrar=exc>=0?comTotal:sueldo;
+      let acum=0;
+      const userObj=Object.values(USERS).find(u=>u.vendedora===v||u.name===v);
+      const col=userObj?.color||'#9E9898';
+      const ini=userObj?.initials||v.substring(0,2).toUpperCase();
 
-      // ─── LÓGICA REAL DEL NEGOCIO ─────────────────────────────────────────
-      // 1. Por cada venta: comisión = 25% de (venta − costo)
-      // 2. Todas las comisiones del mes se ACUMULAN
-      // 3. El sueldo base se descuenta UNA SOLA VEZ del total mensual
-      // 4. Excedente = comisión_total − sueldo
-      //    · Si positivo → cobra sueldo + excedente
-      //    · Si negativo → cobra sueldo (diferencia la cubre la empresa)
-      // Ejemplo: sueldo 100 USD, com1=250, com2=100 → total=350 → cobra 350
-      // ─────────────────────────────────────────────────────────────────────
-      const comTotal   = d.comision;                           // acumulado mensual 25%
-      const excedente  = comTotal - sueldo;                    // + cobra extra, - empresa cubre
-      const totalCobrar= excedente >= 0 ? comTotal : sueldo;  // siempre gana al menos el sueldo
-
-      // Acumulado corriente para mostrar running total en la tabla de ventas
-      let acumulado = 0;
-
-      // Desglose por venta (legajosDetalle ya existe en calcComisiones)
-      const legajosHTML = (d.legajosDetalle||[]).map((leg, idx)=>{
-        const r = calcRentabilidad(leg);
-        const c = r * COM_PCT;
-        acumulado += c;
-        const exced = acumulado - sueldo;
-        return `<tr style="font-size:12.5px">
-          <td style="padding:8px 20px;border-bottom:1px solid var(--gray-100);font-weight:600;color:var(--red)">#${leg.num}</td>
-          <td style="padding:8px 10px;border-bottom:1px solid var(--gray-100);color:var(--gray-600)">${leg.cliente}</td>
-          <td style="padding:8px 10px;border-bottom:1px solid var(--gray-100)">${fmtMoney(leg.total)}</td>
-          <td style="padding:8px 10px;border-bottom:1px solid var(--gray-100)">${fmtMoney(leg.neto||0)}</td>
-          <td style="padding:8px 10px;border-bottom:1px solid var(--gray-100);font-weight:600">${fmtMoney(r)}</td>
-          <td style="padding:8px 20px;border-bottom:1px solid var(--gray-100);font-weight:700;color:var(--red)">${fmtMoney(c)}</td>
-          <td style="padding:8px 20px;border-bottom:1px solid var(--gray-100);font-weight:700;color:${exced>=0?'#15803d':'#d97706'}">${fmtMoney(acumulado)}</td>
+      const legRows=(d.legajosDetalle||[]).map(leg=>{
+        const r=calcRentabilidad(leg),c=r*COM_PCT;
+        acum+=c;
+        const exAcum=acum-sueldo;
+        return `<tr>
+          <td style="padding:7px 16px;border-bottom:1px solid var(--gray-100);font-weight:600;color:var(--red);font-size:12px">#${leg.num}</td>
+          <td style="padding:7px 10px;border-bottom:1px solid var(--gray-100);color:var(--gray-600);font-size:12px">${leg.cliente}</td>
+          <td style="padding:7px 10px;border-bottom:1px solid var(--gray-100);font-size:12px">${fmtMoney(leg.total)}</td>
+          <td style="padding:7px 10px;border-bottom:1px solid var(--gray-100);font-size:12px">${fmtMoney(leg.neto||0)}</td>
+          <td style="padding:7px 10px;border-bottom:1px solid var(--gray-100);font-weight:600;font-size:12px">${fmtMoney(r)}</td>
+          <td style="padding:7px 10px;border-bottom:1px solid var(--gray-100);font-weight:700;color:var(--red);font-size:12px">${fmtMoney(c)}</td>
+          <td style="padding:7px 16px;border-bottom:1px solid var(--gray-100);font-weight:700;font-size:12px;color:${exAcum>=0?'#15803d':'#d97706'}">${fmtMoney(acum)}</td>
         </tr>`;
       }).join('');
 
-      const userObj = Object.values(USERS).find(u=>u.vendedora===v||u.name===v);
-      const color = userObj?.color||'#9E9898';
-      const initials = userObj?.initials||v.substring(0,2).toUpperCase();
-
       return `<div class="com-vendedora-block">
         <div class="com-vendedora-name">
-          <div style="width:30px;height:30px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0">${initials}</div>
+          <div style="width:30px;height:30px;border-radius:50%;background:${col};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0">${ini}</div>
           <span style="font-weight:700;font-size:14px">${v}</span>
           <span style="font-size:12px;color:var(--gray-400);font-weight:400">${d.legajos} legajo${d.legajos!==1?'s':''}</span>
+          <span style="margin-left:auto;font-size:14px;font-weight:700;color:${exc>=0?'#15803d':'#c2410c'}">${fmtMoney(cobrar)}</span>
         </div>
-
-        ${legajosHTML ? `
-        <div style="overflow-x:auto">
-          <table style="width:100%;border-collapse:collapse;font-size:12px">
-            <thead>
-              <tr style="background:var(--gray-100)">
-                <th style="padding:8px 20px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--gray-600)">Leg.</th>
-                <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--gray-600)">Cliente</th>
-                <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--gray-600)">Venta</th>
-                <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--gray-600)">Neto</th>
-                <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--gray-600)">Rentab.</th>
-                <th style="padding:8px 20px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--red)">Com. 25%</th>
-                <th style="padding:8px 20px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--gray-600)">Acum.</th>
-              </tr>
-            </thead>
-            <tbody>${legajosHTML}</tbody>
-          </table>
-        </div>` : ''}
-
+        ${legRows?`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
+          <thead><tr style="background:var(--gray-100)">
+            <th style="padding:7px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-600)">Leg.</th>
+            <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-600)">Cliente</th>
+            <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-600)">Venta</th>
+            <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-600)">Neto</th>
+            <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-600)">Rent.</th>
+            <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--red)">Com.25%</th>
+            <th style="padding:7px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-600)">Acum.</th>
+          </tr></thead><tbody>${legRows}</tbody>
+        </table></div>`:''}
         <div class="com-fin-divider"></div>
-        <div class="com-fin-row"><span class="com-fin-row-lbl">Rentabilidad total del mes</span><span class="com-fin-row-val">${fmtMoney(d.totalRent)}</span></div>
-        <div class="com-fin-row destacado"><span class="com-fin-row-lbl">Comisión acumulada del mes (25%)</span><span class="com-fin-row-val" style="color:var(--red)">${fmtMoney(comTotal)}</span></div>
+        <div class="com-fin-row"><span class="com-fin-row-lbl">Rentabilidad total</span><span class="com-fin-row-val">${fmtMoney(d.totalRent)}</span></div>
+        <div class="com-fin-row destacado"><span class="com-fin-row-lbl">Comisión acumulada (25%)</span><span class="com-fin-row-val" style="color:var(--red)">${fmtMoney(comTotal)}</span></div>
         <div class="com-fin-row"><span class="com-fin-row-lbl">Para la empresa (75%)</span><span class="com-fin-row-val" style="color:#15803d">${fmtMoney(d.empresa)}</span></div>
-
         <div class="com-fin-divider"></div>
-        <div class="com-fin-row"><span class="com-fin-row-lbl">Sueldo base (se aplica una sola vez)</span><span class="com-fin-row-val">${fmtMoney(sueldo)}</span></div>
-        <div class="com-fin-row ${excedente>=0?'positivo':'negativo'}">
-          <span class="com-fin-row-lbl">${excedente>=0
-            ? 'Excedente sobre sueldo'
-            : 'Comisión no cubre el sueldo (diferencia'+(excedente<0?' '+fmtMoney(-excedente)+' a cargo empresa)':')')
-          }</span>
-          <span class="com-fin-row-val">${excedente>=0?'+':''}${fmtMoney(excedente)}</span>
+        <div class="com-fin-row"><span class="com-fin-row-lbl">Sueldo base</span><span class="com-fin-row-val">${fmtMoney(sueldo)}</span></div>
+        <div class="com-fin-row ${exc>=0?'positivo':'negativo'}">
+          <span class="com-fin-row-lbl">${exc>=0?'Excedente sobre sueldo':'Diferencia (empresa cubre)'}</span>
+          <span class="com-fin-row-val">${exc>=0?'+':''}${fmtMoney(exc)}</span>
         </div>
-
         <div class="com-fin-row total-row">
           <span class="com-fin-row-lbl">TOTAL A COBRAR — ${v}</span>
-          <span class="com-fin-row-val">${fmtMoney(totalCobrar)}</span>
+          <span class="com-fin-row-val">${fmtMoney(cobrar)}</span>
         </div>
-
         <div style="padding:10px 20px 14px;font-size:12px;color:var(--gray-600);line-height:1.7;border-top:1px solid var(--gray-100);background:rgba(172,10,16,.015)">
-          ${excedente >= 0
-            ? `<strong>${v}</strong> cobra el sueldo base <strong>${fmtMoney(sueldo)}</strong> + excedente <strong style="color:#15803d">+${fmtMoney(excedente)}</strong> = <strong style="color:var(--red)">${fmtMoney(totalCobrar)}</strong>`
-            : `Comisión acumulada <strong>${fmtMoney(comTotal)}</strong> es menor al sueldo. <strong>${v}</strong> cobra el sueldo garantizado <strong>${fmtMoney(sueldo)}</strong>. La empresa cubre <strong style="color:#c2410c">${fmtMoney(-excedente)}</strong>.`
+          ${exc>=0
+            ?`Cobra sueldo <strong>${fmtMoney(sueldo)}</strong> + excedente <strong style="color:#15803d">+${fmtMoney(exc)}</strong> = <strong style="color:var(--red)">${fmtMoney(cobrar)}</strong>`
+            :`Comisión <strong>${fmtMoney(comTotal)}</strong> no cubre el sueldo. Cobra garantizado <strong>${fmtMoney(sueldo)}</strong>. Empresa cubre <strong style="color:#c2410c">${fmtMoney(-exc)}</strong>.`
           }
         </div>
       </div>`;
@@ -2677,7 +2924,7 @@ function renderComisiones(){
       <div class="com-fin-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'':'none'">
         <div>
           <div class="com-fin-title">${mesNombre}</div>
-          <div class="com-fin-subtitle">${m.legajos.length} viaje${m.legajos.length!==1?'s':''} completado${m.legajos.length!==1?'s':''}</div>
+          <div class="com-fin-subtitle">${m.legajos.length} viaje${m.legajos.length!==1?'s':''} · ${Object.keys(m.vendedoras).length} vendedora${Object.keys(m.vendedoras).length!==1?'s':''}</div>
         </div>
         <div class="com-fin-totals">
           <div class="com-fin-total"><div class="com-fin-total-val">${fmtMoney(m.totalRent)}</div><div class="com-fin-total-lbl">Rentabilidad</div></div>
@@ -2685,7 +2932,7 @@ function renderComisiones(){
           <svg fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,.4)" stroke-width="2" width="16" height="16"><path d="m6 9 6 6 6-6"/></svg>
         </div>
       </div>
-      <div class="com-fin-body" style="${i===0?'':'display:none'}">${vendedorasHTML}</div>
+      <div class="com-fin-body" style="${i===0?'':'display:none'}">${vHTML}</div>
     </div>`;
   }).join('');
 }
