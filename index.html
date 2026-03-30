@@ -550,7 +550,7 @@ input,select,textarea{font-family:var(--font)}
 .op-card-saldo{font-size:12px;font-weight:700;padding:3px 9px;border-radius:6px}
 .op-progress-bar{height:4px;background:var(--gray-200);border-radius:2px;overflow:hidden;margin-bottom:8px}
 .op-progress-fill{height:100%;border-radius:2px;background:#15803d;transition:width .4s ease}
-.op-amounts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.op-amounts{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
 .op-amount-item{background:white;border-radius:7px;padding:8px 10px;text-align:center}
 .op-amount-val{font-size:13px;font-weight:700;color:var(--black)}
 .op-amount-lbl{font-size:10px;color:var(--gray-400);margin-top:1px;text-transform:uppercase;letter-spacing:.4px}
@@ -1364,7 +1364,7 @@ input,select,textarea{font-family:var(--font)}
           <select class="form-select" id="fVendedora">
             <option value="Carolina">Carolina</option><option value="Lujan">Lujan</option>
             <option value="Luciana">Luciana</option><option value="Claudia">Claudia</option>
-            <option value="Xiomara">Xiomara</option>
+            <option value="Xiomara">Xiomara</option><option value="Pilar">Pilar</option>
           </select>
         </div>
         <div class="form-group"><label class="form-label">Estado</label>
@@ -1376,12 +1376,19 @@ input,select,textarea{font-family:var(--font)}
           </select>
         </div>
         <div class="form-section-title">Financiero</div>
-        <div class="form-group"><label class="form-label">Precio venta (ARS)</label><input type="number" class="form-input" id="fTotal" placeholder="1500000"></div>
-        <div class="form-group"><label class="form-label">Precio neto / costo (ARS)</label><input type="number" class="form-input" id="fNeto" placeholder="1200000"></div>
-        <div class="form-group"><label class="form-label">Total cobrado (ARS)</label><input type="number" class="form-input" id="fCobrado" placeholder="750000"></div>
+
+        <!-- Total cobrado al cliente (único campo manual de financiero) -->
+        <div class="form-group">
+          <label class="form-label">Total cobrado al cliente (ARS)</label>
+          <input type="number" class="form-input" id="fCobrado" placeholder="0" oninput="updateLegajoSummary()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Total cobrado al cliente (USD)</label>
+          <input type="number" class="form-input" id="fCobradoUSD" placeholder="0" oninput="updateLegajoSummary()">
+        </div>
 
         <!-- Operadores inline dentro del modal -->
-        <div class="full" style="grid-column:1/-1;margin-top:4px">
+        <div class="full" style="grid-column:1/-1;margin-top:8px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
             <span style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--red)">Operadores</span>
             <button type="button" onclick="addOpRow()" style="height:28px;padding:0 12px;background:rgba(109,40,217,.08);border:1.5px solid rgba(109,40,217,.2);border-radius:7px;font-size:12px;font-weight:600;color:#6d28d9;cursor:pointer;display:flex;align-items:center;gap:5px">
@@ -1390,6 +1397,12 @@ input,select,textarea{font-family:var(--font)}
             </button>
           </div>
           <div id="opRowsContainer"></div>
+
+          <!-- Resumen financiero auto-calculado -->
+          <div id="legajoFinSummary" style="display:none;background:var(--black);border-radius:10px;padding:14px 16px;margin-top:10px">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:10px">Resumen del viaje</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px" id="finSummaryGrid"></div>
+          </div>
         </div>
 
         <div class="form-group full"><label class="form-label">Observaciones</label><textarea class="form-textarea" id="fObs" placeholder="Notas adicionales..."></textarea></div>
@@ -1496,7 +1509,7 @@ const USERS = {
   Luciana: { name:'Luciana',  initials:'LC', role:'seller', color:'#065f46', vendedora:'Luciana',   display:'Vendedora',      pass:'Luciana1'   },
   Claudia: { name:'Claudia',  initials:'CL', role:'seller', color:'#b45309', vendedora:'Claudia',   display:'Vendedora',      pass:'Claudia1'   },
   Xiomara: { name:'Xiomara',  initials:'XI', role:'seller', color:'#be185d', vendedora:'Xiomara',   display:'Vendedora',      pass:'Xiomara1'   },
-  Pilar:   { name:'Pilar',    initials:'PI', role:'admin',  color:'#1d4ed8', vendedora:null,        display:'Administración', pass:'Pilar1'     },
+  Pilar:   { name:'Pilar',    initials:'PI', role:'admin',  color:'#1d4ed8', vendedora:'Pilar',     display:'Admin / Vendedora', pass:'Pilar1'  },
   Silvia:  { name:'Silvia',   initials:'SI', role:'admin',  color:'#0891b2', vendedora:null,        display:'Administración', pass:'Silvia1'    },
   Fernando:{ name:'Fernando', initials:'FE', role:'admin',  color:'#166534', vendedora:null,        display:'Administración', pass:'Fernando1'  },
   Lucas:   { name:'Lucas',    initials:'LK', role:'admin',  color:'#6d28d9', vendedora:null,        display:'Administración', pass:'Lucas1'     },
@@ -1711,7 +1724,11 @@ function updateBadges(){
   const data=getLegajos();
   document.getElementById('badgeLegajos').textContent=data.length;
   document.getElementById('badgeProximos').textContent=data.filter(l=>{const d=daysUntil(l.salida);return d!=null&&d>=0&&d<=30}).length;
-  document.getElementById('badgeSaldos').textContent=data.filter(l=>l.cobrado<l.total&&l.estado!=='anulado').length;
+  const conSaldo=data.filter(l=>{
+    const tots=calcLegajoTotals(l.operadores||[],l.cobrado||0,l.cobradoUSD||0);
+    return (tots.saldoCliARS>0||tots.saldoCliUSD>0)&&l.estado!=='anulado';
+  }).length;
+  document.getElementById('badgeSaldos').textContent=conSaldo;
 }
 
 /* ─── LEGAJOS TABLE ──────────────────────────────────── */
@@ -1737,7 +1754,9 @@ window.renderLegajosTable = function(){
   document.getElementById('legajosCount').textContent=data.length;
   const isAdmin=currentUser.role==='admin';
   document.getElementById('legajosTbody').innerHTML=data.length?data.map(l=>{
-    const saldo=l.total-l.cobrado;
+    const tots=calcLegajoTotals(l.operadores||[],l.cobrado||0,l.cobradoUSD||0);
+    const saldo=tots.saldoCliARS;
+    const totalDisplay=tots.totalARS>0?fmtMoney(tots.totalARS):(tots.totalUSD>0?`USD ${Number(tots.totalUSD).toLocaleString('es-AR')}`:fmtMoney(0));
     const archStyle=l.archivado?'opacity:.6':'';
     const archBadge=l.archivado?`<span style="background:#FFF7ED;color:#c2410c;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;margin-left:6px">ARCHIVADO</span>`:'';
     const adminBtns=isAdmin?`
@@ -1753,7 +1772,7 @@ window.renderLegajosTable = function(){
       <td><strong>${l.destino}</strong></td>
       <td>${fmtDate(l.salida)}</td>
       <td>${l.vendedora}</td>
-      <td>${fmtMoney(l.total)}</td>
+      <td>${totalDisplay}</td>
       <td class="${saldo<=0?'saldo-ok':'saldo-pend'}">${fmtMoney(saldo)}</td>
       <td>${statusPill(l.estado)}</td>
       <td><div class="row-actions">
@@ -1776,9 +1795,27 @@ function renderProximos(){
 
 /* ─── SALDOS ─────────────────────────────────────────── */
 function renderSaldos(){
-  const data=getLegajos().filter(l=>l.cobrado<l.total&&l.estado!=='anulado').sort((a,b)=>(b.total-b.cobrado)-(a.total-a.cobrado));
+  const data=getLegajos().filter(l=>{
+    const tots=calcLegajoTotals(l.operadores||[],l.cobrado||0,l.cobradoUSD||0);
+    return (tots.saldoCliARS>0||tots.saldoCliUSD>0)&&l.estado!=='anulado';
+  }).sort((a,b)=>{
+    const ta=calcLegajoTotals(a.operadores||[],a.cobrado||0,a.cobradoUSD||0).saldoCliARS;
+    const tb=calcLegajoTotals(b.operadores||[],b.cobrado||0,b.cobradoUSD||0).saldoCliARS;
+    return tb-ta;
+  });
   document.getElementById('saldosTbody').innerHTML=data.length?data.map(l=>{
-    return `<tr onclick="openDetail('${l.fbKey}')"><td><div class="td-legajo">${l.num}</div></td><td><strong>${l.cliente}</strong></td><td>${l.destino}</td><td>${fmtDate(l.salida)}</td><td>${fmtMoney(l.total)}</td><td>${fmtMoney(l.cobrado)}</td><td class="saldo-pend">${fmtMoney(l.total-l.cobrado)}</td><td>${statusPill(l.estado)}</td><td><button class="row-btn" onclick="event.stopPropagation();openPagoModal('${l.fbKey}')" title="Pago" style="background:rgba(34,197,94,.1);color:#15803d"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 4v16m8-8H4"/></svg></button></td></tr>`;
+    const tots=calcLegajoTotals(l.operadores||[],l.cobrado||0,l.cobradoUSD||0);
+    return `<tr onclick="openDetail('${l.fbKey}')">
+      <td><div class="td-legajo">#${l.num}</div></td>
+      <td><strong>${l.cliente}</strong></td>
+      <td>${l.destino}</td>
+      <td>${fmtDate(l.salida)}</td>
+      <td>${tots.totalARS>0?fmtMoney(tots.totalARS):'-'}${tots.totalUSD>0?`<div style="font-size:11px;color:var(--gray-400)">USD ${Number(tots.totalUSD).toLocaleString('es-AR')}</div>`:''}</td>
+      <td>${fmtMoney(l.cobrado||0)}${(l.cobradoUSD||0)>0?`<div style="font-size:11px;color:var(--gray-400)">USD ${Number(l.cobradoUSD).toLocaleString('es-AR')}</div>`:''}</td>
+      <td class="saldo-pend">${tots.saldoCliARS>0?fmtMoney(tots.saldoCliARS):'—'}${tots.saldoCliUSD>0?`<div style="font-size:11px">USD ${Number(tots.saldoCliUSD).toLocaleString('es-AR')}</div>`:''}</td>
+      <td>${statusPill(l.estado)}</td>
+      <td><button class="row-btn" onclick="event.stopPropagation();openPagoModal('${l.fbKey}')" title="Pago" style="background:rgba(34,197,94,.1);color:#15803d"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 4v16m8-8H4"/></svg></button></td>
+    </tr>`;
   }).join(''):`<tr><td colspan="9"><div class="empty-state"><h4>Sin saldos pendientes</h4></div></td></tr>`;
 }
 
@@ -1800,7 +1837,7 @@ window.openNewLegajo = function(){
   document.getElementById('modalLegajoTitle').textContent='Nuevo legajo';
   document.getElementById('modalLegajoSub').textContent='Completá los datos del viaje';
   document.getElementById('btnSaveLegajo').textContent='Guardar legajo';
-  ['fCliente','fEmail','fTel','fCuit','fDestino','fSalida','fRegreso','fTotal','fNeto','fCobrado','fObs'].forEach(id=>{
+  ['fCliente','fEmail','fTel','fCuit','fDestino','fSalida','fRegreso','fCobrado','fCobradoUSD','fObs'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.value='';
   });
   document.getElementById('fEstado').value='cotizado';
@@ -1844,11 +1881,9 @@ window.editLegajo = function(fbKey){
   document.getElementById('fRegreso').value=l.regreso||'';
   document.getElementById('fVendedora').value=l.vendedora;
   document.getElementById('fEstado').value=l.estado;
-  document.getElementById('fTotal').value=l.total||'';
-  document.getElementById('fNeto').value=l.neto||'';
   document.getElementById('fCobrado').value=l.cobrado||'';
+  document.getElementById('fCobradoUSD').value=l.cobradoUSD||'';
   document.getElementById('fObs').value=l.obs||'';
-  // Cargar operadores existentes en el UI inline
   opRowsData = (l.operadores||[]).map(o=>({...o}));
   renderOpRows();
   openModal('modalLegajo');
@@ -1861,6 +1896,11 @@ window.saveLegajo = async function(){
   if(!cliente||!destino||!salida){toast('Completá los campos obligatorios','error');return;}
   const btn=document.getElementById('btnSaveLegajo');
   btn.disabled=true;btn.textContent='Guardando...';
+  const cobrado    = parseFloat(document.getElementById('fCobrado').value)||0;
+  const cobradoUSD = parseFloat(document.getElementById('fCobradoUSD')?.value)||0;
+  const ops = opRowsData.filter(o=>o.nombre?.trim());
+  // Auto-calcular totales desde operadores
+  const t = calcLegajoTotals(ops, cobrado, cobradoUSD);
   const obj={
     num:document.getElementById('fNumLegajo').value.trim(),
     cliente,email:document.getElementById('fEmail').value.trim(),
@@ -1868,11 +1908,15 @@ window.saveLegajo = async function(){
     destino,salida,regreso:document.getElementById('fRegreso').value,
     vendedora:document.getElementById('fVendedora').value,
     estado:document.getElementById('fEstado').value,
-    total:  parseFloat(document.getElementById('fTotal').value)||0,
-    neto:   parseFloat(document.getElementById('fNeto').value)||0,
-    cobrado:parseFloat(document.getElementById('fCobrado').value)||0,
+    // Totales auto-calculados desde operadores
+    total:   t.totalARS,
+    totalUSD:t.totalUSD,
+    neto:    t.netoARS,
+    netoUSD: t.netoUSD,
+    cobrado,
+    cobradoUSD,
     obs:document.getElementById('fObs').value.trim(),
-    operadores: opRowsData.filter(o=>o.nombre.trim()),  // solo los que tienen nombre
+    operadores: ops,
     ts:Date.now(),
   };
   try{
@@ -1934,20 +1978,21 @@ window.togglePagoTipo = function(radio){
 window.openPagoModal = function(fbKey){
   const l=allLegajos[fbKey];if(!l) return;
   currentPagoId=fbKey;
-  document.getElementById('pagoLegajoSub').textContent=l.num+' — '+l.cliente;
+  document.getElementById('pagoLegajoSub').textContent='#'+l.num+' — '+l.cliente;
   document.getElementById('pFecha').value=new Date().toISOString().split('T')[0];
   document.getElementById('pMonto').value='';
   document.getElementById('pComprobante').value='';
   // Reset tipo
   document.querySelector('[name="pagoTipo"][value="cliente"]').checked=true;
   document.getElementById('pagoOperadorWrap').style.display='none';
-  // Llenar operadores del legajo
+  // Llenar operadores del legajo con moneda y saldo
   const sel=document.getElementById('pOperador');
   sel.innerHTML='<option value="">Seleccionar operador</option>';
   (l.operadores||[]).forEach((op,i)=>{
     const saldo=(op.total||0)-(op.pagado||0);
     const o=document.createElement('option');
-    o.value=i; o.textContent=`${op.nombre} (debe ${op.moneda} ${saldo.toLocaleString('es-AR')})`;
+    o.value=i;
+    o.textContent=`${op.nombre} · ${op.moneda||'ARS'} ${Number(saldo).toLocaleString('es-AR')} pendiente`;
     sel.appendChild(o);
   });
   openModal('modalPago');
@@ -1970,13 +2015,23 @@ window.savePago = async function(){
   const updates={ts:Date.now()};
   if(tipo==='cliente'){
     const pagos=[...(l.pagos||[]),pago];
-    const totalARS=pago.moneda==='USD'?monto*pago.cotizacion:monto;
-    let cobrado=(l.cobrado||0)+totalARS;
+    const ops=l.operadores||[];
+    let cobrado   = l.cobrado||0;
+    let cobradoUSD= l.cobradoUSD||0;
+    if(pago.moneda==='USD'){
+      cobradoUSD += monto;
+    } else {
+      cobrado += monto;
+    }
+    // Recalcular estado desde totales de operadores
+    const tots = calcLegajoTotals(ops, cobrado, cobradoUSD);
     let estado=l.estado;
-    if(cobrado>=(l.total||0)&&(l.total||0)>0) estado='pago completo';
-    else if(cobrado>0&&estado==='cotizado') estado='señado';
+    const totalViaje = tots.totalARS;
+    if(totalViaje>0 && cobrado>=totalViaje && (tots.totalUSD===0||cobradoUSD>=tots.totalUSD)){
+      estado='pago completo';
+    } else if(cobrado>0&&estado==='cotizado') estado='señado';
     else if(cobrado>0&&estado==='señado') estado='parcialmente pago';
-    updates.pagos=pagos;updates.cobrado=cobrado;updates.estado=estado;
+    updates.pagos=pagos; updates.cobrado=cobrado; updates.cobradoUSD=cobradoUSD; updates.estado=estado;
   } else {
     const opIdx=parseInt(document.getElementById('pOperador').value);
     if(isNaN(opIdx)||opIdx<0){
@@ -2009,15 +2064,17 @@ window.openDetail = function(fbKey){
 
 function renderDetail(fbKey){
   const l=allLegajos[fbKey];if(!l) return;
-  const rent = (l.total||0)-(l.neto||0);
-  const saldo=(l.total||0)-(l.cobrado||0);
+  // Calcular desde operadores
+  const ops=l.operadores||[];
+  const totals=calcLegajoTotals(ops,l.cobrado||0,l.cobradoUSD||0);
+  const saldo=totals.saldoCliARS; // para el dStats header
   document.getElementById('dLegajoNum').textContent='#'+l.num;
   document.getElementById('dDestino').textContent=l.destino;
   document.getElementById('dMeta').textContent=`${l.vendedora} · ${fmtDate(l.salida)}${l.regreso?' → '+fmtDate(l.regreso):''}`;
   document.getElementById('dStats').innerHTML=`
-    <div class="detail-stat"><div class="detail-stat-val">${fmtMoney(l.total)}</div><div class="detail-stat-lbl">Precio venta</div></div>
-    <div class="detail-stat"><div class="detail-stat-val" style="color:${saldo>0?'#f87171':'#4ade80'}">${fmtMoney(saldo)}</div><div class="detail-stat-lbl">Saldo cliente</div></div>
-    <div class="detail-stat"><div class="detail-stat-val" style="color:#f59e0b">${rent>0?fmtMoney(rent):'—'}</div><div class="detail-stat-lbl">Rentabilidad</div></div>`;
+    <div class="detail-stat"><div class="detail-stat-val">${fmtMoney(totals.totalARS)}</div><div class="detail-stat-lbl">Total ARS</div></div>
+    <div class="detail-stat"><div class="detail-stat-val">USD ${Number(totals.totalUSD).toLocaleString('es-AR')}</div><div class="detail-stat-lbl">Total USD</div></div>
+    <div class="detail-stat"><div class="detail-stat-val" style="color:${saldo>0?'#f87171':'#4ade80'}">${fmtMoney(saldo)}</div><div class="detail-stat-lbl">Saldo cliente</div></div>`;
 
   let body=`<div class="detail-section">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px">
@@ -2046,48 +2103,67 @@ function renderDetail(fbKey){
     ${l.motivoAnulacion?`<div class="detail-row"><span class="detail-row-key">Motivo anulación</span><span class="detail-row-val" style="color:var(--red)">${l.motivoAnulacion}</span></div>`:''}
   </div>`;
 
-  // Financiero del legajo
-  if(l.total||l.neto){
-    body+=`<div class="detail-section">
-      <div class="detail-section-title">Financiero</div>
-      ${l.total?`<div class="detail-row"><span class="detail-row-key">Precio venta</span><span class="detail-row-val">${fmtMoney(l.total)}</span></div>`:''}
-      ${l.neto?`<div class="detail-row"><span class="detail-row-key">Precio neto / costo</span><span class="detail-row-val">${fmtMoney(l.neto)}</span></div>`:''}
-      ${rent>0?`<div class="detail-row"><span class="detail-row-key">Rentabilidad</span><span class="detail-row-val" style="color:#d97706;font-weight:700">${fmtMoney(rent)}</span></div>`:''}
-      ${rent>0?`<div class="detail-row"><span class="detail-row-key">Comisión vendedora (25%)</span><span class="detail-row-val">${fmtMoney(rent*0.25)}</span></div>`:''}
-      <div class="detail-row"><span class="detail-row-key">Cobrado</span><span class="detail-row-val">${fmtMoney(l.cobrado)}</span></div>
-      <div class="detail-row"><span class="detail-row-key">Saldo pendiente</span><span class="detail-row-val" style="color:${saldo>0?'var(--red)':'#15803d'}">${fmtMoney(saldo)}</span></div>
-    </div>`;
-  }
+
+  // ─── FINANCIERO MULTI-MONEDA ────────────────────────────
+  const ops = l.operadores||[];
+  const t   = calcLegajoTotals(ops, l.cobrado||0, l.cobradoUSD||0);
+  const rent    = t.totalARS - t.netoARS;
+  const rentUSD = t.totalUSD - t.netoUSD;
+
+  body+=`<div class="detail-section">
+    <div class="detail-section-title">Financiero</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+      <div style="background:var(--black);border-radius:10px;padding:14px">
+        <div style="font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Total · ARS</div>
+        <div style="font-size:22px;font-weight:700;color:white;letter-spacing:-1px">${fmtMoney(t.totalARS)}</div>
+        <div style="margin-top:8px;font-size:11.5px;color:rgba(255,255,255,.45);display:flex;flex-direction:column;gap:3px">
+          <div>Cobrado: <strong style="color:#4ade80">${fmtMoney(l.cobrado||0)}</strong></div>
+          <div>Saldo: <strong style="color:${t.saldoCliARS>0?'#f87171':'#4ade80'}">${fmtMoney(t.saldoCliARS)}</strong></div>
+        </div>
+      </div>
+      <div style="background:var(--black);border-radius:10px;padding:14px">
+        <div style="font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Total · USD</div>
+        <div style="font-size:22px;font-weight:700;color:white;letter-spacing:-1px">USD ${Number(t.totalUSD).toLocaleString('es-AR')}</div>
+        <div style="margin-top:8px;font-size:11.5px;color:rgba(255,255,255,.45);display:flex;flex-direction:column;gap:3px">
+          <div>Cobrado: <strong style="color:#4ade80">USD ${Number(l.cobradoUSD||0).toLocaleString('es-AR')}</strong></div>
+          <div>Saldo: <strong style="color:${t.saldoCliUSD>0?'#f87171':'#4ade80'}">USD ${Number(t.saldoCliUSD).toLocaleString('es-AR')}</strong></div>
+        </div>
+      </div>
+    </div>
+    ${(rent>0||rentUSD>0)?`<div style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.18);border-radius:8px;padding:10px 14px;display:flex;gap:24px;flex-wrap:wrap">
+      ${rent>0?`<div><div style="font-size:10px;color:#92400e;font-weight:700;text-transform:uppercase;letter-spacing:.4px">Rent. ARS</div><div style="font-size:15px;font-weight:700;color:#d97706">${fmtMoney(rent)}</div><div style="font-size:11px;color:#92400e">Com.25% → ${fmtMoney(rent*0.25)}</div></div>`:''}
+      ${rentUSD>0?`<div><div style="font-size:10px;color:#92400e;font-weight:700;text-transform:uppercase;letter-spacing:.4px">Rent. USD</div><div style="font-size:15px;font-weight:700;color:#d97706">USD ${Number(rentUSD).toLocaleString('es-AR')}</div></div>`:''}
+    </div>`:''}
+  </div>`;
 
   if(l.acomps&&l.acomps.length) body+=`<div class="detail-section"><div class="detail-section-title">Acompañantes (${l.acomps.length})</div>${l.acomps.map(a=>`<div class="acomp-item"><div class="acomp-avatar">${a.nombre.charAt(0)}</div><div><div class="acomp-name">${a.nombre}</div><div class="acomp-dni">DNI ${a.dni}</div></div></div>`).join('')}</div>`;
   if(l.itin&&l.itin.length) body+=`<div class="detail-section"><div class="detail-section-title">Itinerario</div><table class="itin-table"><tr><th>Fecha</th><th>Ciudad</th><th>Hotel</th><th>Vuelo</th><th>Servicio</th></tr>${l.itin.map(d=>`<tr><td class="itin-date">${fmtDate(d.fecha)}</td><td>${d.ciudad}</td><td>${d.hotel||'—'}</td><td>${d.vuelo||'—'}</td><td>${d.svc||'—'}</td></tr>`).join('')}</table></div>`;
 
-  // Operadores — nueva vista premium
+  // ─── OPERADORES ─────────────────────────────────────────
   body+=`<div class="detail-section">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
       <div class="detail-section-title" style="margin-bottom:0">Operadores</div>
-      ${l.estado!=='anulado'?`<button onclick="openAddOperador('${fbKey}')" style="height:26px;padding:0 10px;background:rgba(109,40,217,.08);border:1.5px solid rgba(109,40,217,.2);border-radius:7px;font-size:11px;font-weight:600;color:#6d28d9;cursor:pointer;display:flex;align-items:center;gap:4px">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M12 4v16m8-8H4"/></svg>Agregar
-      </button>`:''}
+      ${!l.archivado&&l.estado!=='anulado'?`<button onclick="openAddOperador('${fbKey}')" style="height:26px;padding:0 10px;background:rgba(109,40,217,.08);border:1.5px solid rgba(109,40,217,.2);border-radius:7px;font-size:11px;font-weight:600;color:#6d28d9;cursor:pointer;display:flex;align-items:center;gap:4px"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M12 4v16m8-8H4"/></svg>Agregar</button>`:''}
     </div>
     <div class="op-grid">
-    ${(l.operadores||[]).length?(l.operadores||[]).map((o,i)=>{
+    ${ops.length?ops.map((o,idx)=>{
+      const mon=o.moneda||'ARS';
       const saldoOp=(o.total||0)-(o.pagado||0);
       const pct=o.total>0?Math.min(100,Math.round((o.pagado||0)/o.total*100)):0;
-      const pagosHist=(o.pagos||[]).map(p=>`<div class="op-pago-row"><span class="op-pago-fecha">${fmtDate(p.fecha)} · ${p.medio||''}</span><span class="op-pago-monto">+${p.moneda} ${Number(p.monto).toLocaleString('es-AR')}</span></div>`).join('');
+      const pagosHist=(o.pagos||[]).map(p=>`<div class="op-pago-row"><span class="op-pago-fecha">${fmtDate(p.fecha)} · ${p.medio||''}</span><span class="op-pago-monto">+${p.moneda||mon} ${Number(p.monto).toLocaleString('es-AR')}</span></div>`).join('');
       return `<div class="op-card-detail">
         <div class="op-card-header">
-          <span class="op-card-name">${o.nombre}</span>
-          <span class="op-card-saldo ${saldoOp>0?'op-saldo-pend':'op-saldo-ok'}">${saldoOp>0?'Debe '+o.moneda+' '+saldoOp.toLocaleString('es-AR'):'Pagado ✓'}</span>
+          <div><div class="op-card-name">${o.nombre}</div><div style="font-size:11px;color:var(--gray-400);margin-top:1px">${mon} · ${pct}% pagado</div></div>
+          <span class="op-card-saldo ${saldoOp>0?'op-saldo-pend':'op-saldo-ok'}">${saldoOp>0?'Debe '+mon+' '+Number(saldoOp).toLocaleString('es-AR'):'Pagado ✓'}</span>
         </div>
         <div class="op-progress-bar"><div class="op-progress-fill" style="width:${pct}%;background:${pct===100?'#15803d':'#3b82f6'}"></div></div>
-        <div style="font-size:11px;color:var(--gray-400);margin-bottom:8px">${pct}% pagado</div>
         <div class="op-amounts">
-          <div class="op-amount-item"><div class="op-amount-val">${o.moneda} ${(o.neto||0).toLocaleString('es-AR')}</div><div class="op-amount-lbl">Neto</div></div>
-          <div class="op-amount-item"><div class="op-amount-val">${o.moneda} ${(o.total||0).toLocaleString('es-AR')}</div><div class="op-amount-lbl">Total</div></div>
-          <div class="op-amount-item"><div class="op-amount-val" style="color:${saldoOp>0?'var(--red)':'#15803d'}">${o.moneda} ${saldoOp.toLocaleString('es-AR')}</div><div class="op-amount-lbl">Saldo</div></div>
+          <div class="op-amount-item"><div class="op-amount-val">${mon} ${Number(o.neto||0).toLocaleString('es-AR')}</div><div class="op-amount-lbl">Neto</div></div>
+          <div class="op-amount-item"><div class="op-amount-val">${mon} ${Number(o.total||0).toLocaleString('es-AR')}</div><div class="op-amount-lbl">Total</div></div>
+          <div class="op-amount-item"><div class="op-amount-val" style="color:${(o.pagado||0)>0?'#15803d':'var(--gray-400)'}">${mon} ${Number(o.pagado||0).toLocaleString('es-AR')}</div><div class="op-amount-lbl">Pagado</div></div>
+          <div class="op-amount-item"><div class="op-amount-val" style="color:${saldoOp>0?'var(--red)':'#15803d'};font-size:15px">${mon} ${Number(saldoOp).toLocaleString('es-AR')}</div><div class="op-amount-lbl">Saldo pendiente</div></div>
         </div>
-        ${pagosHist?`<div class="op-pagos-list">${pagosHist}</div>`:''}
+        ${pagosHist?`<div class="op-pagos-list"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-400);margin-bottom:4px">Pagos realizados</div>${pagosHist}</div>`:''}
       </div>`;
     }).join(''):`<div style="font-size:13px;color:var(--gray-400);padding:4px 0">Sin operadores cargados</div>`}
     </div>
@@ -2458,11 +2534,12 @@ window.removeOpRow = function(idx){
 function renderOpRows(){
   const cont = document.getElementById('opRowsContainer');
   if(!opRowsData.length){
-    cont.innerHTML=`<div style="font-size:12.5px;color:var(--gray-400);padding:8px 0;text-align:center">Sin operadores. Hacé click en "+ Agregar operador"</div>`;
+    cont.innerHTML=`<div style="font-size:12.5px;color:var(--gray-400);padding:8px 0;text-align:center">Sin operadores — hacé click en "+ Agregar operador"</div>`;
+    updateLegajoSummary();
     return;
   }
   cont.innerHTML = opRowsData.map((op,i)=>`
-    <div style="background:var(--gray-100);border-radius:10px;padding:14px;margin-bottom:8px;position:relative">
+    <div style="background:var(--gray-100);border-radius:10px;padding:14px;margin-bottom:8px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <span style="font-size:11px;font-weight:700;color:#6d28d9;text-transform:uppercase;letter-spacing:.5px">Operador ${i+1}</span>
         <button type="button" onclick="removeOpRow(${i})" style="background:rgba(239,68,68,.08);border:1.5px solid rgba(239,68,68,.15);border-radius:6px;color:#ef4444;padding:2px 8px;font-size:11px;cursor:pointer">Quitar</button>
@@ -2470,48 +2547,92 @@ function renderOpRows(){
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div style="grid-column:1/-1" class="form-group">
           <label class="form-label">Nombre del operador *</label>
-          <input type="text" class="form-input" value="${op.nombre}" placeholder="Ej: Hotetur Cancún"
+          <input type="text" class="form-input" value="${op.nombre||''}" placeholder="Ej: Hotetur Cancún, Air France"
             oninput="opRowsData[${i}].nombre=this.value" style="height:38px">
         </div>
         <div class="form-group">
-          <label class="form-label">Precio neto</label>
-          <input type="number" class="form-input" value="${op.neto||''}" placeholder="0"
-            oninput="opRowsData[${i}].neto=parseFloat(this.value)||0;updateOpSaldo(${i})" style="height:38px">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Precio total *</label>
-          <input type="number" class="form-input" value="${op.total||''}" placeholder="0"
-            oninput="opRowsData[${i}].total=parseFloat(this.value)||0;updateOpSaldo(${i})" style="height:38px">
-        </div>
-        <div class="form-group">
           <label class="form-label">Moneda</label>
-          <select class="form-select" oninput="opRowsData[${i}].moneda=this.value" style="height:38px">
-            <option ${op.moneda==='ARS'?'selected':''}>ARS</option>
+          <select class="form-select" onchange="opRowsData[${i}].moneda=this.value;updateOpSaldo(${i});updateLegajoSummary()" style="height:38px">
+            <option ${(op.moneda||'ARS')==='ARS'?'selected':''}>ARS</option>
             <option ${op.moneda==='USD'?'selected':''}>USD</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Ya pagado</label>
+          <label class="form-label">Precio neto</label>
+          <input type="number" class="form-input" value="${op.neto||''}" placeholder="0"
+            oninput="opRowsData[${i}].neto=parseFloat(this.value)||0;updateOpSaldo(${i});updateLegajoSummary()" style="height:38px">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Precio total *</label>
+          <input type="number" class="form-input" value="${op.total||''}" placeholder="0"
+            oninput="opRowsData[${i}].total=parseFloat(this.value)||0;updateOpSaldo(${i});updateLegajoSummary()" style="height:38px">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ya pagado al operador</label>
           <input type="number" class="form-input" value="${op.pagado||''}" placeholder="0"
-            oninput="opRowsData[${i}].pagado=parseFloat(this.value)||0;updateOpSaldo(${i})" style="height:38px">
+            oninput="opRowsData[${i}].pagado=parseFloat(this.value)||0;updateOpSaldo(${i});updateLegajoSummary()" style="height:38px">
         </div>
       </div>
-      <div id="opSaldo_${i}" style="margin-top:8px;font-size:12px;display:flex;gap:12px">
+      <div id="opSaldo_${i}" style="margin-top:8px;font-size:12px;display:flex;gap:12px;flex-wrap:wrap">
         ${opSaldoHTML(op)}
       </div>
     </div>`).join('');
+  updateLegajoSummary();
 }
 
 function opSaldoHTML(op){
   const saldo=(op.total||0)-(op.pagado||0);
-  return `<span style="color:var(--gray-600)">Neto: <strong>${op.moneda} ${(op.neto||0).toLocaleString('es-AR')}</strong></span>
-    <span style="color:var(--gray-600)">Total: <strong>${op.moneda} ${(op.total||0).toLocaleString('es-AR')}</strong></span>
-    <span style="color:${saldo>0?'var(--red)':'#15803d'}">Saldo: <strong>${op.moneda} ${saldo.toLocaleString('es-AR')}</strong></span>`;
+  const mon=op.moneda||'ARS';
+  return `<span style="color:var(--gray-600)">Neto: <strong>${mon} ${(op.neto||0).toLocaleString('es-AR')}</strong></span>
+    <span style="color:var(--gray-600)">Total: <strong>${mon} ${(op.total||0).toLocaleString('es-AR')}</strong></span>
+    <span style="color:${saldo>0?'var(--red)':'#15803d'}">Saldo: <strong>${mon} ${saldo.toLocaleString('es-AR')}</strong></span>`;
 }
 
 window.updateOpSaldo = function(i){
   const el=document.getElementById(`opSaldo_${i}`);
   if(el) el.innerHTML=opSaldoHTML(opRowsData[i]);
+};
+
+/* Calcular totales del legajo desde operadores */
+function calcLegajoTotals(ops, cobrado, cobradoUSD){
+  const totalARS = ops.filter(o=>(o.moneda||'ARS')==='ARS').reduce((s,o)=>s+(o.total||0),0);
+  const totalUSD = ops.filter(o=>o.moneda==='USD').reduce((s,o)=>s+(o.total||0),0);
+  const netoARS  = ops.filter(o=>(o.moneda||'ARS')==='ARS').reduce((s,o)=>s+(o.neto||0),0);
+  const netoUSD  = ops.filter(o=>o.moneda==='USD').reduce((s,o)=>s+(o.neto||0),0);
+  const pagadoARS= ops.filter(o=>(o.moneda||'ARS')==='ARS').reduce((s,o)=>s+(o.pagado||0),0);
+  const pagadoUSD= ops.filter(o=>o.moneda==='USD').reduce((s,o)=>s+(o.pagado||0),0);
+  const saldoOpARS = totalARS - pagadoARS;
+  const saldoOpUSD = totalUSD - pagadoUSD;
+  const saldoCliARS = totalARS - (cobrado||0);
+  const saldoCliUSD = totalUSD - (cobradoUSD||0);
+  return { totalARS, totalUSD, netoARS, netoUSD, pagadoARS, pagadoUSD, saldoOpARS, saldoOpUSD, saldoCliARS, saldoCliUSD };
+}
+
+window.updateLegajoSummary = function(){
+  const sumDiv = document.getElementById('legajoFinSummary');
+  const grid   = document.getElementById('finSummaryGrid');
+  if(!sumDiv||!grid) return;
+  const cobrado    = parseFloat(document.getElementById('fCobrado')?.value)||0;
+  const cobradoUSD = parseFloat(document.getElementById('fCobradoUSD')?.value)||0;
+  const ops = opRowsData.filter(o=>o.nombre||o.total);
+  if(!ops.length && !cobrado && !cobradoUSD){ sumDiv.style.display='none'; return; }
+  sumDiv.style.display='';
+  const t = calcLegajoTotals(ops, cobrado, cobradoUSD);
+  const fmtN = (n,mon)=>`${mon} ${Number(n).toLocaleString('es-AR')}`;
+  const cells=[
+    {lbl:'Total viaje ARS',val:fmtN(t.totalARS,'ARS'),color:'white'},
+    {lbl:'Total viaje USD',val:fmtN(t.totalUSD,'USD'),color:'white'},
+    {lbl:'Neto ARS',val:fmtN(t.netoARS,'ARS'),color:'rgba(255,255,255,.55)'},
+    {lbl:'Neto USD',val:fmtN(t.netoUSD,'USD'),color:'rgba(255,255,255,.55)'},
+    {lbl:'Saldo cliente ARS',val:fmtN(t.saldoCliARS,'ARS'),color:t.saldoCliARS>0?'#f87171':'#4ade80'},
+    {lbl:'Saldo cliente USD',val:fmtN(t.saldoCliUSD,'USD'),color:t.saldoCliUSD>0?'#f87171':'#4ade80'},
+    {lbl:'Deuda a operad. ARS',val:fmtN(t.saldoOpARS,'ARS'),color:t.saldoOpARS>0?'#fbbf24':'#4ade80'},
+    {lbl:'Deuda a operad. USD',val:fmtN(t.saldoOpUSD,'USD'),color:t.saldoOpUSD>0?'#fbbf24':'#4ade80'},
+  ];
+  grid.innerHTML=cells.map(c=>`<div style="background:rgba(255,255,255,.07);border-radius:8px;padding:10px 12px">
+    <div style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${c.lbl}</div>
+    <div style="font-size:13px;font-weight:700;color:${c.color}">${c.val}</div>
+  </div>`).join('');
 };
 
 /* ─── TRANSFERENCIAS REESTRUCTURADAS ─────────────────── */
@@ -2724,10 +2845,10 @@ function getSueldo(vendedora){
 }
 
 function calcRentabilidad(legajo){
-  // rentabilidad = precio venta - precio neto (costo)
-  const venta = legajo.total || 0;
-  const neto  = legajo.neto  || 0;
-  return venta - neto;
+  // Los totales se auto-calculan desde operadores y se guardan como total/neto (ARS)
+  // También acumulamos rentabilidad USD si existe
+  const rentARS = (legajo.total||0) - (legajo.neto||0);
+  return rentARS; // usamos ARS como base para comisiones
 }
 
 function calcComisiones(){
@@ -2951,7 +3072,10 @@ window.saveSueldos = function(){
 function renderDashPremium(){
   const data=getLegajos();
   const total=data.length;
-  const saldo=data.filter(l=>l.cobrado<l.total&&l.estado!=='anulado').length;
+  const saldo=data.filter(l=>{
+    const tots=calcLegajoTotals(l.operadores||[],l.cobrado||0,l.cobradoUSD||0);
+    return (tots.saldoCliARS>0||tots.saldoCliUSD>0)&&l.estado!=='anulado';
+  }).length;
   const prox=data.filter(l=>{const d=daysUntil(l.salida);return d!=null&&d>=0&&d<=30&&l.estado!=='anulado'}).length;
   const emit=data.filter(l=>l.estado==='emitido').length;
   const transfPend=Object.values(allTransf).filter(t=>t.estado==='pendiente').length;
@@ -3024,15 +3148,25 @@ function renderDashPremium(){
     </div>`;}).join(''):`<div style="padding:16px 20px;font-size:13px;color:var(--gray-400)">Sin viajes próximos</div>`;
 
   // Alertas en dash
-  const urgentes=data.filter(l=>{const d=daysUntil(l.salida);return d!=null&&d>=0&&d<=15&&l.cobrado<l.total&&l.estado!=='anulado'});
+  const urgentes=data.filter(l=>{
+    const d=daysUntil(l.salida);
+    const tots=calcLegajoTotals(l.operadores||[],l.cobrado||0,l.cobradoUSD||0);
+    return d!=null&&d>=0&&d<=15&&(tots.saldoCliARS>0||tots.saldoCliUSD>0)&&l.estado!=='anulado';
+  });
   const alertEl=document.getElementById('alertasContainer');
   if(alertEl){
     let html='';
-    if(urgentes.length) html+=urgentes.slice(0,3).map(l=>`<div onclick="openDetail('${l.fbKey}')" style="background:#FFF1F2;border:1px solid #fecdd3;border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:pointer">
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><span style="background:#f43f5e;color:white;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px">URGENTE</span><span style="font-size:11px;font-weight:700;color:#AC0A10">${l.num}</span></div>
-      <div style="font-size:12.5px;font-weight:600">${l.cliente} — ${l.destino}</div>
-      <div style="font-size:11.5px;color:#9f1239">Saldo ${fmtMoney(l.total-l.cobrado)} · ${daysUntil(l.salida)}d</div>
-    </div>`).join('');
+    if(urgentes.length) html+=urgentes.slice(0,3).map(l=>{
+      const tots=calcLegajoTotals(l.operadores||[],l.cobrado||0,l.cobradoUSD||0);
+      const saldoStr=[
+        tots.saldoCliARS>0?fmtMoney(tots.saldoCliARS):'',
+        tots.saldoCliUSD>0?`USD ${Number(tots.saldoCliUSD).toLocaleString('es-AR')}`:''
+      ].filter(Boolean).join(' · ');
+      return `<div onclick="openDetail('${l.fbKey}')" style="background:#FFF1F2;border:1px solid #fecdd3;border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:pointer">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><span style="background:#f43f5e;color:white;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px">URGENTE</span><span style="font-size:11px;font-weight:700;color:#AC0A10">#${l.num}</span></div>
+        <div style="font-size:12.5px;font-weight:600">${l.cliente} — ${l.destino}</div>
+        <div style="font-size:11.5px;color:#9f1239">Saldo ${saldoStr} · ${daysUntil(l.salida)}d</div>
+      </div>`;}).join('');
     if(!html) html=`<div style="font-size:13px;color:var(--gray-400);padding:8px 0">Sin alertas ✓</div>`;
     alertEl.innerHTML=html;
   }
