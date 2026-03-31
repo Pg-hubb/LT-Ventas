@@ -1250,7 +1250,7 @@ input,select,textarea{font-family:var(--font)}
 
 <!-- MODAL: AGREGAR OPERADOR A LEGAJO -->
 <div class="modal-overlay" id="modalOperador">
-  <div class="modal" style="max-width:420px">
+  <div class="modal" style="max-width:440px">
     <div class="modal-header">
       <div class="modal-header-icon" style="background:#6d28d9">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 00-1-1h-2a1 1 0 00-1 1v5m4 0H9"/></svg>
@@ -1263,13 +1263,34 @@ input,select,textarea{font-family:var(--font)}
     </div>
     <div class="modal-body">
       <div class="form-grid">
-        <div class="form-group full"><label class="form-label">Nombre del operador *</label><input type="text" class="form-input" id="opNombre" placeholder="Ej: Hotetur Cancún, Air France"></div>
-        <div class="form-group"><label class="form-label">Precio neto</label><input type="number" class="form-input" id="opNeto" placeholder="0"></div>
-        <div class="form-group"><label class="form-label">Precio total *</label><input type="number" class="form-input" id="opTotal" placeholder="0"></div>
-        <div class="form-group"><label class="form-label">Moneda</label>
-          <select class="form-select" id="opMoneda"><option>ARS</option><option>USD</option></select>
+        <div class="form-group full">
+          <label class="form-label">Nombre del operador *</label>
+          <input type="text" class="form-input" id="opNombre" placeholder="Ej: Hotetur Cancún, Air France">
         </div>
-        <div class="form-group"><label class="form-label">Ya pagado</label><input type="number" class="form-input" id="opPagado" placeholder="0"></div>
+        <div class="form-group">
+          <label class="form-label">Moneda</label>
+          <select class="form-select" id="opMoneda" onchange="calcOpPreview()">
+            <option value="ARS">ARS</option>
+            <option value="USD">USD</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ya pagado al operador</label>
+          <input type="number" class="form-input" id="opPagado" placeholder="0" oninput="calcOpPreview()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Precio neto <span style="font-weight:400;color:var(--gray-400)">(costo)</span></label>
+          <input type="number" class="form-input" id="opNeto" placeholder="0" oninput="calcOpPreview()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Precio total <span style="font-weight:400;color:var(--gray-400)">(venta) *</span></label>
+          <input type="number" class="form-input" id="opTotal" placeholder="0" oninput="calcOpPreview()">
+        </div>
+        <!-- Preview en tiempo real -->
+        <div class="full" id="opPreviewWrap" style="display:none;grid-column:1/-1;background:var(--black);border-radius:10px;padding:14px 16px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:10px">Vista previa</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px" id="opPreviewGrid"></div>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
@@ -1375,24 +1396,11 @@ input,select,textarea{font-family:var(--font)}
             <option value="cerrado">Cerrado</option><option value="anulado">Anulado</option>
           </select>
         </div>
-        <!-- OPERADORES: se construye el viaje desde aquí -->
-        <div class="full" style="grid-column:1/-1;margin-top:4px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <div>
-              <span style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--red)">Operadores</span>
-              <span style="font-size:11px;color:var(--gray-400);margin-left:8px">Los totales se calculan automáticamente</span>
-            </div>
-            <button type="button" onclick="addOpRow()" style="height:30px;padding:0 14px;background:rgba(172,10,16,.08);border:1.5px solid rgba(172,10,16,.2);border-radius:7px;font-size:12px;font-weight:600;color:var(--red);cursor:pointer;display:flex;align-items:center;gap:5px">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 4v16m8-8H4"/></svg>
-              Agregar operador
-            </button>
-          </div>
-          <div id="opRowsContainer"></div>
-
-          <!-- Totales auto-calculados -->
-          <div id="legajoFinSummary" style="display:none;background:var(--black);border-radius:10px;padding:16px 18px;margin-top:12px">
-            <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:12px">Totales del viaje</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" id="finSummaryGrid"></div>
+        <!-- NOTA: Los operadores se agregan desde el legajo ya creado -->
+        <div class="full" style="grid-column:1/-1">
+          <div style="background:rgba(172,10,16,.04);border:1.5px dashed rgba(172,10,16,.15);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px">
+            <svg fill="none" viewBox="0 0 24 24" stroke="var(--red)" stroke-width="2" width="18" height="18" style="flex-shrink:0"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span style="font-size:12.5px;color:var(--gray-600);line-height:1.5">Los <strong>operadores</strong> se agregan después de crear el legajo, desde el panel de detalle.</span>
           </div>
         </div>
 
@@ -1834,8 +1842,6 @@ window.openNewLegajo = function(){
   document.getElementById('fEstado').value='cotizado';
   if(currentUser.role==='seller') document.getElementById('fVendedora').value=currentUser.vendedora;
   document.getElementById('fNumLegajo').value = getNextLegajoNum();
-  opRowsData=[];
-  renderOpRows();
   openModal('modalLegajo');
 };
 
@@ -1873,8 +1879,7 @@ window.editLegajo = function(fbKey){
   document.getElementById('fVendedora').value=l.vendedora;
   document.getElementById('fEstado').value=l.estado;
   document.getElementById('fObs').value=l.obs||'';
-  opRowsData = (l.operadores||[]).map(o=>({...o}));
-  renderOpRows();
+  // Operadores NO se editan desde este modal — se gestionan desde el panel de detalle
   openModal('modalLegajo');
 };
 
@@ -1886,23 +1891,8 @@ window.saveLegajo = async function(){
   const btn=document.getElementById('btnSaveLegajo');
   btn.disabled=true;btn.textContent='Guardando...';
 
-  // Operadores con nombre válido — fuente de verdad del financiero
-  const ops = opRowsData.filter(o=>o.nombre?.trim()).map(o=>({
-    nombre: o.nombre.trim(),
-    moneda: o.moneda||'ARS',
-    total:  parseFloat(o.total)||0,
-    neto:   parseFloat(o.neto)||0,
-    pagado: parseFloat(o.pagado)||0,
-    pagos:  o.pagos||[],
-  }));
-
-  // Preservar cobrado existente (se gestiona por módulo de pagos, no por este modal)
-  const existente  = currentEdit ? allLegajos[currentEdit] : null;
-  const cobrado    = existente?.cobrado    || 0;
-  const cobradoUSD = existente?.cobradoUSD || 0;
-
-  // Totales auto-calculados desde operadores
-  const t = calcLegajoTotals(ops, cobrado, cobradoUSD);
+  // En edición: preservar operadores, cobrado y totales existentes de Firebase
+  const existente = currentEdit ? allLegajos[currentEdit] : null;
 
   const obj={
     num:      document.getElementById('fNumLegajo').value.trim(),
@@ -1914,27 +1904,22 @@ window.saveLegajo = async function(){
     regreso:  document.getElementById('fRegreso').value,
     vendedora:document.getElementById('fVendedora').value,
     estado:   document.getElementById('fEstado').value,
-    // Totales ARS/USD derivados de operadores
-    total:    t.totalARS,
-    totalUSD: t.totalUSD,
-    neto:     t.netoARS,
-    netoUSD:  t.netoUSD,
-    cobrado,
-    cobradoUSD,
     obs:      document.getElementById('fObs').value.trim(),
-    operadores: ops,   // ← siempre desde opRowsData, nunca sobreescrito con []
     ts:       Date.now(),
   };
 
   try{
     if(currentEdit){
+      // Solo actualizar campos del modal — NO tocar operadores ni cobrado
       await update(ref(db,`legajos/${currentEdit}`),obj);
       toast('Legajo actualizado','success');
     } else {
-      // Campos extra solo en creación — operadores ya está en obj
-      obj.acomps=[]; obj.pagos=[]; obj.itin=[];
+      // Legajo nuevo: operadores vacíos, se agregan desde el panel de detalle
+      obj.operadores=[]; obj.acomps=[]; obj.pagos=[]; obj.itin=[];
+      obj.total=0; obj.totalUSD=0; obj.neto=0; obj.netoUSD=0;
+      obj.cobrado=0; obj.cobradoUSD=0;
       await push(ref(db,'legajos'),obj);
-      toast('Legajo creado','success');
+      toast('Legajo creado — ahora podés agregar operadores desde el legajo','success');
     }
     closeModal('modalLegajo');
   }catch(e){ toast('Error al guardar','error'); console.error(e); }
@@ -1949,32 +1934,75 @@ window.openAddOperador = function(fbKey){
   currentOpLegajoKey = fbKey;
   const l = allLegajos[fbKey];
   if(!l) return;
-  document.getElementById('opLegajoSub').textContent = 'Legajo ' + l.num + ' · ' + l.cliente;
+  document.getElementById('opLegajoSub').textContent = 'Legajo #' + l.num + ' · ' + l.cliente;
   ['opNombre','opNeto','opTotal','opPagado'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('opMoneda').value='ARS';
+  const pw=document.getElementById('opPreviewWrap');
+  if(pw) pw.style.display='none';
   openModal('modalOperador');
+};
+
+window.calcOpPreview = function(){
+  const neto   = parseFloat(document.getElementById('opNeto').value)||0;
+  const total  = parseFloat(document.getElementById('opTotal').value)||0;
+  const pagado = parseFloat(document.getElementById('opPagado').value)||0;
+  const mon    = document.getElementById('opMoneda').value||'ARS';
+  const pw     = document.getElementById('opPreviewWrap');
+  const grid   = document.getElementById('opPreviewGrid');
+  if(!neto && !total){ pw.style.display='none'; return; }
+  pw.style.display='';
+  const rent  = total - neto;
+  const com   = rent * 0.25;
+  const deuda = Math.max(0, neto - pagado);
+  const fmt=(n)=>mon==='USD'?'USD '+Number(n).toLocaleString('es-AR'):'$'+Number(n).toLocaleString('es-AR');
+  const cell=(lbl,val,color='white')=>`
+    <div style="background:rgba(255,255,255,.07);border-radius:7px;padding:9px 11px">
+      <div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">${lbl}</div>
+      <div style="font-size:14px;font-weight:700;color:${color}">${val}</div>
+    </div>`;
+  grid.innerHTML=
+    cell('Neto (costo)', fmt(neto), 'rgba(255,255,255,.7)')+
+    cell('Total venta',  fmt(total), '#fff')+
+    cell('Rentabilidad', fmt(rent),  '#f59e0b')+
+    cell('Com.25%',      fmt(com),   '#f87171')+
+    cell('Ya pagado',    fmt(pagado),'#4ade80')+
+    cell('Deuda op.',    fmt(deuda), deuda>0?'#f87171':'#4ade80');
+  grid.style.gridTemplateColumns='repeat(3,1fr)';
 };
 
 window.saveOperador = async function(){
   const nombre = document.getElementById('opNombre').value.trim();
+  const neto   = parseFloat(document.getElementById('opNeto').value)||0;
   const total  = parseFloat(document.getElementById('opTotal').value)||0;
-  if(!nombre||!total){ toast('Completá nombre y total','error'); return; }
+  if(!nombre){ toast('El operador necesita un nombre','error'); return; }
+  if(!total)  { toast('Ingresá el precio total del operador','error'); return; }
   const btn = document.getElementById('btnSaveOp');
   btn.disabled=true; btn.textContent='Guardando...';
   const l = allLegajos[currentOpLegajoKey];
-  const ops = [...(l.operadores||[]), {
+  // Nuevo operador normalizado
+  const nuevoOp = {
     nombre,
-    neto:   parseFloat(document.getElementById('opNeto').value)||0,
+    moneda: document.getElementById('opMoneda').value||'ARS',
     total,
-    moneda: document.getElementById('opMoneda').value,
+    neto,
     pagado: parseFloat(document.getElementById('opPagado').value)||0,
     pagos:  [],
-  }];
+  };
+  const ops = [...(l.operadores||[]), nuevoOp];
+  // Recalcular totales del legajo desde todos los operadores
+  const tots = calcLegajoTotals(ops, l.cobrado||0, l.cobradoUSD||0);
   try{
-    await update(ref(db,`legajos/${currentOpLegajoKey}`),{operadores:ops, ts:Date.now()});
+    await update(ref(db,`legajos/${currentOpLegajoKey}`),{
+      operadores: ops,
+      total:    tots.totalARS,
+      totalUSD: tots.totalUSD,
+      neto:     tots.netoARS,
+      netoUSD:  tots.netoUSD,
+      ts:       Date.now(),
+    });
     closeModal('modalOperador');
-    toast('Operador agregado','success');
-  } catch(e){ toast('Error al guardar','error'); }
+    toast(`Operador "${nombre}" agregado correctamente`,'success');
+  } catch(e){ toast('Error al guardar operador','error'); console.error(e); }
   btn.disabled=false; btn.textContent='Agregar operador';
 };
 
@@ -2178,7 +2206,7 @@ function renderDetail(fbKey){
       const neto    = o.neto||0;
       const total   = o.total||0;
       const pagado  = o.pagado||0;
-      // Deuda al operador = neto - pagado (lo que se le debe es el COSTO)
+      // Deuda al operador = neto - pagado (la deuda es el COSTO, no el precio de venta)
       const deudaOp = Math.max(0, neto - pagado);
       // Progreso de pago sobre el neto (la deuda real)
       const pct     = neto>0 ? Math.min(100, Math.round(pagado/neto*100)) : 0;
@@ -2217,7 +2245,17 @@ function renderDetail(fbKey){
         </div>
         ${pagosHist?`<div class="op-pagos-list"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-400);margin-bottom:4px">Pagos realizados</div>${pagosHist}</div>`:''}
       </div>`;
-    }).join(''):`<div style="font-size:13px;color:var(--gray-400);padding:4px 0">Sin operadores cargados</div>`}
+    }).join(''):`<div style="text-align:center;padding:20px 0">
+      <div style="width:48px;height:48px;background:rgba(109,40,217,.08);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">
+        <svg fill="none" viewBox="0 0 24 24" stroke="#6d28d9" stroke-width="1.5" width="24" height="24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/></svg>
+      </div>
+      <div style="font-size:13.5px;font-weight:600;color:var(--black);margin-bottom:4px">Sin operadores cargados</div>
+      <div style="font-size:12.5px;color:var(--gray-400);margin-bottom:14px">Agregá los servicios que componen este viaje</div>
+      ${!l.archivado&&l.estado!=='anulado'?`<button onclick="openAddOperador('${fbKey}')" style="height:34px;padding:0 18px;background:#6d28d9;border:none;border-radius:8px;font-size:13px;font-weight:600;color:white;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 4v16m8-8H4"/></svg>
+        Agregar primer operador
+      </button>`:''}
+    </div>`}
     </div>
   </div>`;
 
