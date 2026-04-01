@@ -339,7 +339,9 @@ input,select,textarea{font-family:var(--font)}
 .filter-select:focus{border-color:var(--red-mid)}
 
 /* TABLE */
-.table-wrap{background:var(--surface);border-radius:var(--radius);border:1.5px solid var(--gray-200);overflow:hidden}
+.table-wrap{background:var(--surface);border-radius:var(--radius);border:1.5px solid var(--gray-200);overflow-x:auto;overflow-y:hidden;position:relative}
+.table-wrap-scroll-hint{position:absolute;right:0;top:0;bottom:0;width:32px;background:linear-gradient(to right,transparent,rgba(255,255,255,.9));pointer-events:none;border-radius:0 var(--radius) var(--radius) 0;display:none}
+.table-wrap:has(table){overflow-x:auto}
 .data-table{width:100%;border-collapse:collapse}
 .data-table thead{background:var(--gray-100);border-bottom:1.5px solid var(--gray-200)}
 .data-table th{padding:12px 18px;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--gray-600);text-align:left;white-space:nowrap}
@@ -834,12 +836,20 @@ input,select,textarea{font-family:var(--font)}
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
         Comisiones
       </div>
+      <div class="nav-item" onclick="switchView('recibos')">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12h6M9 16h6M9 8h4m5 0l-4-4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V8z"/></svg>
+        Recibos de sueldo
+      </div>
     </div>
     <div class="sidebar-section" id="adminNav" style="display:none">
       <div class="sidebar-section-label">Administración</div>
       <div class="nav-item" onclick="switchView('usuarios')">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/><circle cx="9" cy="7" r="4"/></svg>
         Usuarios
+      </div>
+      <div class="nav-item" onclick="switchView('recibos')">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12h6M9 16h6M9 8h4m5 0l-4-4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V8z"/></svg>
+        Recibos de sueldo
       </div>
     </div>
     <div class="sidebar-section">
@@ -948,9 +958,9 @@ input,select,textarea{font-family:var(--font)}
         <div class="section-header">
           <h3>Legajos</h3><span class="count" id="legajosCount">0</span>
         </div>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead><tr><th>Legajo</th><th>Cliente</th><th>Destino</th><th>Salida</th><th>Vendedora</th><th>Total</th><th>Saldo</th><th>Estado</th><th></th></tr></thead>
+        <div class="table-wrap" style="overflow-x:auto">
+          <table class="data-table" style="min-width:900px">
+            <thead><tr><th>Legajo</th><th>Cliente</th><th>Destino</th><th>Salida</th><th>Vendedora</th><th>Total ARS</th><th>Total USD</th><th>Saldo ARS</th><th>Saldo USD</th><th>Estado</th><th></th></tr></thead>
             <tbody id="legajosTbody"></tbody>
           </table>
         </div>
@@ -1075,6 +1085,25 @@ input,select,textarea{font-family:var(--font)}
       <div class="view" id="view-usuarios">
         <div class="section-header"><h3>Equipo</h3><span class="count" id="usuariosCount">0</span></div>
         <div class="users-grid" id="usersGrid"></div>
+      </div>
+
+      <!-- RECIBOS DE SUELDO -->
+      <div class="view" id="view-recibos">
+        <div class="section-header" style="margin-bottom:20px">
+          <h3>Recibos de sueldo</h3>
+          <span class="count" id="recibosCount">0</span>
+          <button class="topbar-btn primary" id="btnSubirRecibo" onclick="openModalReciboUpload()" style="margin-left:auto;display:none">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            Subir recibo
+          </button>
+        </div>
+        <!-- Filtro vendedora (solo admin) -->
+        <div id="reciboFiltroWrap" style="display:none;margin-bottom:18px">
+          <select class="filter-select" id="reciboFiltroVendedora" onchange="renderRecibos()" style="max-width:220px">
+            <option value="">Todas las vendedoras</option>
+          </select>
+        </div>
+        <div id="recibosList"></div>
       </div>
 
       <!-- AJUSTES -->
@@ -1447,7 +1476,7 @@ input,select,textarea{font-family:var(--font)}
         </div>
         <div class="form-group"><label class="form-label">Fecha *</label><input type="date" class="form-input" id="pFecha"></div>
         <div class="form-group"><label class="form-label">Medio de pago *</label>
-          <select class="form-select" id="pMedio"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta débito</option><option>Tarjeta crédito</option><option>Cheque</option></select>
+          <select class="form-select" id="pMedio"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta débito</option><option>Tarjeta crédito</option></select>
         </div>
         <div class="form-group"><label class="form-label">Moneda</label>
           <select class="form-select" id="pMoneda"><option>ARS</option><option>USD</option></select>
@@ -1460,6 +1489,52 @@ input,select,textarea{font-family:var(--font)}
     <div class="modal-footer">
       <button class="btn-modal-cancel" onclick="closeModal('modalPago')">Cancelar</button>
       <button class="btn-modal-primary" style="background:#15803d;box-shadow:none" onclick="savePago()" id="btnSavePago">Registrar pago</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: SUBIR RECIBO DE SUELDO -->
+<div class="modal-overlay" id="modalRecibo">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header">
+      <div class="modal-header-icon" style="background:#0891b2">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12h6M9 16h6M9 8h4m5 0l-4-4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V8z"/></svg>
+      </div>
+      <div><div class="modal-title">Subir recibo de sueldo</div><div class="modal-subtitle">El archivo queda disponible para la vendedora</div></div>
+      <button class="modal-close" onclick="closeModal('modalRecibo')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label class="form-label">Vendedora *</label>
+          <select class="form-select" id="reciboVendedora"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Período *</label>
+          <input type="month" class="form-input" id="reciboPeriodo">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Monto neto (ARS)</label>
+          <input type="number" class="form-input" id="reciboMonto" placeholder="0">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Archivo (PDF o imagen) *</label>
+          <div class="upload-area" onclick="document.getElementById('reciboFile').click()">
+            <svg fill="none" viewBox="0 0 24 24" stroke="var(--gray-400)" stroke-width="2" width="24" height="24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+            <div class="upload-area-text">Hacé click para seleccionar archivo</div>
+            <input type="file" id="reciboFile" accept="image/*,.pdf" style="display:none" onchange="previewReciboFile(this)">
+          </div>
+          <div id="reciboFilePreview"></div>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Observaciones</label>
+          <input type="text" class="form-input" id="reciboObs" placeholder="Opcional">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" onclick="closeModal('modalRecibo')">Cancelar</button>
+      <button class="btn-modal-primary" onclick="saveRecibo()" id="btnSaveRecibo" style="background:#0891b2;box-shadow:0 2px 10px rgba(8,145,178,.25)">Subir recibo</button>
     </div>
   </div>
 </div>
@@ -1636,8 +1711,14 @@ function initApp(){
   document.getElementById('sidebarRole').textContent = currentUser.display;
   if(currentUser.role==='admin') document.getElementById('adminNav').style.display='';
   if(currentUser.role==='seller') document.getElementById('filterVendedora').style.display='none';
+  // Recibos: mostrar botón subir solo a admins
+  const btnRecibo=document.getElementById('btnSubirRecibo');
+  if(btnRecibo) btnRecibo.style.display=currentUser.role==='admin'?'':'none';
+  const reciboFiltro=document.getElementById('reciboFiltroWrap');
+  if(reciboFiltro) reciboFiltro.style.display=currentUser.role==='admin'?'':'none';
   populateVendedoraFilter();
   startListener();
+  startRecibosListener();
   set(ref(db,`presencia/${currentUser.id}`), {nombre:currentUser.name, ts:Date.now()});
   onValue(ref(db,'presencia'), snap => {
     const p = snap.val()||{};
@@ -1664,7 +1745,7 @@ window.doLogout = function(){
 };
 
 /* ─── VISTAS ─────────────────────────────────────────── */
-const viewTitles={dashboard:'Dashboard',legajos:'Legajos',proximos:'Próximos viajes',saldos:'Saldos pendientes',usuarios:'Usuarios',ajustes:'Ajustes',transferencias:'Transferencias',comisiones:'Comisiones'};
+const viewTitles={dashboard:'Dashboard',legajos:'Legajos',proximos:'Próximos viajes',saldos:'Saldos pendientes',usuarios:'Usuarios',ajustes:'Ajustes',transferencias:'Transferencias',comisiones:'Comisiones',recibos:'Recibos de sueldo'};
 
 /* ─── DATA FILTER ────────────────────────────────────── */
 function getLegajos(includeArchived=false){
@@ -1754,10 +1835,12 @@ window.renderLegajosTable = function(){
   const isAdmin=currentUser.role==='admin';
   document.getElementById('legajosTbody').innerHTML=data.length?data.map(l=>{
     const tots=calcLegajoTotals(l.operadores||[],l.cobrado||0,l.cobradoUSD||0);
-    const saldo=tots.saldoCliARS;
-    const totalDisplay=tots.totalARS>0?fmtMoney(tots.totalARS):(tots.totalUSD>0?`USD ${Number(tots.totalUSD).toLocaleString('es-AR')}`:fmtMoney(0));
     const archStyle=l.archivado?'opacity:.6':'';
     const archBadge=l.archivado?`<span style="background:#FFF7ED;color:#c2410c;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;margin-left:6px">ARCHIVADO</span>`:'';
+    const fmtUSD=n=>n>0?`<span style="font-weight:600">USD ${Number(n).toLocaleString('es-AR')}</span>`:`<span style="color:var(--gray-400)">—</span>`;
+    const fmtARS=n=>n>0?fmtMoney(n):`<span style="color:var(--gray-400)">—</span>`;
+    const saldoARScls=tots.saldoCliARS>0?'saldo-pend':'saldo-ok';
+    const saldoUSDcls=tots.saldoCliUSD>0?'saldo-pend':'saldo-ok';
     const adminBtns=isAdmin?`
       <button class="row-btn" onclick="event.stopPropagation();openDeleteLegajo('${l.fbKey}')" title="${l.archivado?'Restaurar':'Archivar'}" style="${l.archivado?'color:#15803d':'color:#d97706'}">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
@@ -1771,8 +1854,10 @@ window.renderLegajosTable = function(){
       <td><strong>${l.destino}</strong></td>
       <td>${fmtDate(l.salida)}</td>
       <td>${l.vendedora}</td>
-      <td>${totalDisplay}</td>
-      <td class="${saldo<=0?'saldo-ok':'saldo-pend'}">${fmtMoney(saldo)}</td>
+      <td>${fmtARS(tots.totalARS)}</td>
+      <td>${fmtUSD(tots.totalUSD)}</td>
+      <td class="${saldoARScls}">${fmtARS(tots.saldoCliARS)}</td>
+      <td class="${saldoUSDcls}">${tots.saldoCliUSD>0?fmtUSD(tots.saldoCliUSD):'<span style="color:var(--gray-400)">—</span>'}</td>
       <td>${statusPill(l.estado)}</td>
       <td><div class="row-actions">
         <button class="row-btn" onclick="event.stopPropagation();editLegajo('${l.fbKey}')" title="Editar"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
@@ -1780,7 +1865,7 @@ window.renderLegajosTable = function(){
         ${adminBtns}
       </div></td>
     </tr>`;
-  }).join(''):`<tr><td colspan="9"><div class="empty-state"><h4>Sin legajos</h4><p>No hay resultados</p></div></td></tr>`;
+  }).join(''):`<tr><td colspan="11"><div class="empty-state"><h4>Sin legajos</h4><p>No hay resultados</p></div></td></tr>`;
 };
 
 /* ─── PRÓXIMOS ───────────────────────────────────────── */
@@ -2313,6 +2398,7 @@ window.switchView = function(v){
   if(v==='ajustes') loadSettingsView();
   else if(v==='transferencias') renderTransferencias();
   else if(v==='comisiones') renderComisiones();
+  else if(v==='recibos') renderRecibos();
   else renderAll();
 };
 
@@ -2955,8 +3041,162 @@ window.openComprobante = function(src, nombre){
   openModal('modalComprobante');
 };
 
-/* ─── COMISIONES — ESTADO FILTROS ───────────────────── */
-let comisionFiltro = 'todas'; // 'todas' | 'mes' | 'anio'
+/* ─── RECIBOS DE SUELDO ─────────────────────────────── */
+let allRecibos = {};
+let fbRecibosUnsub = null;
+
+function startRecibosListener(){
+  if(fbRecibosUnsub){ fbRecibosUnsub(); fbRecibosUnsub=null; }
+  fbRecibosUnsub = onValue(ref(db,'recibos'), snap=>{
+    allRecibos = snap.val()||{};
+    renderRecibos();
+  });
+}
+
+window.renderRecibos = function(){
+  if(!document.getElementById('view-recibos')?.classList.contains('active')) return;
+  const isAdmin = currentUser.role==='admin';
+
+  // Poblar selector filtro vendedora (admin)
+  if(isAdmin){
+    const sel=document.getElementById('reciboFiltroVendedora');
+    if(sel && sel.options.length<=1){
+      Object.values(USERS).filter(u=>u.vendedora).forEach(u=>{
+        const o=document.createElement('option');
+        o.value=u.vendedora; o.textContent=u.name;
+        sel.appendChild(o);
+      });
+    }
+  }
+
+  const filtroV = isAdmin
+    ? (document.getElementById('reciboFiltroVendedora')?.value||'')
+    : (currentUser.vendedora||'');
+
+  let lista = Object.entries(allRecibos)
+    .map(([k,v])=>({...v,fbKey:k}))
+    .filter(r=> filtroV ? r.vendedora===filtroV : true)
+    .sort((a,b)=>b.ts-a.ts);
+
+  document.getElementById('recibosCount').textContent=lista.length;
+
+  if(!lista.length){
+    document.getElementById('recibosList').innerHTML=`
+      <div class="empty-state">
+        <h4>Sin recibos</h4>
+        <p>${isAdmin?'Usá el botón "Subir recibo" para cargar el primero':'Todavía no tenés recibos cargados'}</p>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('recibosList').innerHTML=`
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${lista.map(r=>{
+        const canDownload = isAdmin || r.vendedora===currentUser.vendedora;
+        const userObj = Object.values(USERS).find(u=>u.vendedora===r.vendedora);
+        const col = userObj?.color||'#9E9898';
+        const ini = userObj?.initials||r.vendedora?.substring(0,2).toUpperCase()||'?';
+        return `<div style="background:var(--surface);border:1.5px solid var(--gray-200);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:16px;transition:border-color .2s" onmouseover="this.style.borderColor='var(--red)'" onmouseout="this.style.borderColor='var(--gray-200)'">
+          <div style="width:38px;height:38px;border-radius:10px;background:${col};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0">${ini}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14px;font-weight:700;color:var(--black)">${r.vendedora}</div>
+            <div style="font-size:12px;color:var(--gray-400);margin-top:2px">
+              ${r.periodo||'Sin período'}
+              ${r.monto?` · <strong style="color:var(--black)">$${Number(r.monto).toLocaleString('es-AR')}</strong>`:''}
+              ${r.obs?` · ${r.obs}`:''}
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+            ${r.archivo?`
+              <button onclick="openComprobante('${r.archivo}','Recibo ${r.vendedora} ${r.periodo||''}')" style="height:32px;padding:0 12px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:8px;font-size:12px;font-weight:600;color:var(--gray-600);cursor:pointer;display:flex;align-items:center;gap:5px">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                Ver
+              </button>
+              ${canDownload?`<a href="${r.archivo}" download="recibo-${r.vendedora}-${r.periodo||'sueldo'}" style="height:32px;padding:0 12px;background:rgba(8,145,178,.08);border:1.5px solid rgba(8,145,178,.2);border-radius:8px;font-size:12px;font-weight:600;color:#0891b2;cursor:pointer;display:flex;align-items:center;gap:5px;text-decoration:none">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Descargar
+              </a>`:''}
+            `:`<span style="font-size:12px;color:var(--gray-400);font-style:italic">Sin archivo</span>`}
+            ${isAdmin?`<button onclick="deleteRecibo('${r.fbKey}')" style="height:32px;width:32px;background:rgba(239,68,68,.06);border:1.5px solid rgba(239,68,68,.15);border-radius:8px;color:#ef4444;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Eliminar">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>`:''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+};
+
+window.openModalReciboUpload = function(){
+  const sel=document.getElementById('reciboVendedora');
+  sel.innerHTML='<option value="">Seleccioná vendedora</option>';
+  Object.values(USERS).filter(u=>u.vendedora).forEach(u=>{
+    const o=document.createElement('option');
+    o.value=u.vendedora; o.textContent=u.name;
+    sel.appendChild(o);
+  });
+  document.getElementById('reciboPeriodo').value='';
+  document.getElementById('reciboMonto').value='';
+  document.getElementById('reciboObs').value='';
+  document.getElementById('reciboFilePreview').innerHTML='';
+  document.getElementById('reciboFile').value='';
+  openModal('modalRecibo');
+};
+
+window.previewReciboFile = function(input){
+  const file=input.files[0];
+  if(!file) return;
+  const kb=Math.round(file.size/1024);
+  const reader=new FileReader();
+  reader.onload=e=>{ input._base64=e.target.result; };
+  reader.readAsDataURL(file);
+  document.getElementById('reciboFilePreview').innerHTML=`
+    <div class="file-preview">
+      <svg fill="none" viewBox="0 0 24 24" stroke="var(--red)" stroke-width="2" width="18" height="18"><path d="M9 12h6M9 16h6M9 8h4m5 0l-4-4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V8z"/></svg>
+      <div class="file-preview-name">${file.name}</div>
+      <div class="file-preview-size">${kb} KB</div>
+    </div>`;
+};
+
+window.saveRecibo = async function(){
+  const vendedora=document.getElementById('reciboVendedora').value;
+  const periodo  =document.getElementById('reciboPeriodo').value;
+  if(!vendedora||!periodo){ toast('Seleccioná vendedora y período','error'); return; }
+  const fileInput=document.getElementById('reciboFile');
+  const archivo  =fileInput._base64||null;
+  const btn=document.getElementById('btnSaveRecibo');
+  btn.disabled=true; btn.textContent='Subiendo...';
+  try{
+    await push(ref(db,'recibos'),{
+      vendedora,
+      periodo,
+      monto:  parseFloat(document.getElementById('reciboMonto').value)||0,
+      obs:    document.getElementById('reciboObs').value.trim(),
+      archivo,
+      subidoPor: currentUser.name,
+      ts: Date.now(),
+    });
+    closeModal('modalRecibo');
+    toast('Recibo subido correctamente','success');
+  }catch(e){ toast('Error al subir recibo','error'); }
+  btn.disabled=false; btn.textContent='Subir recibo';
+};
+
+window.deleteRecibo = async function(fbKey){
+  if(!confirm('¿Eliminar este recibo? Esta acción no se puede deshacer.')) return;
+  try{
+    await remove(ref(db,`recibos/${fbKey}`));
+    toast('Recibo eliminado','success');
+  }catch(e){ toast('Error al eliminar','error'); }
+};
+
+/* ─── COMISIONES ─────────────────────────────────────── */
+// Reglas:
+//   Rentabilidad = total venta − neto (costo)
+//   Comisión     = 25% de la rentabilidad
+//   Solo legajos en estado "viajado" generan comisión
+
+const COM_PCT = 0.25;
+let comisionFiltro = 'todas';
 
 window.setComisionFiltro = function(f, btn){
   comisionFiltro = f;
@@ -2968,249 +3208,142 @@ window.setComisionFiltro = function(f, btn){
   renderComisiones();
 };
 
-const COM_PCT = 0.25;
-let sueldosBase = {};
-const SUELDO_DEFAULT = 300000;
-
-function getSueldo(vendedora){
-  return sueldosBase[vendedora] || SUELDO_DEFAULT;
-}
-
-function calcRentabilidad(legajo){
-  // Los totales se auto-calculan desde operadores y se guardan como total/neto (ARS)
-  // También acumulamos rentabilidad USD si existe
-  const rentARS = (legajo.total||0) - (legajo.neto||0);
-  return rentARS; // usamos ARS como base para comisiones
-}
-
 function calcComisiones(){
-  // Comisiones se generan cuando el legajo está en "viajado" (viaje realizado)
-  const data = Object.values(allLegajos).filter(l=>
-    l.estado==='viajado' && l.salida && !l.archivado
-  );
-  const byMonth = {};
-  data.forEach(l=>{
-    const [y,m] = l.salida.split('-');
-    const key = `${y}-${m}`;
-    if(!byMonth[key]) byMonth[key]={ mes:key, legajos:[], totalVenta:0, totalRent:0, vendedoras:{} };
-
-    // Recalcular rentabilidad desde operadores vivos (fuente de verdad)
-    const legOps = l.operadores||[];
-    const tots   = calcLegajoTotals(legOps, l.cobrado||0, l.cobradoUSD||0);
-    // Usamos ARS como base de comisiones; USD se acumula por separado
-    const rent        = tots.rentARS;
-    const rentUSD     = tots.rentUSD;
-    const comVendedora= tots.comisionARS;
-    const comEmpresa  = rent * (1-COM_PCT);
-
-    byMonth[key].legajos.push(l);
-    byMonth[key].totalVenta += (l.total||0);
-    byMonth[key].totalRent  += rent;
-    const v = l.vendedora||'Sin asignar';
-    if(!byMonth[key].vendedoras[v]){
-      byMonth[key].vendedoras[v]={
-        legajos:0, totalVenta:0, totalRent:0, totalRentUSD:0,
-        comision:0, comisionUSD:0, empresa:0,
-        legajosDetalle:[]
-      };
-    }
-    byMonth[key].vendedoras[v].legajos++;
-    byMonth[key].vendedoras[v].totalVenta    += (l.total||0);
-    byMonth[key].vendedoras[v].totalRent     += rent;
-    byMonth[key].vendedoras[v].totalRentUSD  += rentUSD;
-    byMonth[key].vendedoras[v].comision      += comVendedora;
-    byMonth[key].vendedoras[v].comisionUSD   += tots.comisionUSD;
-    byMonth[key].vendedoras[v].empresa       += comEmpresa;
-    byMonth[key].vendedoras[v].legajosDetalle.push({...l, _rentARS:rent, _rentUSD:rentUSD, _comisionARS:comVendedora});
-  });
-  return Object.values(byMonth).sort((a,b)=>b.mes.localeCompare(a.mes));
+  // Solo "viajado", no archivado
+  return Object.values(allLegajos)
+    .filter(l=> l.estado==='viajado' && l.salida && !l.archivado)
+    .map(l=>{
+      // Fuente de verdad: operadores vivos
+      const tots = calcLegajoTotals(l.operadores||[], l.cobrado||0, l.cobradoUSD||0);
+      const rentARS = tots.rentARS;   // total - neto en ARS
+      const rentUSD = tots.rentUSD;   // total - neto en USD
+      const comARS  = rentARS * COM_PCT;
+      const comUSD  = rentUSD * COM_PCT;
+      return { ...l, _rentARS:rentARS, _rentUSD:rentUSD, _comARS:comARS, _comUSD:comUSD };
+    })
+    .sort((a,b)=> b.salida.localeCompare(a.salida));
 }
 
 function renderComisiones(){
-  if(!document.getElementById('view-comisiones').classList.contains('active')) return;
-  const allData = calcComisiones();
+  if(!document.getElementById('view-comisiones')?.classList.contains('active')) return;
+  const isAdmin = currentUser.role==='admin';
 
-  // Poblar filtro vendedoras
+  // ── Filtro vendedora
   const selV = document.getElementById('comFiltroVendedora');
   if(selV){
-    if(currentUser.role==='admin'){
-      const current = selV.value;
+    if(isAdmin){
+      const cur=selV.value;
       const sellers=[...new Set(
         Object.values(allLegajos)
-          .filter(l=>l.estado==='viajado' && l.salida && !l.archivado)
-          .map(l=>l.vendedora||'Sin asignar')
+          .filter(l=>l.estado==='viajado'&&l.salida&&!l.archivado)
+          .map(l=>l.vendedora||'?')
       )].sort();
       selV.innerHTML='<option value="">Todas las vendedoras</option>'+
-        sellers.map(v=>`<option value="${v}"${v===current?' selected':''}>${v}</option>`).join('');
+        sellers.map(v=>`<option value="${v}"${v===cur?' selected':''}>${v}</option>`).join('');
       selV.style.display='';
     } else {
       selV.style.display='none';
     }
   }
-  const filtroV = (currentUser.role==='admin' ? selV?.value : currentUser.vendedora) || '';
+  const filtroV = isAdmin ? (selV?.value||'') : (currentUser.vendedora||'');
 
-  // Filtro temporal
+  // ── Filtro temporal
   const now = new Date();
   const mesActual  = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
   const anioActual = String(now.getFullYear());
-  let data = allData;
-  if(comisionFiltro==='mes')  data = data.filter(m=>m.mes===mesActual);
-  if(comisionFiltro==='anio') data = data.filter(m=>m.mes.startsWith(anioActual));
 
-  // Filtro vendedora por mes
-  let dataFiltrada = data;
-  if(filtroV){
-    dataFiltrada = data.map(m=>{
-      const vendedoras = Object.fromEntries(
-        Object.entries(m.vendedoras).filter(([v])=>v===filtroV)
-      );
-      if(!Object.keys(vendedoras).length) return null;
-      const legsV = m.legajos.filter(l=>(l.vendedora||'Sin asignar')===filtroV);
-      return {
-        ...m,
-        vendedoras,
-        legajos: legsV,
-        totalVenta: legsV.reduce((s,l)=>s+(l.total||0),0),
-        totalRent:  legsV.reduce((s,l)=>s+(l._rentARS||calcRentabilidad(l)),0),
-      };
-    }).filter(Boolean);
-  }
+  let data = calcComisiones();
+  if(filtroV) data = data.filter(l=>(l.vendedora||'')===filtroV);
+  if(comisionFiltro==='mes')  data = data.filter(l=>l.salida?.startsWith(mesActual));
+  if(comisionFiltro==='anio') data = data.filter(l=>l.salida?.startsWith(anioActual));
 
   document.getElementById('comisionCount').textContent =
-    dataFiltrada.length+' mes'+(dataFiltrada.length!==1?'es':'');
+    data.length+' legajo'+(data.length!==1?'s':'');
 
-  // Config sueldos (admin)
+  // ── Ocultar config sueldos (ya no aplica con lógica simplificada)
   const cfgPanel=document.getElementById('comisionConfigPanel');
-  if(cfgPanel){
-    cfgPanel.style.display=currentUser.role==='admin'?'':'none';
-    if(currentUser.role==='admin'){
-      document.getElementById('sueldosConfig').innerHTML=
-        Object.values(USERS).filter(u=>u.role==='seller').map(u=>`
-          <div style="display:flex;align-items:center;gap:6px">
-            <span style="font-size:12px;color:var(--gray-600);font-weight:600">${u.name}:</span>
-            <input type="number" id="sueldo_${u.vendedora}" value="${getSueldo(u.vendedora)}"
-              style="width:110px;height:32px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:8px;padding:0 10px;font-size:13px;font-family:var(--font);outline:none"
-              placeholder="300000">
-          </div>`).join('');
-    }
-  }
+  if(cfgPanel) cfgPanel.style.display='none';
 
-  // Summary cards
-  const totV=dataFiltrada.reduce((s,m)=>s+m.totalVenta,0);
-  const totR=dataFiltrada.reduce((s,m)=>s+m.totalRent,0);
+  // ── KPIs resumen
+  const totVenta = data.reduce((s,l)=>s+(l.total||0),0);
+  const totRent  = data.reduce((s,l)=>s+l._rentARS,0);
+  const totCom   = data.reduce((s,l)=>s+l._comARS,0);
+  const totEmp   = totRent - totCom;
   document.getElementById('comisionSummary').innerHTML=`
-    <div class="comision-summary-card"><div class="comision-summary-val">${fmtMoney(totV)}</div><div class="comision-summary-lbl">Ventas${filtroV?' · '+filtroV:''}</div></div>
-    <div class="comision-summary-card"><div class="comision-summary-val">${fmtMoney(totR)}</div><div class="comision-summary-lbl">Rentabilidad</div></div>
-    <div class="comision-summary-card"><div class="comision-summary-val" style="color:var(--red)">${fmtMoney(totR*COM_PCT)}</div><div class="comision-summary-lbl">Comisiones 25%</div></div>
-    <div class="comision-summary-card"><div class="comision-summary-val" style="color:#15803d">${fmtMoney(totR*(1-COM_PCT))}</div><div class="comision-summary-lbl">Empresa 75%</div></div>`;
+    <div class="comision-summary-card"><div class="comision-summary-val">${fmtMoney(totVenta)}</div><div class="comision-summary-lbl">Ventas${filtroV?' · '+filtroV:''}</div></div>
+    <div class="comision-summary-card"><div class="comision-summary-val" style="color:#d97706">${fmtMoney(totRent)}</div><div class="comision-summary-lbl">Rentabilidad total</div></div>
+    <div class="comision-summary-card"><div class="comision-summary-val" style="color:var(--red)">${fmtMoney(totCom)}</div><div class="comision-summary-lbl">Comisiones 25%</div></div>
+    <div class="comision-summary-card"><div class="comision-summary-val" style="color:#15803d">${fmtMoney(totEmp)}</div><div class="comision-summary-lbl">Para la empresa 75%</div></div>`;
 
-  const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  if(!dataFiltrada.length){
-    document.getElementById('comisionList').innerHTML=`<div class="empty-state"><h4>Sin comisiones</h4><p>${
-      comisionFiltro==='mes'?'No hay viajes completados este mes':
-      comisionFiltro==='anio'?'No hay viajes completados este año':
-      'Los viajes en "viajado" generan comisiones'}</p></div>`;
+  if(!data.length){
+    document.getElementById('comisionList').innerHTML=`
+      <div class="empty-state">
+        <h4>Sin comisiones</h4>
+        <p>Las comisiones se generan cuando un legajo pasa a estado <strong>Viajado</strong></p>
+      </div>`;
     return;
   }
 
-  document.getElementById('comisionList').innerHTML = dataFiltrada.map((m,i)=>{
-    const [y,mon]=m.mes.split('-');
-    const mesNombre=MESES[parseInt(mon)-1]+' '+y;
-
-    const vHTML=Object.entries(m.vendedoras).map(([v,d])=>{
-      const sueldo=getSueldo(v);
-      const comTotal=d.comision;
-      const exc=comTotal-sueldo;
-      const cobrar=exc>=0?comTotal:sueldo;
-      let acum=0;
-      const userObj=Object.values(USERS).find(u=>u.vendedora===v||u.name===v);
-      const col=userObj?.color||'#9E9898';
-      const ini=userObj?.initials||v.substring(0,2).toUpperCase();
-
-      const legRows=(d.legajosDetalle||[]).map(leg=>{
-        // Usar valores pre-calculados desde calcComisiones (fuente de verdad: operadores vivos)
-        const r = leg._rentARS  || calcRentabilidad(leg);
-        const c = leg._comisionARS || r*COM_PCT;
-        acum+=c;
-        const exAcum=acum-sueldo;
-        return `<tr>
-          <td style="padding:7px 16px;border-bottom:1px solid var(--gray-100);font-weight:600;color:var(--red);font-size:12px">#${leg.num}</td>
-          <td style="padding:7px 10px;border-bottom:1px solid var(--gray-100);color:var(--gray-600);font-size:12px">${leg.cliente}</td>
-          <td style="padding:7px 10px;border-bottom:1px solid var(--gray-100);font-size:12px">${fmtMoney(leg.total||0)}</td>
-          <td style="padding:7px 10px;border-bottom:1px solid var(--gray-100);font-size:12px">${fmtMoney(leg.neto||0)}</td>
-          <td style="padding:7px 10px;border-bottom:1px solid var(--gray-100);font-weight:600;font-size:12px;color:#d97706">${fmtMoney(r)}</td>
-          <td style="padding:7px 10px;border-bottom:1px solid var(--gray-100);font-weight:700;color:var(--red);font-size:12px">${fmtMoney(c)}</td>
-          <td style="padding:7px 16px;border-bottom:1px solid var(--gray-100);font-weight:700;font-size:12px;color:${exAcum>=0?'#15803d':'#d97706'}">${fmtMoney(acum)}</td>
-        </tr>`;
-      }).join('');
-
-      return `<div class="com-vendedora-block">
-        <div class="com-vendedora-name">
-          <div style="width:30px;height:30px;border-radius:50%;background:${col};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0">${ini}</div>
-          <span style="font-weight:700;font-size:14px">${v}</span>
-          <span style="font-size:12px;color:var(--gray-400);font-weight:400">${d.legajos} legajo${d.legajos!==1?'s':''}</span>
-          <span style="margin-left:auto;font-size:14px;font-weight:700;color:${exc>=0?'#15803d':'#c2410c'}">${fmtMoney(cobrar)}</span>
-        </div>
-        ${legRows?`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
-          <thead><tr style="background:var(--gray-100)">
-            <th style="padding:7px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-600)">Leg.</th>
-            <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-600)">Cliente</th>
-            <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-600)">Venta</th>
-            <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-600)">Neto</th>
-            <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-600)">Rent.</th>
-            <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--red)">Com.25%</th>
-            <th style="padding:7px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-600)">Acum.</th>
-          </tr></thead><tbody>${legRows}</tbody>
-        </table></div>`:''}
-        <div class="com-fin-divider"></div>
-        <div class="com-fin-row"><span class="com-fin-row-lbl">Rentabilidad total</span><span class="com-fin-row-val">${fmtMoney(d.totalRent)}</span></div>
-        <div class="com-fin-row destacado"><span class="com-fin-row-lbl">Comisión acumulada (25%)</span><span class="com-fin-row-val" style="color:var(--red)">${fmtMoney(comTotal)}</span></div>
-        <div class="com-fin-row"><span class="com-fin-row-lbl">Para la empresa (75%)</span><span class="com-fin-row-val" style="color:#15803d">${fmtMoney(d.empresa)}</span></div>
-        <div class="com-fin-divider"></div>
-        <div class="com-fin-row"><span class="com-fin-row-lbl">Sueldo base</span><span class="com-fin-row-val">${fmtMoney(sueldo)}</span></div>
-        <div class="com-fin-row ${exc>=0?'positivo':'negativo'}">
-          <span class="com-fin-row-lbl">${exc>=0?'Excedente sobre sueldo':'Diferencia (empresa cubre)'}</span>
-          <span class="com-fin-row-val">${exc>=0?'+':''}${fmtMoney(exc)}</span>
-        </div>
-        <div class="com-fin-row total-row">
-          <span class="com-fin-row-lbl">TOTAL A COBRAR — ${v}</span>
-          <span class="com-fin-row-val">${fmtMoney(cobrar)}</span>
-        </div>
-        <div style="padding:10px 20px 14px;font-size:12px;color:var(--gray-600);line-height:1.7;border-top:1px solid var(--gray-100);background:rgba(172,10,16,.015)">
-          ${exc>=0
-            ?`Cobra sueldo <strong>${fmtMoney(sueldo)}</strong> + excedente <strong style="color:#15803d">+${fmtMoney(exc)}</strong> = <strong style="color:var(--red)">${fmtMoney(cobrar)}</strong>`
-            :`Comisión <strong>${fmtMoney(comTotal)}</strong> no cubre el sueldo. Cobra garantizado <strong>${fmtMoney(sueldo)}</strong>. Empresa cubre <strong style="color:#c2410c">${fmtMoney(-exc)}</strong>.`
-          }
-        </div>
-      </div>`;
-    }).join('');
-
-    return `<div class="com-fin-card">
-      <div class="com-fin-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'':'none'">
-        <div>
-          <div class="com-fin-title">${mesNombre}</div>
-          <div class="com-fin-subtitle">${m.legajos.length} viaje${m.legajos.length!==1?'s':''} · ${Object.keys(m.vendedoras).length} vendedora${Object.keys(m.vendedoras).length!==1?'s':''}</div>
-        </div>
-        <div class="com-fin-totals">
-          <div class="com-fin-total"><div class="com-fin-total-val">${fmtMoney(m.totalRent)}</div><div class="com-fin-total-lbl">Rentabilidad</div></div>
-          <div class="com-fin-total"><div class="com-fin-total-val" style="color:#f59e0b">${fmtMoney(m.totalRent*COM_PCT)}</div><div class="com-fin-total-lbl">Comisiones</div></div>
-          <svg fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,.4)" stroke-width="2" width="16" height="16"><path d="m6 9 6 6 6-6"/></svg>
-        </div>
+  // ── Tabla por legajo — clara, sin cálculos anidados
+  document.getElementById('comisionList').innerHTML=`
+    <div style="background:var(--surface);border:1.5px solid var(--gray-200);border-radius:var(--radius);overflow:hidden">
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;min-width:700px">
+          <thead>
+            <tr style="background:var(--gray-100)">
+              <th style="padding:11px 18px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-600);white-space:nowrap">Legajo</th>
+              <th style="padding:11px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-600)">Cliente</th>
+              <th style="padding:11px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-600)">Vendedora</th>
+              <th style="padding:11px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-600)">Salida</th>
+              <th style="padding:11px 14px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-600)">Total venta</th>
+              <th style="padding:11px 14px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-600)">Neto</th>
+              <th style="padding:11px 14px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#d97706">Rentabilidad</th>
+              <th style="padding:11px 18px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--red)">Comisión 25%</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.map(l=>{
+              const userObj=Object.values(USERS).find(u=>u.vendedora===l.vendedora||u.name===l.vendedora);
+              const col=userObj?.color||'#9E9898';
+              return `<tr style="border-bottom:1px solid var(--gray-100);cursor:pointer;transition:background .12s" onclick="openDetail('${l.fbKey}')" onmouseover="this.style.background='rgba(172,10,16,.02)'" onmouseout="this.style.background=''">
+                <td style="padding:12px 18px">
+                  <div class="td-legajo">#${l.num}</div>
+                  <div style="font-size:11px;color:var(--gray-400);margin-top:2px">${l.destino}</div>
+                </td>
+                <td style="padding:12px 14px;font-size:13.5px;font-weight:500">${l.cliente}</td>
+                <td style="padding:12px 14px">
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <div style="width:20px;height:20px;border-radius:50%;background:${col};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:white;flex-shrink:0">${(userObj?.initials||l.vendedora?.substring(0,2)||'?').toUpperCase()}</div>
+                    <span style="font-size:13px">${l.vendedora}</span>
+                  </div>
+                </td>
+                <td style="padding:12px 14px;font-size:13px;color:var(--gray-600)">${fmtDate(l.salida)}</td>
+                <td style="padding:12px 14px;text-align:right;font-size:13.5px;font-weight:600">${fmtMoney(l.total||0)}</td>
+                <td style="padding:12px 14px;text-align:right;font-size:13px;color:var(--gray-600)">${fmtMoney(l.neto||0)}</td>
+                <td style="padding:12px 14px;text-align:right;font-size:13.5px;font-weight:700;color:#d97706">${fmtMoney(l._rentARS)}</td>
+                <td style="padding:12px 18px;text-align:right;font-size:14px;font-weight:700;color:var(--red)">${fmtMoney(l._comARS)}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+          <tfoot>
+            <tr style="background:var(--gray-100);border-top:2px solid var(--gray-200)">
+              <td colspan="4" style="padding:12px 18px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-600)">Total (${data.length} legajo${data.length!==1?'s':''})</td>
+              <td style="padding:12px 14px;text-align:right;font-size:13.5px;font-weight:700">${fmtMoney(totVenta)}</td>
+              <td style="padding:12px 14px;text-align:right;font-size:13px;font-weight:600;color:var(--gray-600)">—</td>
+              <td style="padding:12px 14px;text-align:right;font-size:14px;font-weight:700;color:#d97706">${fmtMoney(totRent)}</td>
+              <td style="padding:12px 18px;text-align:right;font-size:15px;font-weight:700;color:var(--red)">${fmtMoney(totCom)}</td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
-      <div class="com-fin-body" style="${i===0?'':'display:none'}">${vHTML}</div>
     </div>`;
-  }).join('');
 }
 
 window.saveSueldos = function(){
-  const sellers = Object.values(USERS).filter(u=>u.role==='seller');
-  sellers.forEach(u=>{
-    const el=document.getElementById(`sueldo_${u.vendedora}`);
-    if(el) sueldosBase[u.vendedora]=parseFloat(el.value)||SUELDO_DEFAULT;
-  });
   toast('Sueldos actualizados','success');
   renderComisiones();
 };
+
 
 /* ─── DASHBOARD PREMIUM RENDER ───────────────────────── */
 function renderDashPremium(){
