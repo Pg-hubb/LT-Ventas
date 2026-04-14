@@ -285,6 +285,11 @@
             <div class="sidebar-logo">
                 <div class="sidebar-logo-name">Legend Travel</div>
             </div>
+            <!-- Flecha arriba -->
+            <div id="sidebarArrowUp" onclick="sidebarNav.scrollBy({top:-120,behavior:'smooth'})" style="display:none;align-items:center;justify-content:center;height:24px;cursor:pointer;color:rgba(255,255,255,.3);transition:color .2s;flex-shrink:0" onmouseover="this.style.color='rgba(255,255,255,.7)'" onmouseout="this.style.color='rgba(255,255,255,.3)'">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
+            </div>
+            <div id="sidebarNav" style="flex:1;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none">
             <div class="sidebar-section">
                 <div class="sidebar-section-label">Principal</div>
                 <div class="nav-item active" onclick="switchView('dashboard')">
@@ -375,6 +380,11 @@
                     </svg>
                     Ajustes
                 </div>
+            </div>
+            </div><!-- /sidebarNav -->
+            <!-- Flecha abajo -->
+            <div id="sidebarArrowDown" onclick="sidebarNav.scrollBy({top:120,behavior:'smooth'})" style="display:none;align-items:center;justify-content:center;height:24px;cursor:pointer;color:rgba(255,255,255,.3);transition:color .2s;flex-shrink:0" onmouseover="this.style.color='rgba(255,255,255,.7)'" onmouseout="this.style.color='rgba(255,255,255,.3)'">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
             </div>
             <div class="sidebar-user">
                 <div class="sidebar-user-card">
@@ -778,12 +788,23 @@
                 <!-- AJUSTES -->
                 <div class="view" id="view-ajustes">
                     <div style="max-width:600px">
-                        <div class="section-header" style="margin-bottom:24px">
-                            <h3>Ajustes de cuenta</h3>
+                        <div class="section-header" style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between">
+                            <h3 style="margin:0">Ajustes de cuenta</h3>
+                            <div style="display:flex;gap:8px" id="ajustesSectionNav">
+                                <button onclick="document.getElementById('ajustesSecPerfil').scrollIntoView({behavior:'smooth',block:'start'})" title="Perfil" style="width:32px;height:32px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--gray-500)">
+                                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="14" height="14"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                </button>
+                                <button onclick="document.getElementById('ajustesSecSeguridad').scrollIntoView({behavior:'smooth',block:'start'})" title="Seguridad" style="width:32px;height:32px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--gray-500)">
+                                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="14" height="14"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                </button>
+                                <button id="btnNavEmail" onclick="document.getElementById('emailjsConfigCard').scrollIntoView({behavior:'smooth',block:'start'})" title="Configuración de email" style="width:32px;height:32px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:8px;cursor:pointer;display:none;align-items:center;justify-content:center;color:var(--gray-500)">
+                                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="14" height="14"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Bloque: perfil con email -->
-                        <div class="settings-card" style="margin-bottom:16px">
+                        <div class="settings-card" id="ajustesSecPerfil" style="margin-bottom:16px">
                             <div class="settings-card-header" style="margin-bottom:20px">
                                 <div class="settings-card-icon" style="background:rgba(172,10,16,.1)">
                                     <svg fill="none" viewBox="0 0 24 24" stroke="#AC0A10" stroke-width="2" width="18"
@@ -832,7 +853,7 @@
                         </div>
 
                         <!-- Bloque: seguridad -->
-                        <div class="settings-card">
+                        <div class="settings-card" id="ajustesSecSeguridad">
                             <div class="settings-card-header" style="margin-bottom:24px">
                                 <div class="settings-card-icon" style="background:rgba(172,10,16,.1)">
                                     <svg fill="none" viewBox="0 0 24 24" stroke="#AC0A10" stroke-width="2" width="18"
@@ -925,6 +946,45 @@
                                 </p>
                             </div>
                         </div>
+
+                        <!-- EmailJS config — solo admins -->
+                        <div class="settings-card" id="emailjsConfigCard" style="margin-top:16px;display:none">
+                            <div class="settings-card-header" style="margin-bottom:16px">
+                                <div class="settings-card-icon" style="background:rgba(21,128,61,.1)">
+                                    <svg fill="none" viewBox="0 0 24 24" stroke="#15803d" stroke-width="2" width="18" height="18">
+                                        <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="settings-card-title">Envío de emails · Cotizaciones</div>
+                                    <div class="settings-card-sub">EmailJS — envío automático desde el sistema</div>
+                                </div>
+                            </div>
+                            <div id="emailjsStatus" style="margin-bottom:14px"></div>
+                            <div style="background:#f0f9ff;border:1px solid rgba(14,165,233,.2);border-radius:8px;padding:13px 15px;margin-bottom:18px;font-size:12.5px;line-height:1.7;color:#374151">
+                                <div style="font-weight:700;color:#0284c7;margin-bottom:5px">Configuración rápida (5 min, gratis)</div>
+                                <ol style="margin:0;padding-left:16px;color:#6b7280">
+                                    <li>Crear cuenta en <strong>emailjs.com</strong> (200 emails/mes gratis)</li>
+                                    <li>Agregar "Email Service" conectando Gmail o el email de Legend</li>
+                                    <li>Crear "Email Template" — en el campo Body HTML escribir <code style="background:#e5e7eb;padding:1px 5px;border-radius:3px;font-size:11px">{{{cotizacion_html}}}</code></li>
+                                    <li>Copiar los 3 IDs de abajo y guardar</li>
+                                </ol>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group"><label class="form-label">Service ID *</label><input type="text" class="form-input" id="ejs_serviceId" placeholder="service_xxxxxxx"></div>
+                                <div class="form-group"><label class="form-label">Template ID *</label><input type="text" class="form-input" id="ejs_templateId" placeholder="template_xxxxxxx"></div>
+                                <div class="form-group full"><label class="form-label">Public Key *</label><input type="text" class="form-input" id="ejs_publicKey" placeholder="XXXXXXXXXXXXXXXXXX"></div>
+                                <div class="form-group full"><label class="form-label">Email de respuesta (reply-to)</label><input type="email" class="form-input" id="ejs_replyTo" placeholder="ventas@legendtravel.com"></div>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
+                                <button class="topbar-btn primary" onclick="saveEmailJSConfig()" style="height:40px;font-size:13px">Guardar configuración</button>
+                                <div id="emailjsSaveMsg" style="display:none;align-items:center;gap:6px;font-size:13px;color:#15803d;font-weight:600">
+                                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M20 6L9 17l-5-5" /></svg>
+                                    Guardado
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -1632,7 +1692,7 @@
             av.style.background = currentUser.color;
             document.getElementById('sidebarName').textContent = currentUser.name;
             document.getElementById('sidebarRole').textContent = currentUser.display;
-            if (currentUser.role === 'admin') document.getElementById('adminNav').style.display = '';
+            if (currentUser.role === 'admin') { document.getElementById('adminNav').style.display = ''; setTimeout(() => window._updateSidebarArrows && window._updateSidebarArrows(), 50); }
             if (currentUser.role === 'seller') document.getElementById('filterVendedora').style.display = 'none';
             // Recibos: mostrar botón subir solo a admins
             const btnRecibo = document.getElementById('btnSubirRecibo');
@@ -2345,6 +2405,25 @@
         });
 
         /* ─── AJUSTES: vista ────────────────────────────────── */
+        /* ─── SIDEBAR SCROLL ARROWS ─────────────────────────── */
+        (function () {
+            const nav = document.getElementById('sidebarNav');
+            const up = document.getElementById('sidebarArrowUp');
+            const dn = document.getElementById('sidebarArrowDown');
+            if (!nav) return;
+            function update() {
+                const canUp = nav.scrollTop > 4;
+                const canDn = nav.scrollTop + nav.clientHeight < nav.scrollHeight - 4;
+                up.style.display = canUp ? 'flex' : 'none';
+                dn.style.display = canDn ? 'flex' : 'none';
+            }
+            nav.addEventListener('scroll', update);
+            // Observar cambios de tamaño (para cuando se muestran secciones admin)
+            if (window.ResizeObserver) new ResizeObserver(update).observe(nav);
+            setTimeout(update, 300);
+            window._updateSidebarArrows = update;
+        })();
+
         window.switchView = function (v) {
             document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -2382,6 +2461,20 @@
             const em = document.getElementById('emailSuccessMsg'); if (em) em.style.display = 'none';
             resetStrengthBars('sb');
             const sl = document.getElementById('strengthLabel'); if (sl) sl.textContent = '';
+
+            // EmailJS config card — solo admins
+            const ejsCard = document.getElementById('emailjsConfigCard');
+            const btnNavEmail = document.getElementById('btnNavEmail');
+            if (ejsCard) {
+                if (currentUser.role === 'admin') {
+                    ejsCard.style.display = '';
+                    if (btnNavEmail) btnNavEmail.style.display = 'flex';
+                    loadEmailJSConfig();
+                } else {
+                    ejsCard.style.display = 'none';
+                    if (btnNavEmail) btnNavEmail.style.display = 'none';
+                }
+            }
         }
 
         /* ─── PASSWORD STRENGTH ──────────────────────────────── */
@@ -2914,6 +3007,17 @@
             renderTransferencias();
         };
 
+        window.deleteTransferencia = async function (fbKey) {
+            if (!confirm('¿Eliminar esta transferencia? Esta acción no se puede deshacer.')) return;
+            try {
+                await remove(ref(db, `transferencias/${fbKey}`));
+                delete allTransf[fbKey];
+                renderTransferencias();
+                renderDashTransf();
+                toast('Transferencia eliminada', 'success');
+            } catch (e) { toast('Error al eliminar', 'error'); }
+        };
+
         window.setTransfEstado = async function (fbKey, estado) {
             try {
                 await update(ref(db, `transferencias/${fbKey}`), { estado, tsUpdate: Date.now() });
@@ -2943,6 +3047,10 @@
       ${comprobanteBtn}
       ${t.estado !== 'confirmada' ? `<button class="btn-confirmar" style="background:${accentColor}" onclick="setTransfEstado('${t.fbKey}','confirmada')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" width="12" height="12"><path d="M20 6L9 17l-5-5"/></svg> Confirmar</button>` : '<span style="font-size:12px;font-weight:600;color:#15803d">✓ Confirmado</span>'}
       ${t.estado === 'pendiente' ? `<button class="btn-rechazar" onclick="setTransfEstado('${t.fbKey}','rechazada')">Rechazar</button>` : ''}
+      <button onclick="deleteTransferencia('${t.fbKey}')" title="Eliminar transferencia" style="height:30px;padding:0 10px;background:rgba(172,10,16,.07);border:1.5px solid rgba(172,10,16,.2);border-radius:7px;font-size:12px;font-weight:600;color:#AC0A10;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s;margin-left:auto" onmouseover="this.style.background='rgba(172,10,16,.15)'" onmouseout="this.style.background='rgba(172,10,16,.07)'">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="13" height="13"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        Eliminar
+      </button>
     </div>` : `<div style="display:flex;align-items:center;gap:10px">${comprobanteBtn}<span style="font-size:12px;color:var(--gray-400)">${t.estado === 'pendiente' ? 'Aguardando confirmación' : t.estado === 'confirmada' ? '✓ Confirmado' : '✗ Rechazado'}</span></div>`;
                 return `<div class="transf-card" style="border-left:3px solid ${accentColor}">
       <div class="transf-card-header">
@@ -3514,7 +3622,7 @@
                 </button>
               </div>
               <div class="form-grid" style="gap:10px">
-                <div class="form-group"><label class="form-label">Nombre del hotel *</label><input type="text" class="form-input" style="height:36px" value="${h.nombre || ''}" oninput="cotizHotelesData[${i}].nombre=this.value;renderCotizHotelRows()" placeholder="Ej: Barceló Maya Palace"></div>
+                <div class="form-group"><label class="form-label">Nombre del hotel *</label><input type="text" class="form-input" style="height:36px" data-hi="${i}_nombre" value="${h.nombre || ''}" oninput="cotizHotelesData[${i}].nombre=this.value" placeholder="Ej: Barceló Maya Palace"></div>
                 <div class="form-group"><label class="form-label">Categoría</label>
                   <select class="form-select" style="height:36px" onchange="cotizHotelesData[${i}].estrellas=parseInt(this.value)">
                     ${[3,4,5].map(n => `<option value="${n}"${h.estrellas==n?' selected':''}>${'★'.repeat(n)} ${n} estrellas</option>`).join('')}
@@ -3525,9 +3633,9 @@
                     ${['Todo incluido','Desayuno incluido','Media pensión','Solo alojamiento','All Inclusive Premium'].map(r=>`<option${h.regimen===r?' selected':''}>${r}</option>`).join('')}
                   </select>
                 </div>
-                <div class="form-group"><label class="form-label">Tipo de habitación</label><input type="text" class="form-input" style="height:36px" value="${h.habitacion || ''}" oninput="cotizHotelesData[${i}].habitacion=this.value" placeholder="Ej: Doble Superior Vista Mar"></div>
-                <div class="form-group"><label class="form-label">Noches</label><input type="number" class="form-input" style="height:36px" value="${h.noches || 7}" oninput="cotizHotelesData[${i}].noches=parseInt(this.value)||0" min="1"></div>
-                <div class="form-group"><label class="form-label">Precio *</label><input type="number" class="form-input" style="height:36px" value="${h.precio || ''}" oninput="cotizHotelesData[${i}].precio=parseFloat(this.value)||0" placeholder="0"></div>
+                <div class="form-group"><label class="form-label">Tipo de habitación</label><input type="text" class="form-input" style="height:36px" data-hi="${i}_habitacion" value="${h.habitacion || ''}" oninput="cotizHotelesData[${i}].habitacion=this.value" placeholder="Ej: Doble Superior Vista Mar"></div>
+                <div class="form-group"><label class="form-label">Noches</label><input type="number" class="form-input" style="height:36px" data-hi="${i}_noches" value="${h.noches || 7}" oninput="cotizHotelesData[${i}].noches=parseInt(this.value)||0" min="1"></div>
+                <div class="form-group"><label class="form-label">Precio *</label><input type="number" class="form-input" style="height:36px" data-hi="${i}_precio" value="${h.precio || ''}" oninput="cotizHotelesData[${i}].precio=parseFloat(this.value)||0" placeholder="0"></div>
                 <div class="form-group"><label class="form-label">Moneda</label>
                   <select class="form-select" style="height:36px" onchange="cotizHotelesData[${i}].moneda=this.value">
                     <option${h.moneda==='USD'?' selected':''}>USD</option>
@@ -3535,16 +3643,24 @@
                     <option${h.moneda==='EUR'?' selected':''}>EUR</option>
                   </select>
                 </div>
-                <div class="form-group"><label class="form-label">Ubicación</label><input type="text" class="form-input" style="height:36px" value="${h.ubicacion || ''}" oninput="cotizHotelesData[${i}].ubicacion=this.value" placeholder="Ej: Zona Hotelera, Cancún"></div>
-                <div class="form-group full"><label class="form-label">Servicios / Beneficios</label><input type="text" class="form-input" style="height:36px" value="${h.beneficios || ''}" oninput="cotizHotelesData[${i}].beneficios=this.value" placeholder="Ej: Acceso a 8 piscinas, wifi, spa..."></div>
-                <div class="form-group"><label class="form-label">Link del hotel</label><input type="url" class="form-input" style="height:36px" value="${h.link || ''}" oninput="cotizHotelesData[${i}].link=this.value" placeholder="https://..."></div>
-                <div class="form-group"><label class="form-label">Observaciones</label><input type="text" class="form-input" style="height:36px" value="${h.obs || ''}" oninput="cotizHotelesData[${i}].obs=this.value" placeholder="Notas adicionales..."></div>
+                <div class="form-group"><label class="form-label">Ubicación</label><input type="text" class="form-input" style="height:36px" data-hi="${i}_ubicacion" value="${h.ubicacion || ''}" oninput="cotizHotelesData[${i}].ubicacion=this.value" placeholder="Ej: Zona Hotelera, Cancún"></div>
+                <div class="form-group full"><label class="form-label">Servicios / Beneficios</label><input type="text" class="form-input" style="height:36px" data-hi="${i}_beneficios" value="${h.beneficios || ''}" oninput="cotizHotelesData[${i}].beneficios=this.value" placeholder="Ej: Acceso a 8 piscinas, wifi, spa..."></div>
+                <div class="form-group"><label class="form-label">Link del hotel</label><input type="url" class="form-input" style="height:36px" data-hi="${i}_link" value="${h.link || ''}" oninput="cotizHotelesData[${i}].link=this.value" placeholder="https://..."></div>
+                <div class="form-group"><label class="form-label">Observaciones</label><input type="text" class="form-input" style="height:36px" data-hi="${i}_obs" value="${h.obs || ''}" oninput="cotizHotelesData[${i}].obs=this.value" placeholder="Notas adicionales..."></div>
               </div>
             </div>`).join('');
         }
 
         /* ─── SAVE ───────────────────────────────────────── */
         window.saveCotiz = async function () {
+            // Sincronizar inputs de hoteles por si el usuario no disparó oninput
+            const wrap = document.getElementById('cotizHotelesWrap');
+            if (wrap) {
+                wrap.querySelectorAll('input[data-hi]').forEach(el => {
+                    const [i, field] = el.getAttribute('data-hi').split('_');
+                    if (cotizHotelesData[i]) cotizHotelesData[i][field] = el.type === 'number' ? (parseFloat(el.value) || 0) : el.value;
+                });
+            }
             const cliente = document.getElementById('cotizCliente').value.trim();
             const email = document.getElementById('cotizEmail').value.trim();
             const destino = document.getElementById('cotizDestino').value.trim();
@@ -3773,8 +3889,19 @@
                         <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;font-weight:700">Observaciones</div>
                         <div style="font-size:13px;color:#374151">${c.obs.replace(/\n/g,'<br>')}</div>
                     </div>` : ''}
+                    <!-- Email CTA -->
+                    <div style="background:linear-gradient(135deg,#1d4ed8 0%,#1e40af 100%);border-radius:12px;padding:20px 24px;margin-top:24px;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+                        <div>
+                            <div style="font-size:14px;font-weight:700;color:white">Enviar cotización al cliente</div>
+                            <div style="font-size:12.5px;color:rgba(255,255,255,.75);margin-top:3px">${c.email ? `Destinatario: <strong style="color:white">${c.email}</strong>` : '<span style="color:#fca5a5">Sin email registrado en esta cotización</span>'}</div>
+                        </div>
+                        <button id="btnEmailDetail_${fbKey}" onclick="sendCotizEmailFromDetail('${fbKey}')" ${!c.email ? 'disabled' : ''} style="height:40px;padding:0 20px;background:${c.email ? 'white' : 'rgba(255,255,255,.3)'};border:none;border-radius:9px;font-size:13px;font-weight:700;color:${c.email ? '#1d4ed8' : 'rgba(255,255,255,.6)'};cursor:${c.email ? 'pointer' : 'not-allowed'};display:flex;align-items:center;gap:8px;white-space:nowrap;transition:opacity .15s" onmouseover="if(!this.disabled)this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            Enviar por email
+                        </button>
+                    </div>
                     <!-- Footer -->
-                    <div style="border-top:1px solid #e5e7eb;padding-top:16px;margin-top:8px;text-align:center">
+                    <div style="border-top:1px solid #e5e7eb;padding-top:16px;margin-top:16px;text-align:center">
                         <div style="font-size:11.5px;color:#9ca3af">Legend Travel · Sistema de gestión comercial</div>
                         <div style="font-size:11px;color:#d1d5db;margin-top:4px">Esta cotización fue generada el ${fmtDate(new Date().toISOString().split('T')[0])} y tiene validez de 48hs salvo aclaración.</div>
                     </div>
@@ -3901,6 +4028,100 @@
   </div>
 </div></body></html>`;
         }
+
+        /* ─── EMAILJS CONFIG (Ajustes) ──────────────────────── */
+        window.saveEmailJSConfig = async function () {
+            const serviceId = document.getElementById('ejs_serviceId').value.trim();
+            const templateId = document.getElementById('ejs_templateId').value.trim();
+            const publicKey = document.getElementById('ejs_publicKey').value.trim();
+            const replyTo = document.getElementById('ejs_replyTo').value.trim();
+            if (!serviceId || !templateId || !publicKey) {
+                toast('Completá Service ID, Template ID y Public Key', 'error'); return;
+            }
+            try {
+                await set(ref(db, 'config/emailjs'), { serviceId, templateId, publicKey, replyTo });
+                const msg = document.getElementById('emailjsSaveMsg');
+                if (msg) { msg.style.display = 'flex'; setTimeout(() => msg.style.display = 'none', 3000); }
+                updateEmailJSStatus({ serviceId, templateId, publicKey });
+                toast('Configuración de email guardada', 'success');
+            } catch (e) { toast('Error al guardar: ' + e.message, 'error'); }
+        };
+
+        async function loadEmailJSConfig() {
+            try {
+                const snap = await get(ref(db, 'config/emailjs'));
+                const cfg = snap.val();
+                if (cfg) {
+                    const f = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
+                    f('ejs_serviceId', cfg.serviceId);
+                    f('ejs_templateId', cfg.templateId);
+                    f('ejs_publicKey', cfg.publicKey);
+                    f('ejs_replyTo', cfg.replyTo);
+                    updateEmailJSStatus(cfg);
+                } else {
+                    updateEmailJSStatus(null);
+                }
+            } catch (e) { /* sin conexión */ }
+        }
+
+        function updateEmailJSStatus(cfg) {
+            const el = document.getElementById('emailjsStatus'); if (!el) return;
+            const ok = cfg && cfg.serviceId && cfg.templateId && cfg.publicKey;
+            el.innerHTML = ok
+                ? `<div style="display:flex;align-items:center;gap:8px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;padding:10px 14px">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="#15803d" stroke-width="2.5" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    <div><div style="font-size:13px;font-weight:700;color:#15803d">EmailJS configurado correctamente</div>
+                    <div style="font-size:11.5px;color:#166534;margin-top:1px">Service: <code>${cfg.serviceId}</code> · Template: <code>${cfg.templateId}</code></div></div></div>`
+                : `<div style="display:flex;align-items:center;gap:8px;background:#fffbeb;border:1.5px solid #fcd34d;border-radius:8px;padding:10px 14px">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="#b45309" stroke-width="2.5" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                    <div style="font-size:13px;font-weight:600;color:#b45309">EmailJS no configurado — completá los campos para habilitar el envío automático</div></div>`;
+        }
+
+        /* ─── SEND COTIZ EMAIL FROM DETAIL (with button state) ── */
+        window.sendCotizEmailFromDetail = async function (fbKey) {
+            const btn = document.getElementById('btnEmailDetail_' + fbKey);
+            if (btn) { btn.disabled = true; btn.innerHTML = `<svg class="spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Enviando…`; }
+
+            const c = allCotizaciones[fbKey]; if (!c) return;
+            if (!c.email) { toast('Esta cotización no tiene email del cliente', 'error'); if (btn) { btn.disabled = false; btn.innerHTML = btnEmailOriginal; } return; }
+
+            let ejsCfg = null;
+            try { const s = await get(ref(db, 'config/emailjs')); ejsCfg = s.val(); } catch (e) {}
+
+            if (!ejsCfg || !ejsCfg.serviceId || !ejsCfg.templateId || !ejsCfg.publicKey) {
+                const subject = encodeURIComponent(`Cotización Legend Travel · ${c.destino} · ${c.cliente}`);
+                const bodyText = `Estimado/a ${c.cliente},\n\nAdjuntamos la cotización para su viaje a ${c.destino}.\n\nLegend Travel`;
+                window.open(`mailto:${c.email}?subject=${subject}&body=${encodeURIComponent(bodyText)}`);
+                toast('Se abrió tu cliente de email. Configurá EmailJS en Ajustes para envío automático.', 'success');
+                if (btn) { btn.disabled = false; btn.innerHTML = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg> Enviar por email`; }
+                return;
+            }
+
+            const hoteles = normArr(c.hoteles);
+            const emailHTML = buildEmailHTML(c, hoteles);
+            try {
+                if (typeof emailjs === 'undefined') { toast('EmailJS no está cargado. Verificá la configuración.', 'error'); return; }
+                emailjs.init(ejsCfg.publicKey);
+                await emailjs.send(ejsCfg.serviceId, ejsCfg.templateId, {
+                    to_email: c.email, to_name: c.cliente, from_name: 'Legend Travel',
+                    destino: c.destino, fecha: fmtDate(c.fecha), vendedora: c.vendedora || '—',
+                    cotizacion_html: emailHTML, reply_to: ejsCfg.replyTo || '',
+                });
+                const upd = { estado: 'enviada', tsEnviado: Date.now(), emailEnviado: c.email, tsModificado: Date.now() };
+                await update(ref(db, `cotizaciones/${fbKey}`), upd);
+                allCotizaciones[fbKey] = { ...c, ...upd };
+                renderCotizaciones();
+                toast(`Cotización enviada a ${c.email}`, 'success');
+                if (btn) { btn.disabled = false; btn.style.background = '#15803d'; btn.innerHTML = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M5 13l4 4L19 7"/></svg> Enviado`; }
+            } catch (e) {
+                console.error('EmailJS error:', e);
+                await update(ref(db, `cotizaciones/${fbKey}`), { estado: 'error', tsModificado: Date.now() });
+                allCotizaciones[fbKey] = { ...c, estado: 'error' };
+                renderCotizaciones();
+                toast('Error al enviar el email. Verificá la configuración de EmailJS.', 'error');
+                if (btn) { btn.disabled = false; btn.innerHTML = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg> Reintentar`; }
+            }
+        };
 
         window.toast = toast;
     </script>
