@@ -1648,6 +1648,8 @@
                 document.getElementById('liveStatus').textContent = `${count} en línea`;
             });
             setupPushNotifications();
+            // Re-render dashboard después de 2s para asegurar que Firebase cargó los datos
+            setTimeout(() => { renderDashTransf(); renderTransferencias(); }, 2000);
         }
 
         window.doLogout = function () {

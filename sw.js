@@ -1,13 +1,11 @@
-const CACHE_NAME = 'lt-ventas-v3';
+const CACHE_NAME = 'lt-ventas-v4';
+// Solo cachear assets estáticos — NUNCA el HTML (para que siempre sea fresco)
 const ASSETS = [
-  '/',
-  '/index.html',
   '/styles.css',
   '/Icons/Icon 192.jpg',
   '/Icons/Icon 512.jpg'
 ];
 
-// Instalar: guarda los archivos en caché
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
@@ -15,7 +13,6 @@ self.addEventListener('install', e => {
   self.skipWaiting();
 });
 
-// Activar: elimina cachés viejas
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
@@ -25,13 +22,14 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
-// Fetch: sirve desde caché si está disponible, sino va a la red
 self.addEventListener('fetch', e => {
-  // Solo cachear GET, ignorar Firebase y scripts externos
   if (e.request.method !== 'GET') return;
+  // Ignorar Firebase, APIs externas y el HTML principal (siempre fresco)
   if (e.request.url.includes('firebaseio.com')) return;
   if (e.request.url.includes('googleapis.com')) return;
   if (e.request.url.includes('firebase')) return;
+  if (e.request.url.includes('gstatic.com')) return;
+  if (e.request.url.endsWith('.html') || e.request.url.endsWith('/')) return;
 
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request))
@@ -51,7 +49,6 @@ self.addEventListener('push', e => {
   });
 });
 
-// Click en la notificación: abre la app
 self.addEventListener('notificationclick', e => {
   e.notification.close();
   e.waitUntil(
