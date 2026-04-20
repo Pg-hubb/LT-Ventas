@@ -2802,14 +2802,21 @@
         }
 
         function startTransfListener() {
+            // Carga inicial inmediata con get() para no depender del timing del listener
+            get(ref(db, 'transferencias')).then(snap => {
+                allTransf = snap.val() || {};
+                updateBadgeTransf();
+                renderTransferencias();
+                renderDashTransf();
+            }).catch(() => {});
+
+            // Listener en tiempo real para cambios posteriores
             let knownIds = null;
             onValue(ref(db, 'transferencias'), snap => {
                 const data   = snap.val() || {};
                 const newIds = Object.keys(data);
 
-                // Siempre actualizar primero, notificar después
-                knownIds  = knownIds === null ? newIds : (() => {
-                    // Detectar entradas nuevas (ignorar carga inicial)
+                if (knownIds !== null) {
                     try {
                         const added = newIds.filter(id => !knownIds.includes(id));
                         added.forEach(id => {
@@ -2820,9 +2827,9 @@
                             }
                         });
                     } catch (e) { console.warn('Notif error:', e); }
-                    return newIds;
-                })();
+                }
 
+                knownIds  = newIds;
                 allTransf = data;
                 updateBadgeTransf();
                 renderTransferencias();
