@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lt-ventas-v1';
+const CACHE_NAME = 'lt-ventas-v3';
 const ASSETS = [
   '/',
   '/index.html',
