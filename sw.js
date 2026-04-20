@@ -3,8 +3,8 @@ const ASSETS = [
   '/',
   '/index.html',
   '/styles.css',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  '/Icons/Icon 192.jpg',
+  '/Icons/Icon 512.jpg'
 ];
 
 // Instalar: guarda los archivos en caché
@@ -44,8 +44,8 @@ self.addEventListener('push', e => {
   const data = e.data.json();
   self.registration.showNotification(data.title || 'Legend Travel', {
     body: data.body || '',
-    icon: '/icons/icon-192.png',
-    badge: '/icons/icon-192.png',
+    icon: '/Icons/Icon 192.jpg',
+    badge: '/Icons/Icon 192.jpg',
     data: data.url || '/',
     vibrate: [200, 100, 200]
   });
