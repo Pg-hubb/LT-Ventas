@@ -1605,13 +1605,8 @@
             btn.disabled = true; btn.classList.add('loading');
             currentUser = { id: uid, ...USERS[uid] };
             localStorage.setItem('lt_session', uid);
-            try {
-                await seedIfEmpty();
-                initApp();
-            } catch (e) {
-                toast('Error al conectar. Verificá tu conexión.', 'error');
-                btn.disabled = false; btn.classList.remove('loading');
-            }
+            try { await seedIfEmpty(); } catch (_) {}
+            initApp();
         };
 
         // Enter key support
@@ -2805,14 +2800,10 @@
             // Carga inicial inmediata con get() para no depender del timing del listener
             get(ref(db, 'transferencias')).then(snap => {
                 allTransf = snap.val() || {};
-                const count = Object.keys(allTransf).length;
-                toast(`DEBUG: ${count} transferencias cargadas`, count > 0 ? 'success' : 'error');
                 updateBadgeTransf();
                 renderTransferencias();
                 renderDashTransf();
-            }).catch(err => {
-                toast('DEBUG error: ' + (err?.message || err), 'error');
-            });
+            }).catch(() => {});
 
             // Listener en tiempo real para cambios posteriores
             let knownIds = null;
