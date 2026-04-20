@@ -2795,20 +2795,22 @@
                 const data   = snap.val() || {};
                 const newIds = Object.keys(data);
 
-                // Detectar entradas nuevas (ignorar carga inicial)
-                if (knownIds !== null) {
-                    const added = newIds.filter(id => !knownIds.includes(id));
-                    added.forEach(id => {
-                        const t = data[id];
-                        // Notificar solo si no la creó el usuario actual
-                        const creadaPor = t.vendedora || '';
-                        if (creadaPor !== (currentUser.vendedora || currentUser.name)) {
-                            notifyNewTransfer(t);
-                        }
-                    });
-                }
+                // Siempre actualizar primero, notificar después
+                knownIds  = knownIds === null ? newIds : (() => {
+                    // Detectar entradas nuevas (ignorar carga inicial)
+                    try {
+                        const added = newIds.filter(id => !knownIds.includes(id));
+                        added.forEach(id => {
+                            const t = data[id];
+                            const creadaPor = t.vendedora || '';
+                            if (currentUser && creadaPor !== (currentUser.vendedora || currentUser.name)) {
+                                notifyNewTransfer(t);
+                            }
+                        });
+                    } catch (e) { console.warn('Notif error:', e); }
+                    return newIds;
+                })();
 
-                knownIds  = newIds;
                 allTransf = data;
                 updateBadgeTransf();
                 renderTransferencias();
