@@ -4,12 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Legend Travel — Sistema de Legajos</title>
+    <title>Legend Travel — Comisiones y Transferencias</title>
     <link href="https://fonts.googleapis.com/css2?family=Satoshi:wght@300;400;500;700;900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#AC0A10">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="LT Ventas">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
     <!-- EmailJS (client-side email sending) -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <!-- jsPDF + autotable (generación de PDFs) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 
 <body>
@@ -38,8 +48,8 @@
                 <div class="brand-logo">
                     <div class="brand-logo-name">Legend Travel</div>
                 </div>
-                <div class="brand-headline">Sistema de<br>gestión <span>comercial</span></div>
-                <div class="brand-desc">Legajos, clientes, pagos y operaciones — todo en un mismo lugar, en tiempo real.
+                <div class="brand-headline">Comisiones y<br><span>Transferencias</span></div>
+                <div class="brand-desc">Gestión de comisiones y transferencias — todo en un mismo lugar, en tiempo real.
                 </div>
             </div>
             <div class="brand-bottom">
@@ -301,43 +311,12 @@
                     </svg>
                     Dashboard
                 </div>
-                <div class="nav-item" onclick="switchView('legajos')">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path
-                            d="M9 12h6M9 16h6M9 8h6M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" />
-                    </svg>
-                    Legajos
-                    <span class="badge" id="badgeLegajos">0</span>
-                </div>
-                <div class="nav-item" onclick="switchView('cotizaciones')">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                    </svg>
-                    Cotizaciones
-                    <span class="badge" id="badgeCotiz" style="background:#1d4ed8;display:none">0</span>
-                </div>
                 <div class="nav-item" onclick="switchView('transferencias')">
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path d="M8 7h12m0 0l-4-4m4 4l-4 4M4 17h12m0 0l-4-4m4 4l-4 4" />
                     </svg>
                     Transferencias
                     <span class="badge" id="badgeTransf" style="background:#d97706">0</span>
-                </div>
-                <div class="nav-item" onclick="switchView('proximos')">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path
-                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    Próximos viajes
-                    <span class="badge" id="badgeProximos" style="background:#d97706">0</span>
-                </div>
-                <div class="nav-item" onclick="switchView('saldos')">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path
-                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Saldos pendientes
-                    <span class="badge" id="badgeSaldos">0</span>
                 </div>
                 <div class="nav-item" onclick="switchView('comisiones')">
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -403,6 +382,42 @@
             </div>
         </nav>
 
+        <!-- BOTTOM NAV (mobile only) -->
+        <nav class="mobile-bottom-nav" id="mobileBottomNav">
+            <button class="mbn-item active" onclick="switchView('dashboard')" id="mbn-dashboard">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="22" height="22">
+                    <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+                </svg>
+                <span>Inicio</span>
+            </button>
+            <button class="mbn-item" onclick="switchView('transferencias')" id="mbn-transferencias">
+                <span class="mbn-badge" id="mbnBadgeTransf" style="display:none">0</span>
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="22" height="22">
+                    <path d="M8 7h12m0 0l-4-4m4 4l-4 4M4 17h12m0 0l-4-4m4 4l-4 4"/>
+                </svg>
+                <span>Transferencias</span>
+            </button>
+            <button class="mbn-item" onclick="switchView('comisiones')" id="mbn-comisiones">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="22" height="22">
+                    <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <span>Comisiones</span>
+            </button>
+            <button class="mbn-item" onclick="switchView('recibos')" id="mbn-recibos">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="22" height="22">
+                    <path d="M9 12h6M9 16h6M9 8h4m5 0l-4-4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V8z"/>
+                </svg>
+                <span>Recibos</span>
+            </button>
+            <button class="mbn-item" onclick="switchView('ajustes')" id="mbn-ajustes">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="22" height="22">
+                    <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/>
+                </svg>
+                <span>Ajustes</span>
+            </button>
+        </nav>
+
         <div class="main">
             <div class="topbar">
                 <div class="topbar-title" id="topbarTitle">Dashboard</div>
@@ -429,38 +444,19 @@
                 <!-- DASHBOARD PREMIUM -->
                 <div class="view active" id="view-dashboard">
                     <div class="dash-kpi-grid" id="dashKpiGrid"></div>
-                    <div class="dash-grid-3">
+                    <div class="dash-grid-2">
                         <div class="dash-panel">
                             <div class="dash-panel-header">
-                                <span class="dash-panel-title">Legajos recientes</span>
-                                <span class="dash-panel-action" onclick="switchView('legajos')">Ver todos →</span>
+                                <span class="dash-panel-title">Transferencias pendientes</span>
+                                <span class="dash-panel-action" onclick="switchView('transferencias')">Ver →</span>
                             </div>
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Legajo</th>
-                                        <th>Cliente</th>
-                                        <th>Destino</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="recentTbody"></tbody>
-                            </table>
+                            <div id="dashTransfPend" style="padding:12px 20px"></div>
                         </div>
-                        <div>
-                            <div class="dash-panel" style="margin-bottom:14px">
-                                <div class="dash-panel-header">
-                                    <span class="dash-panel-title">Transferencias pendientes</span>
-                                    <span class="dash-panel-action" onclick="switchView('transferencias')">Ver →</span>
-                                </div>
-                                <div id="dashTransfPend" style="padding:12px 20px"></div>
+                        <div class="dash-panel">
+                            <div class="dash-panel-header">
+                                <span class="dash-panel-title">Actividad reciente</span>
                             </div>
-                            <div class="dash-panel">
-                                <div class="dash-panel-header">
-                                    <span class="dash-panel-title">Actividad reciente</span>
-                                </div>
-                                <div id="dashActivity"></div>
-                            </div>
+                            <div id="dashActivity"></div>
                         </div>
                     </div>
                     <div class="dash-grid-2">
@@ -470,155 +466,6 @@
                             </div>
                             <div id="alertasContainer" style="padding:12px 16px"></div>
                         </div>
-                        <div class="dash-panel">
-                            <div class="dash-panel-header">
-                                <span class="dash-panel-title">Próximos viajes</span>
-                                <span class="dash-panel-action" onclick="switchView('proximos')">Ver →</span>
-                            </div>
-                            <div id="dashProximos"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- LEGAJOS -->
-                <div class="view" id="view-legajos">
-                    <div class="filters-bar">
-                        <input type="text" class="filter-input" placeholder="Buscar por cliente, destino o nº legajo..."
-                            id="searchInput" oninput="renderLegajosTable()">
-                        <select class="filter-select" id="filterEstado" onchange="renderLegajosTable()">
-                            <option value="">Todos los estados</option>
-                            <option>cotizado</option>
-                            <option>señado</option>
-                            <option>parcialmente pago</option>
-                            <option>pago completo</option>
-                            <option>emitido</option>
-                            <option>viajado</option>
-                            <option>cerrado</option>
-                            <option>anulado</option>
-                        </select>
-                        <select class="filter-select" id="filterVendedora" onchange="renderLegajosTable()">
-                            <option value="">Todas las vendedoras</option>
-                        </select>
-                        <label
-                            style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;color:var(--gray-600);cursor:pointer;white-space:nowrap">
-                            <input type="checkbox" id="showArchived" onchange="renderLegajosTable()"
-                                style="accent-color:var(--red)">
-                            Ver archivados
-                        </label>
-                    </div>
-                    <div class="section-header">
-                        <h3>Legajos</h3><span class="count" id="legajosCount">0</span>
-                    </div>
-                    <div class="table-wrap" style="overflow-x:auto">
-                        <table class="data-table" style="min-width:900px">
-                            <thead>
-                                <tr>
-                                    <th>Legajo</th>
-                                    <th>Cliente</th>
-                                    <th>Destino</th>
-                                    <th>Salida</th>
-                                    <th>Vendedora</th>
-                                    <th>Total ARS</th>
-                                    <th>Total USD</th>
-                                    <th>Saldo ARS</th>
-                                    <th>Saldo USD</th>
-                                    <th>Estado</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody id="legajosTbody"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- COTIZACIONES -->
-                <div class="view" id="view-cotizaciones">
-                    <div class="filters-bar">
-                        <input type="text" class="filter-input" placeholder="Buscar por cliente, destino..." id="cotizSearch" oninput="renderCotizaciones()">
-                        <select class="filter-select" id="cotizFiltroEstado" onchange="renderCotizaciones()">
-                            <option value="">Todos los estados</option>
-                            <option value="borrador">Borrador</option>
-                            <option value="enviada">Enviada</option>
-                            <option value="error">Error de envío</option>
-                        </select>
-                        <select class="filter-select" id="cotizFiltroVendedora" onchange="renderCotizaciones()">
-                            <option value="">Todas las vendedoras</option>
-                        </select>
-                    </div>
-                    <div class="section-header">
-                        <h3>Cotizaciones</h3>
-                        <span class="count" id="cotizCount">0</span>
-                        <button class="topbar-btn primary" onclick="openNewCotiz()" style="margin-left:auto">
-                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="14" height="14">
-                                <path d="M12 4v16m8-8H4" />
-                            </svg>
-                            Nueva cotización
-                        </button>
-                    </div>
-                    <div class="table-wrap" style="overflow-x:auto">
-                        <table class="data-table" id="cotizTable" style="min-width:900px">
-                            <thead>
-                                <tr>
-                                    <th>Fecha</th>
-                                    <th>Cliente</th>
-                                    <th>Destino</th>
-                                    <th>Vendedora</th>
-                                    <th>Email</th>
-                                    <th>Estado</th>
-                                    <th>Enviada</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody id="cotizTbody"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- PROXIMOS -->
-                <div class="view" id="view-proximos">
-                    <div class="section-header">
-                        <h3>Viajes próximos (30 días)</h3>
-                    </div>
-                    <div class="table-wrap">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Legajo</th>
-                                    <th>Cliente</th>
-                                    <th>Destino</th>
-                                    <th>Salida</th>
-                                    <th>Días restantes</th>
-                                    <th>Estado</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody id="proximosTbody"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- SALDOS -->
-                <div class="view" id="view-saldos">
-                    <div class="section-header">
-                        <h3>Clientes con saldo pendiente</h3>
-                    </div>
-                    <div class="table-wrap">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Legajo</th>
-                                    <th>Cliente</th>
-                                    <th>Destino</th>
-                                    <th>Salida</th>
-                                    <th>Total</th>
-                                    <th>Cobrado</th>
-                                    <th>Saldo</th>
-                                    <th>Estado</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody id="saldosTbody"></tbody>
-                        </table>
                     </div>
                 </div>
 
@@ -714,41 +561,24 @@
 
                 <!-- COMISIONES -->
                 <div class="view" id="view-comisiones">
-                    <!-- Configuración sueldo base (admin only) -->
-                    <div id="comisionConfigPanel" style="display:none;margin-bottom:20px">
-                        <div class="settings-card" style="padding:18px 24px">
-                            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-                                <div style="font-size:13px;font-weight:700;color:var(--black)">Sueldos base</div>
-                                <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap" id="sueldosConfig">
-                                </div>
-                                <button class="topbar-btn primary" onclick="saveSueldos()"
-                                    style="height:36px;font-size:12.5px;margin-left:auto">Guardar</button>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- panel legacy oculto — no se usa más -->
+                    <div id="comisionConfigPanel" style="display:none"></div>
 
-                    <!-- Filtros de comisiones -->
+                    <!-- Filtros -->
                     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
-                        <div
-                            style="display:flex;gap:4px;background:var(--gray-100);border-radius:10px;padding:4px;flex:1;max-width:420px">
-                            <button class="transf-tab active" id="comFiltroTodas"
-                                onclick="setComisionFiltro('todas',this)">Todas</button>
-                            <button class="transf-tab" id="comFiltroMes" onclick="setComisionFiltro('mes',this)">Este
-                                mes</button>
-                            <button class="transf-tab" id="comFiltroAnio" onclick="setComisionFiltro('anio',this)">Este
-                                año</button>
-                        </div>
-                        <select id="comFiltroVendedora" class="filter-select" style="width:auto;min-width:160px"
-                            onchange="renderComisiones()">
+                        <input type="month" id="comFiltroMes" class="filter-select" style="width:auto;min-width:160px" onchange="renderComisiones()">
+                        <select id="comFiltroVendedora" class="filter-select" style="width:auto;min-width:160px" onchange="renderComisiones()">
                             <option value="">Todas las vendedoras</option>
                         </select>
-                        <span class="count" id="comisionCount" style="margin-left:auto">0 meses</span>
+                        <span class="count" id="comisionCount" style="margin-left:auto">0 legajos</span>
                     </div>
 
-                    <!-- Resumen -->
+                    <!-- Tarjetas resumen -->
                     <div class="comision-summary-grid" id="comisionSummary"></div>
+
+                    <!-- Lista mensual -->
                     <div class="section-header" style="margin-bottom:16px">
-                        <h3>Detalle por mes · vendedoras</h3>
+                        <h3 id="comisionListTitle">Detalle por mes · vendedoras</h3>
                     </div>
                     <div id="comisionList"></div>
                 </div>
@@ -966,7 +796,8 @@
                                 <ol style="margin:0;padding-left:16px;color:#6b7280">
                                     <li>Crear cuenta en <strong>emailjs.com</strong> (200 emails/mes gratis)</li>
                                     <li>Agregar "Email Service" conectando Gmail o el email de Legend</li>
-                                    <li>Crear "Email Template" — en el campo Body HTML escribir <code style="background:#e5e7eb;padding:1px 5px;border-radius:3px;font-size:11px">{{{cotizacion_html}}}</code></li>
+                                    <li>Crear "Email Template" — en Body HTML escribir <code style="background:#e5e7eb;padding:1px 5px;border-radius:3px;font-size:11px">{{{cotizacion_html}}}</code></li>
+                                    <li>Para adjuntar el PDF: en la sección <strong>Attachments</strong> del template agregar <code style="background:#e5e7eb;padding:1px 5px;border-radius:3px;font-size:11px">{{{attachments}}}</code></li>
                                     <li>Copiar los 3 IDs de abajo y guardar</li>
                                 </ol>
                             </div>
@@ -974,7 +805,8 @@
                                 <div class="form-group"><label class="form-label">Service ID *</label><input type="text" class="form-input" id="ejs_serviceId" placeholder="service_xxxxxxx"></div>
                                 <div class="form-group"><label class="form-label">Template ID *</label><input type="text" class="form-input" id="ejs_templateId" placeholder="template_xxxxxxx"></div>
                                 <div class="form-group full"><label class="form-label">Public Key *</label><input type="text" class="form-input" id="ejs_publicKey" placeholder="XXXXXXXXXXXXXXXXXX"></div>
-                                <div class="form-group full"><label class="form-label">Email de respuesta (reply-to)</label><input type="email" class="form-input" id="ejs_replyTo" placeholder="ventas@legendtravel.com"></div>
+                                <div class="form-group"><label class="form-label">Email de respuesta (reply-to)</label><input type="email" class="form-input" id="ejs_replyTo" placeholder="ventas@legendtravel.com"></div>
+                                <div class="form-group"><label class="form-label">Teléfono de contacto</label><input type="text" class="form-input" id="ejs_phone" placeholder="+54 9 11 1234-5678"></div>
                             </div>
                             <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
                                 <button class="topbar-btn primary" onclick="saveEmailJSConfig()" style="height:40px;font-size:13px">Guardar configuración</button>
@@ -1482,6 +1314,16 @@
                             <option value="enviada">Enviada</option>
                         </select>
                     </div>
+                    <!-- VIAJE EXTRA -->
+                    <div class="form-group"><label class="form-label">Fecha del viaje</label><input type="text" class="form-input" id="cotizFechaViaje" placeholder="Ej: 15/06 – 22/06/2025"></div>
+                    <div class="form-group"><label class="form-label">Pasajeros</label><input type="text" class="form-input" id="cotizPax" placeholder="Ej: 2 adultos, 1 menor"></div>
+                    <div class="form-group"><label class="form-label">Precio total</label><input type="text" class="form-input" id="cotizPrecioTotal" placeholder="Ej: 2500"></div>
+                    <div class="form-group"><label class="form-label">Moneda</label>
+                        <select class="form-select" id="cotizMoneda">
+                            <option value="USD">USD</option>
+                            <option value="ARS">ARS</option>
+                        </select>
+                    </div>
                     <!-- SERVICIOS -->
                     <div class="form-section-title">Detalles del viaje</div>
                     <div class="form-group full"><label class="form-label">Servicios incluidos *</label><textarea class="form-textarea" id="cotizServicios" rows="3" placeholder="Ej: Traslados aeropuerto, seguro de viaje, asistencia 24hs..."></textarea></div>
@@ -1544,6 +1386,8 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, update, remove, get }
             from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+        import { getMessaging, getToken, onMessage }
+            from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
 
         /* ─── CONFIG ─────────────────────────────────────────── */
         const firebaseConfig = {
@@ -1557,6 +1401,33 @@
         };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const messaging = getMessaging(app);
+
+        /* ─── VAPID / FCM TOKEN ──────────────────────────────── */
+        const VAPID_KEY = 'BHPgwUQIKYnOLXSKGLKiB1skTKA6OoV6C7eboaUs4FKvWrvMmz7_mbUzhXk_y2uJfDUBGLRIA-AkypsGJPA7mmw';
+
+        async function setupPushNotifications() {
+            if (!('Notification' in window)) return;
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') return;
+                const swReg = await navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js')
+                    || await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+                const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: swReg });
+                if (token && currentUser) {
+                    await set(ref(db, `fcmTokens/${currentUser.id}`), token);
+                }
+            } catch (e) {
+                console.warn('Push setup error:', e);
+            }
+        }
+
+        // Mensajes en FOREGROUND (app abierta)
+        onMessage(messaging, payload => {
+            const title = payload.notification?.title || 'Legend Travel';
+            const body  = payload.notification?.body  || '';
+            toast(`${title}: ${body}`, 'info');
+        });
 
         /* ─── USUARIOS ───────────────────────────────────────── */
         const USERS = {
@@ -1667,6 +1538,7 @@
             }
             btn.disabled = true; btn.classList.add('loading');
             currentUser = { id: uid, ...USERS[uid] };
+            localStorage.setItem('lt_session', uid);
             try {
                 await seedIfEmpty();
                 initApp();
@@ -1702,18 +1574,21 @@
             populateVendedoraFilter();
             startListener();
             startRecibosListener();
+            startSueldosListener();
             set(ref(db, `presencia/${currentUser.id}`), { nombre: currentUser.name, ts: Date.now() });
             onValue(ref(db, 'presencia'), snap => {
                 const p = snap.val() || {};
                 const count = Object.keys(p).length;
                 document.getElementById('liveStatus').textContent = `${count} en línea`;
             });
+            setupPushNotifications();
         }
 
         window.doLogout = function () {
             remove(ref(db, `presencia/${currentUser.id}`));
             stopListener();
-            currentUser = null; allLegajos = {};
+            localStorage.removeItem('lt_session');
+            currentUser = null; allLegajos = {}; allSueldos = {};
             closeDetail();
             document.getElementById('screen-app').classList.remove('active');
             document.getElementById('screen-login').classList.add('active');
@@ -1728,7 +1603,7 @@
         };
 
         /* ─── VISTAS ─────────────────────────────────────────── */
-        const viewTitles = { dashboard: 'Dashboard', legajos: 'Legajos', proximos: 'Próximos viajes', saldos: 'Saldos pendientes', usuarios: 'Usuarios', ajustes: 'Ajustes', transferencias: 'Transferencias', comisiones: 'Comisiones', recibos: 'Recibos de sueldo', cotizaciones: 'Cotizaciones' };
+        const viewTitles = { dashboard: 'Dashboard', usuarios: 'Usuarios', ajustes: 'Ajustes', transferencias: 'Transferencias', comisiones: 'Comisiones', recibos: 'Recibos de sueldo' };
 
         /* ─── DATA FILTER ────────────────────────────────────── */
         function getLegajos(includeArchived = false) {
@@ -1742,11 +1617,7 @@
         function renderAll() {
             if (!currentUser) return;
             renderDashPremium();
-            renderLegajosTable();
-            renderProximos();
-            renderSaldos();
             if (currentUser.role === 'admin') renderUsuarios();
-            updateBadges();
             renderTransferencias();
             renderComisiones();
         }
@@ -1764,126 +1635,6 @@
     <div class="stat-card"><div class="stat-card-icon" style="background:#d9770618">${svgMoney('#d97706')}</div><div class="stat-card-val">${saldo}</div><div class="stat-card-label">Saldos pendientes</div></div>
     <div class="stat-card"><div class="stat-card-icon" style="background:#1d4ed818">${svgCal('#1d4ed8')}</div><div class="stat-card-val">${prox}</div><div class="stat-card-label">Viajes próximos</div></div>
     <div class="stat-card"><div class="stat-card-icon" style="background:#15803d18">${svgPlane('#15803d')}</div><div class="stat-card-val">${emit}</div><div class="stat-card-label">Emitidos</div></div>`;
-        }
-
-        /* ─── DASHBOARD ──────────────────────────────────────── */
-        function renderDashboard() {
-            const data = getLegajos();
-            const recent = [...data].sort((a, b) => b.ts - a.ts).slice(0, 5);
-            document.getElementById('recentTbody').innerHTML = recent.length
-                ? recent.map(l => `<tr onclick="openDetail('${l.fbKey}')"><td><div class="td-legajo">${l.num}</div></td><td><div class="td-cliente">${l.cliente}</div></td><td>${l.destino}</td><td>${statusPill(l.estado)}</td></tr>`).join('')
-                : `<tr><td colspan="4"><div class="empty-state"><p>Sin legajos aún</p></div></td></tr>`;
-            const urgentes = data.filter(l => { const d = daysUntil(l.salida); return d != null && d >= 0 && d <= 15 && l.cobrado < l.total && l.estado !== 'anulado' });
-            const sinPago = data.filter(l => l.cobrado === 0 && l.estado === 'cotizado');
-            let html = '';
-            if (urgentes.length) html += urgentes.map(l => `<div onclick="openDetail('${l.fbKey}')" style="background:#FFF1F2;border:1px solid #fecdd3;border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:transform .15s" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="background:#f43f5e;color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px">URGENTE</span><span style="font-size:12px;font-weight:700;color:#AC0A10">${l.num}</span></div><div style="font-size:13px;font-weight:600">${l.cliente} — ${l.destino}</div><div style="font-size:12px;color:#9f1239;margin-top:2px">Saldo ${fmtMoney(l.total - l.cobrado)} · Salida en ${daysUntil(l.salida)} días</div></div>`).join('');
-            if (sinPago.length) html += `<div style="background:#FFF7ED;border:1px solid #fed7aa;border-radius:10px;padding:12px 14px;margin-bottom:8px"><div style="font-size:12px;font-weight:700;color:#c2410c;margin-bottom:4px">SIN PAGO INICIAL</div><div style="font-size:13px;color:#7c2d12">${sinPago.length} legajo${sinPago.length > 1 ? 's' : ''} cotizado${sinPago.length > 1 ? 's' : ''} sin seña</div></div>`;
-            if (!html) html = `<div style="background:var(--gray-100);border-radius:10px;padding:20px;text-align:center;color:var(--gray-400);font-size:13px">Sin alertas pendientes ✓</div>`;
-            document.getElementById('alertasContainer').innerHTML = html;
-        }
-
-        /* ─── BADGES ─────────────────────────────────────────── */
-        function updateBadges() {
-            const data = getLegajos();
-            document.getElementById('badgeLegajos').textContent = data.length;
-            document.getElementById('badgeProximos').textContent = data.filter(l => { const d = daysUntil(l.salida); return d != null && d >= 0 && d <= 30 }).length;
-            const conSaldo = data.filter(l => {
-                const tots = calcLegajoTotals(l.operadores || [], l.cobrado || 0, l.cobradoUSD || 0);
-                return (tots.saldoCliARS > 0 || tots.saldoCliUSD > 0) && l.estado !== 'anulado';
-            }).length;
-            document.getElementById('badgeSaldos').textContent = conSaldo;
-        }
-
-        /* ─── LEGAJOS TABLE ──────────────────────────────────── */
-        function populateVendedoraFilter() {
-            if (currentUser.role !== 'admin') return;
-            const sel = document.getElementById('filterVendedora');
-            while (sel.options.length > 1) sel.remove(1);
-            Object.values(USERS).filter(u => u.role === 'seller').forEach(u => {
-                const o = document.createElement('option'); o.value = u.vendedora; o.textContent = u.vendedora; sel.appendChild(o);
-            });
-        }
-
-        window.renderLegajosTable = function () {
-            const showArch = document.getElementById('showArchived')?.checked || false;
-            let data = getLegajos(showArch);
-            const q = document.getElementById('searchInput').value.toLowerCase();
-            const fE = document.getElementById('filterEstado').value;
-            const fV = document.getElementById('filterVendedora').value;
-            if (q) data = data.filter(l => l.cliente.toLowerCase().includes(q) || l.destino.toLowerCase().includes(q) || String(l.num).toLowerCase().includes(q));
-            if (fE) data = data.filter(l => l.estado === fE);
-            if (fV) data = data.filter(l => l.vendedora === fV);
-            data = [...data].sort((a, b) => b.ts - a.ts);
-            document.getElementById('legajosCount').textContent = data.length;
-            const isAdmin = currentUser.role === 'admin';
-            document.getElementById('legajosTbody').innerHTML = data.length ? data.map(l => {
-                const tots = calcLegajoTotals(l.operadores || [], l.cobrado || 0, l.cobradoUSD || 0);
-                const archStyle = l.archivado ? 'opacity:.6' : '';
-                const archBadge = l.archivado ? `<span style="background:#FFF7ED;color:#c2410c;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;margin-left:6px">ARCHIVADO</span>` : '';
-                const fmtUSD = n => n > 0 ? `<span style="font-weight:600">USD ${Number(n).toLocaleString('es-AR')}</span>` : `<span style="color:var(--gray-400)">—</span>`;
-                const fmtARS = n => n > 0 ? fmtMoney(n) : `<span style="color:var(--gray-400)">—</span>`;
-                const saldoARScls = tots.saldoCliARS > 0 ? 'saldo-pend' : 'saldo-ok';
-                const saldoUSDcls = tots.saldoCliUSD > 0 ? 'saldo-pend' : 'saldo-ok';
-                const adminBtns = isAdmin ? `
-      <button class="row-btn" onclick="event.stopPropagation();openDeleteLegajo('${l.fbKey}')" title="${l.archivado ? 'Restaurar' : 'Archivar'}" style="${l.archivado ? 'color:#15803d' : 'color:#d97706'}">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
-      </button>
-      <button class="row-btn" onclick="event.stopPropagation();openHardDelete('${l.fbKey}')" title="Eliminar definitivo" style="color:#ef4444">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-      </button>`: '';
-                return `<tr onclick="openDetail('${l.fbKey}')" style="${archStyle}">
-      <td><div class="td-legajo">#${l.num}</div></td>
-      <td><div class="td-cliente">${l.cliente}${archBadge}</div><div class="td-sub">${l.email || ''}</div></td>
-      <td><strong>${l.destino}</strong></td>
-      <td>${fmtDate(l.salida)}</td>
-      <td>${l.vendedora}</td>
-      <td>${fmtARS(tots.totalARS)}</td>
-      <td>${fmtUSD(tots.totalUSD)}</td>
-      <td class="${saldoARScls}">${fmtARS(tots.saldoCliARS)}</td>
-      <td class="${saldoUSDcls}">${tots.saldoCliUSD > 0 ? fmtUSD(tots.saldoCliUSD) : '<span style="color:var(--gray-400)">—</span>'}</td>
-      <td>${statusPill(l.estado)}</td>
-      <td><div class="row-actions">
-        <button class="row-btn" onclick="event.stopPropagation();editLegajo('${l.fbKey}')" title="Editar"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
-        <button class="row-btn" onclick="event.stopPropagation();openPagoModal('${l.fbKey}')" title="Pago"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2"/></svg></button>
-        ${adminBtns}
-      </div></td>
-    </tr>`;
-            }).join('') : `<tr><td colspan="11"><div class="empty-state"><h4>Sin legajos</h4><p>No hay resultados</p></div></td></tr>`;
-        };
-
-        /* ─── PRÓXIMOS ───────────────────────────────────────── */
-        function renderProximos() {
-            const data = getLegajos().filter(l => { const d = daysUntil(l.salida); return d != null && d >= 0 && d <= 30 && l.estado !== 'anulado' }).sort((a, b) => daysUntil(a.salida) - daysUntil(b.salida));
-            document.getElementById('proximosTbody').innerHTML = data.length ? data.map(l => {
-                const d = daysUntil(l.salida); const c = d <= 7 ? '#AC0A10' : d <= 15 ? '#d97706' : '#15803d';
-                return `<tr onclick="openDetail('${l.fbKey}')"><td><div class="td-legajo">${l.num}</div></td><td><strong>${l.cliente}</strong></td><td>${l.destino}</td><td>${fmtDate(l.salida)}</td><td><span style="font-weight:700;color:${c}">${d === 0 ? 'HOY' : d === 1 ? 'MAÑANA' : d + ' días'}</span></td><td>${statusPill(l.estado)}</td><td><button class="row-btn" onclick="event.stopPropagation();openDetail('${l.fbKey}')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button></td></tr>`;
-            }).join('') : `<tr><td colspan="7"><div class="empty-state"><h4>Sin viajes próximos</h4></div></td></tr>`;
-        }
-
-        /* ─── SALDOS ─────────────────────────────────────────── */
-        function renderSaldos() {
-            const data = getLegajos().filter(l => {
-                const tots = calcLegajoTotals(l.operadores || [], l.cobrado || 0, l.cobradoUSD || 0);
-                return (tots.saldoCliARS > 0 || tots.saldoCliUSD > 0) && l.estado !== 'anulado';
-            }).sort((a, b) => {
-                const ta = calcLegajoTotals(a.operadores || [], a.cobrado || 0, a.cobradoUSD || 0).saldoCliARS;
-                const tb = calcLegajoTotals(b.operadores || [], b.cobrado || 0, b.cobradoUSD || 0).saldoCliARS;
-                return tb - ta;
-            });
-            document.getElementById('saldosTbody').innerHTML = data.length ? data.map(l => {
-                const tots = calcLegajoTotals(l.operadores || [], l.cobrado || 0, l.cobradoUSD || 0);
-                return `<tr onclick="openDetail('${l.fbKey}')">
-      <td><div class="td-legajo">#${l.num}</div></td>
-      <td><strong>${l.cliente}</strong></td>
-      <td>${l.destino}</td>
-      <td>${fmtDate(l.salida)}</td>
-      <td>${tots.totalARS > 0 ? fmtMoney(tots.totalARS) : '-'}${tots.totalUSD > 0 ? `<div style="font-size:11px;color:var(--gray-400)">USD ${Number(tots.totalUSD).toLocaleString('es-AR')}</div>` : ''}</td>
-      <td>${fmtMoney(l.cobrado || 0)}${(l.cobradoUSD || 0) > 0 ? `<div style="font-size:11px;color:var(--gray-400)">USD ${Number(l.cobradoUSD).toLocaleString('es-AR')}</div>` : ''}</td>
-      <td class="saldo-pend">${tots.saldoCliARS > 0 ? fmtMoney(tots.saldoCliARS) : '—'}${tots.saldoCliUSD > 0 ? `<div style="font-size:11px">USD ${Number(tots.saldoCliUSD).toLocaleString('es-AR')}</div>` : ''}</td>
-      <td>${statusPill(l.estado)}</td>
-      <td><button class="row-btn" onclick="event.stopPropagation();openPagoModal('${l.fbKey}')" title="Pago" style="background:rgba(34,197,94,.1);color:#15803d"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 4v16m8-8H4"/></svg></button></td>
-    </tr>`;
-            }).join('') : `<tr><td colspan="9"><div class="empty-state"><h4>Sin saldos pendientes</h4></div></td></tr>`;
         }
 
         /* ─── USUARIOS ───────────────────────────────────────── */
@@ -2427,16 +2178,18 @@
         window.switchView = function (v) {
             document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.mbn-item').forEach(el => el.classList.remove('active'));
             const view = document.getElementById('view-' + v);
             if (view) view.classList.add('active');
-            const navEl = document.querySelector(`[onclick="switchView('${v}')"]`);
+            const navEl = document.querySelector(`.nav-item[onclick="switchView('${v}')"]`);
             if (navEl) navEl.classList.add('active');
+            const mbnEl = document.getElementById('mbn-' + v);
+            if (mbnEl) mbnEl.classList.add('active');
             document.getElementById('topbarTitle').textContent = viewTitles[v] || v;
             if (v === 'ajustes') loadSettingsView();
             else if (v === 'transferencias') renderTransferencias();
             else if (v === 'comisiones') renderComisiones();
             else if (v === 'recibos') renderRecibos();
-            else if (v === 'cotizaciones') renderCotizaciones();
             else renderAll();
         };
 
@@ -2640,14 +2393,21 @@
             }
         };
 
-        /* ─── INIT: quitar loading y mostrar login ───────────── */
+        /* ─── INIT: quitar loading y mostrar login (o auto-login) ── */
         window.addEventListener('load', () => {
             setTimeout(() => {
                 document.getElementById('loading-screen').style.opacity = '0';
                 document.getElementById('loading-screen').style.transition = 'opacity .4s';
-                setTimeout(() => {
+                setTimeout(async () => {
                     document.getElementById('loading-screen').style.display = 'none';
-                    document.getElementById('screen-login').classList.add('active');
+                    const savedUid = localStorage.getItem('lt_session');
+                    if (savedUid && USERS[savedUid]) {
+                        currentUser = { id: savedUid, ...USERS[savedUid] };
+                        try { await seedIfEmpty(); } catch (_) {}
+                        initApp();
+                    } else {
+                        document.getElementById('screen-login').classList.add('active');
+                    }
                 }, 400);
             }, 1800);
         });
@@ -2909,15 +2669,90 @@
             };
         }
 
+        /* ─── SUELDOS ────────────────────────────────────────── */
+        let allSueldos = {};   // { Vendedora: { YYYY_MM: monto } }
+        let fbSueldosUnsub = null;
+
+        function startSueldosListener() {
+            if (fbSueldosUnsub) fbSueldosUnsub();
+            fbSueldosUnsub = onValue(ref(db, 'sueldos'), snap => {
+                allSueldos = snap.val() || {};
+                renderComisiones();
+            });
+        }
+
+        function getSueldo(vendedora, ym) {
+            return Number(allSueldos?.[vendedora]?.[ym.replace('-', '_')] || 0);
+        }
+
+        function getScheme(vendedora) {
+            return vendedora === 'Pilar' ? 'FIXED_PLUS_COMMISSION' : 'STANDARD_COVER_SALARY';
+        }
+
+        window.saveSueldo = async function (vendedora, ym, montoRaw) {
+            const monto = Math.max(0, Number(montoRaw) || 0);
+            try {
+                await set(ref(db, `sueldos/${vendedora}/${ym.replace('-', '_')}`), monto);
+                toast('Sueldo guardado', 'success');
+            } catch (e) {
+                toast('Error al guardar sueldo', 'error');
+            }
+        };
+
+        window.toggleComDetalle = function (id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const visible = el.style.display !== 'none';
+            el.style.display = visible ? 'none' : '';
+            const btn = document.querySelector(`[data-toggle="${id}"]`);
+            if (btn) btn.textContent = visible ? 'Ver detalle ▾' : 'Ocultar ▴';
+        };
+
         /* ─── TRANSFERENCIAS REESTRUCTURADAS ─────────────────── */
         let allTransf = {};
         let currentTransfSection = 'ingresos';
         let filterIngreso = 'todas';
         let filterEgreso = 'todas';
 
+        function notifyNewTransfer(t) {
+            const tipo    = t.tipo === 'ingreso' ? 'Ingreso' : 'Egreso';
+            const monto   = t.monto ? ` $${t.monto} ${t.moneda || ''}`.trimEnd() : '';
+            const quien   = t.vendedora || 'Vendedora';
+            const cliente = t.nombre   ? ` — ${t.nombre}` : '';
+            const title   = `Nueva transferencia de ${quien}`;
+            const body    = `${tipo}${monto}${cliente} · pendiente de confirmación`;
+            toast(title + ': ' + body, 'info');
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(title, {
+                    body,
+                    icon:    '/icons/icon-192.png',
+                    badge:   '/icons/icon-192.png',
+                    vibrate: [200, 100, 200]
+                });
+            }
+        }
+
         function startTransfListener() {
+            let knownIds = null;
             onValue(ref(db, 'transferencias'), snap => {
-                allTransf = snap.val() || {};
+                const data   = snap.val() || {};
+                const newIds = Object.keys(data);
+
+                // Detectar entradas nuevas (ignorar carga inicial)
+                if (knownIds !== null) {
+                    const added = newIds.filter(id => !knownIds.includes(id));
+                    added.forEach(id => {
+                        const t = data[id];
+                        // Notificar solo si no la creó el usuario actual
+                        const creadaPor = t.vendedora || '';
+                        if (creadaPor !== (currentUser.vendedora || currentUser.name)) {
+                            notifyNewTransfer(t);
+                        }
+                    });
+                }
+
+                knownIds  = newIds;
+                allTransf = data;
                 updateBadgeTransf();
                 renderTransferencias();
                 renderDashTransf();
@@ -2927,10 +2762,13 @@
         function updateBadgeTransf() {
             const ingPend = Object.values(allTransf).filter(t => t.tipo === 'ingreso' && t.estado === 'pendiente').length;
             const egrPend = Object.values(allTransf).filter(t => t.tipo === 'egreso' && t.estado === 'pendiente').length;
+            const tot = ingPend + egrPend;
             const el = document.getElementById('badgeTransf');
-            if (el) { const tot = ingPend + egrPend; el.textContent = tot; el.style.display = tot > 0 ? '' : 'none'; }
+            if (el) { el.textContent = tot; el.style.display = tot > 0 ? '' : 'none'; }
             const bi = document.getElementById('badgeIngresos'); if (bi) bi.textContent = ingPend;
             const be = document.getElementById('badgeEgresos'); if (be) be.textContent = egrPend;
+            const mb = document.getElementById('mbnBadgeTransf');
+            if (mb) { mb.textContent = tot; mb.style.display = tot > 0 ? '' : 'none'; }
         }
 
         window.switchTransfSection = function (sec) {
@@ -3268,17 +3106,6 @@
         //   Solo legajos en estado "viajado" generan comisión
 
         const COM_PCT = 0.25;
-        let comisionFiltro = 'todas';
-
-        window.setComisionFiltro = function (f, btn) {
-            comisionFiltro = f;
-            ['comFiltroTodas', 'comFiltroMes', 'comFiltroAnio'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.classList.remove('active');
-            });
-            if (btn) btn.classList.add('active');
-            renderComisiones();
-        };
 
         function calcComisiones() {
             // Solo "viajado", no archivado
@@ -3299,55 +3126,99 @@
         function renderComisiones() {
             if (!document.getElementById('view-comisiones')?.classList.contains('active')) return;
             const isAdmin = currentUser.role === 'admin';
+            const MESES_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
-            // ── Filtro vendedora
+            // ── Poblar selector vendedora (admin: todas las sellers del sistema)
             const selV = document.getElementById('comFiltroVendedora');
+            const allSellers = Object.values(USERS).filter(u => u.vendedora).map(u => u.vendedora).sort();
+            // Leer el valor ANTES de reconstruir innerHTML para no perder la selección actual
+            const selVCur = isAdmin ? (selV?.value || '') : '';
             if (selV) {
                 if (isAdmin) {
-                    const cur = selV.value;
-                    const sellers = [...new Set(
-                        Object.values(allLegajos)
-                            .filter(l => l.estado === 'viajado' && l.salida && !l.archivado)
-                            .map(l => l.vendedora || '?')
-                    )].sort();
                     selV.innerHTML = '<option value="">Todas las vendedoras</option>' +
-                        sellers.map(v => `<option value="${v}"${v === cur ? ' selected' : ''}>${v}</option>`).join('');
+                        allSellers.map(v => `<option value="${v}"${v === selVCur ? ' selected' : ''}>${v}</option>`).join('');
+                    selV.value = selVCur; // restaurar explícitamente por si el browser no aplica `selected` de inmediato
                     selV.style.display = '';
                 } else {
                     selV.style.display = 'none';
                 }
             }
-            const filtroV = isAdmin ? (selV?.value || '') : (currentUser.vendedora || '');
+            const filtroV = isAdmin ? selVCur : (currentUser.vendedora || '');
 
-            // ── Filtro temporal
-            const now = new Date();
-            const mesActual = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-            const anioActual = String(now.getFullYear());
+            // ── Filtro de mes: inicializar al mes actual si no tiene valor
+            const mesInputEl = document.getElementById('comFiltroMes');
+            if (mesInputEl && !mesInputEl.value) {
+                const now = new Date();
+                mesInputEl.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            }
+            const filtroMes = mesInputEl?.value || '';
 
+            // ── Datos: solo legajos viajados
             let data = calcComisiones();
-            if (filtroV) data = data.filter(l => (l.vendedora || '') === filtroV);
-            if (comisionFiltro === 'mes') data = data.filter(l => l.salida?.startsWith(mesActual));
-            if (comisionFiltro === 'anio') data = data.filter(l => l.salida?.startsWith(anioActual));
+            if (filtroV)   data = data.filter(l => (l.vendedora || '') === filtroV);
+            if (filtroMes) data = data.filter(l => l.salida?.startsWith(filtroMes));
 
             document.getElementById('comisionCount').textContent =
                 data.length + ' legajo' + (data.length !== 1 ? 's' : '');
 
-            // ── Ocultar config sueldos (ya no aplica con lógica simplificada)
-            const cfgPanel = document.getElementById('comisionConfigPanel');
-            if (cfgPanel) cfgPanel.style.display = 'none';
+            // ── Agrupar por mes × vendedora
+            const grupos = {};
+            data.forEach(l => {
+                const mes = l.salida.substring(0, 7);
+                const v   = l.vendedora || '?';
+                const key = mes + '::' + v;
+                if (!grupos[key]) grupos[key] = { mes, vendedora: v, legajos: [], rentARS: 0, comGenerada: 0 };
+                grupos[key].legajos.push(l);
+                grupos[key].rentARS     += l._rentARS;
+                grupos[key].comGenerada += l._comARS;
+            });
 
-            // ── KPIs resumen
-            const totVenta = data.reduce((s, l) => s + (l._tots?.totalARS || l.total || 0), 0);
-            const totRent = data.reduce((s, l) => s + l._rentARS, 0);
-            const totCom = data.reduce((s, l) => s + l._comARS, 0);
-            const totEmp = totRent - totCom;
+            // ── Enriquecer con sueldo y cálculo final
+            Object.values(grupos).forEach(g => {
+                g.sueldo  = getSueldo(g.vendedora, g.mes);
+                g.isPilar = getScheme(g.vendedora) === 'FIXED_PLUS_COMMISSION';
+                if (g.isPilar) {
+                    g.comPagar        = g.comGenerada;
+                    g.totalCobrar     = g.sueldo + g.comPagar;
+                    g.cubreSueldo     = true;
+                    g.faltaParaCubrir = 0;
+                } else {
+                    g.comPagar        = Math.max(0, g.comGenerada - g.sueldo);
+                    g.cubreSueldo     = g.sueldo > 0 ? g.comGenerada >= g.sueldo : null;
+                    g.faltaParaCubrir = g.cubreSueldo ? 0 : Math.max(0, g.sueldo - g.comGenerada);
+                }
+            });
+
+            const allGrupos = Object.values(grupos);
+
+            // ── Resumen global
+            const totRent     = allGrupos.reduce((s, g) => s + g.rentARS, 0);
+            const totComGen   = allGrupos.reduce((s, g) => s + g.comGenerada, 0);
+            const totSueldos  = allGrupos.reduce((s, g) => s + g.sueldo, 0);
+            const totComPagar = allGrupos.reduce((s, g) => s + g.comPagar, 0);
+
             document.getElementById('comisionSummary').innerHTML = `
-    <div class="comision-summary-card"><div class="comision-summary-val">${fmtMoney(totVenta)}</div><div class="comision-summary-lbl">Ventas${filtroV ? ' · ' + filtroV : ''}</div></div>
-    <div class="comision-summary-card"><div class="comision-summary-val" style="color:#d97706">${fmtMoney(totRent)}</div><div class="comision-summary-lbl">Rentabilidad total</div></div>
-    <div class="comision-summary-card"><div class="comision-summary-val" style="color:var(--red)">${fmtMoney(totCom)}</div><div class="comision-summary-lbl">Comisiones 25%</div></div>
-    <div class="comision-summary-card"><div class="comision-summary-val" style="color:#15803d">${fmtMoney(totEmp)}</div><div class="comision-summary-lbl">Para la empresa 75%</div></div>`;
+    <div class="comision-summary-card">
+      <div class="comision-summary-val" style="color:#d97706">${fmtMoney(totRent)}</div>
+      <div class="comision-summary-lbl">Rentabilidad total</div>
+    </div>
+    <div class="comision-summary-card">
+      <div class="comision-summary-val" style="color:var(--red)">${fmtMoney(totComGen)}</div>
+      <div class="comision-summary-lbl">Comisión generada (25%)</div>
+    </div>
+    <div class="comision-summary-card">
+      <div class="comision-summary-val">${fmtMoney(totSueldos)}</div>
+      <div class="comision-summary-lbl">Sueldos del período</div>
+    </div>
+    <div class="comision-summary-card">
+      <div class="comision-summary-val" style="color:#15803d">${fmtMoney(totComPagar)}</div>
+      <div class="comision-summary-lbl">Comisión a pagar</div>
+    </div>`;
 
-            if (!data.length) {
+            const listTitleEl = document.getElementById('comisionListTitle');
+            if (listTitleEl) listTitleEl.textContent = filtroV ? filtroV + ' · Detalle por mes' : 'Detalle por mes · vendedoras';
+
+            if (!allGrupos.length) {
                 document.getElementById('comisionList').innerHTML = `
       <div class="empty-state">
         <h4>Sin comisiones</h4>
@@ -3356,66 +3227,156 @@
                 return;
             }
 
-            // ── Tabla por legajo — clara, sin cálculos anidados
-            document.getElementById('comisionList').innerHTML = `
-    <div style="background:var(--surface);border:1.5px solid var(--gray-200);border-radius:var(--radius);overflow:hidden">
-      <div style="overflow-x:auto">
-        <table style="width:100%;border-collapse:collapse;min-width:700px">
+            // ── Construir HTML: meses desc, vendedoras asc dentro de cada mes
+            const mesesUnicos = [...new Set(allGrupos.map(g => g.mes))].sort((a, b) => b.localeCompare(a));
+            let html = '';
+
+            mesesUnicos.forEach(mes => {
+                const [y, m]  = mes.split('-');
+                const mesLabel = MESES_ES[parseInt(m, 10) - 1] + ' ' + y;
+                const gMes    = allGrupos.filter(g => g.mes === mes).sort((a, b) => a.vendedora.localeCompare(b.vendedora));
+                const mesRent     = gMes.reduce((s, g) => s + g.rentARS, 0);
+                const mesComGen   = gMes.reduce((s, g) => s + g.comGenerada, 0);
+                const mesComPagar = gMes.reduce((s, g) => s + g.comPagar, 0);
+                const mesTotLeg   = gMes.reduce((s, g) => s + g.legajos.length, 0);
+
+                html += `<div class="com-mes-block">
+  <div class="com-mes-header">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="com-mes-title">${mesLabel}</span>
+      <span style="font-size:12px;color:var(--gray-600);font-weight:500">${mesTotLeg} legajo${mesTotLeg !== 1 ? 's' : ''}</span>
+    </div>
+    <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">
+      <span style="font-size:12px;color:var(--gray-600)">Rent: <strong style="color:#d97706">${fmtMoney(mesRent)}</strong></span>
+      <span style="font-size:12px;color:var(--gray-600)">Com.gen: <strong style="color:var(--red)">${fmtMoney(mesComGen)}</strong></span>
+      <span style="font-size:12px;color:var(--gray-600)">A pagar: <strong style="color:#15803d">${fmtMoney(mesComPagar)}</strong></span>
+    </div>
+  </div>`;
+
+                gMes.forEach(g => {
+                    const userObj  = Object.values(USERS).find(u => u.vendedora === g.vendedora || u.name === g.vendedora);
+                    const col      = userObj?.color || '#9E9898';
+                    const initials = (userObj?.initials || g.vendedora?.substring(0, 2) || '?').toUpperCase();
+                    const gId      = 'gd_' + mes.replace('-', '') + '_' + g.vendedora.replace(/\W/g, '');
+
+                    // Badge de estado
+                    let statusHtml = '';
+                    if (g.isPilar) {
+                        statusHtml = `<div class="com-status pilar">Esquema especial: sueldo fijo + comisiones · Total a cobrar: <strong>${fmtMoney(g.totalCobrar)}</strong></div>`;
+                    } else if (!g.sueldo) {
+                        statusHtml = `<div class="com-status sin-sueldo">Sin sueldo cargado para este mes</div>`;
+                    } else if (g.cubreSueldo === false) {
+                        statusHtml = `<div class="com-status no-cubre">Todavía no supera el sueldo · Faltan <strong>${fmtMoney(g.faltaParaCubrir)}</strong> para empezar a comisionar</div>`;
+                    } else {
+                        statusHtml = `<div class="com-status cubre">Supera el sueldo — comisión a pagar: <strong>${fmtMoney(g.comPagar)}</strong></div>`;
+                    }
+
+                    // Widget sueldo
+                    const sueldoWidget = isAdmin
+                        ? `<div class="com-kpi">
+                             <div style="display:flex;align-items:center;gap:6px">
+                               <input type="number" class="com-sueldo-input" id="${gId}_s"
+                                      value="${g.sueldo || ''}" placeholder="0"
+                                      onkeydown="if(event.key==='Enter')saveSueldo('${g.vendedora}','${g.mes}',this.value)">
+                               <button class="com-sueldo-save" title="Guardar sueldo"
+                                       onclick="saveSueldo('${g.vendedora}','${g.mes}',document.getElementById('${gId}_s').value)">✓</button>
+                             </div>
+                             <div class="com-kpi-lbl">Sueldo del mes</div>
+                           </div>`
+                        : `<div class="com-kpi">
+                             <div class="com-kpi-val">${g.sueldo ? fmtMoney(g.sueldo) : '—'}</div>
+                             <div class="com-kpi-lbl">Sueldo del mes</div>
+                           </div>`;
+
+                    html += `
+  <div class="com-vendedora-block">
+    <div class="com-vendedora-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:32px;height:32px;border-radius:50%;background:${col};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0">${initials}</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--black)">${g.vendedora}</div>
+          ${g.isPilar ? '<div style="font-size:11px;color:#1d4ed8;font-weight:600">Sueldo fijo + comisiones</div>' : ''}
+        </div>
+      </div>
+      <button class="com-toggle-btn" data-toggle="${gId}" onclick="toggleComDetalle('${gId}')">Ver detalle ▾</button>
+    </div>
+
+    <div class="com-kpis-row">
+      <div class="com-kpi">
+        <div class="com-kpi-val">${g.legajos.length}</div>
+        <div class="com-kpi-lbl">Legajos viajados</div>
+      </div>
+      <div class="com-kpi">
+        <div class="com-kpi-val" style="color:#d97706">${fmtMoney(g.rentARS)}</div>
+        <div class="com-kpi-lbl">Rentabilidad</div>
+      </div>
+      <div class="com-kpi">
+        <div class="com-kpi-val" style="color:var(--red)">${fmtMoney(g.comGenerada)}</div>
+        <div class="com-kpi-lbl">Com. generada (25%)</div>
+      </div>
+      ${sueldoWidget}
+      <div class="com-kpi com-kpi-pagar">
+        <div class="com-kpi-val" style="color:#15803d">${fmtMoney(g.comPagar)}</div>
+        <div class="com-kpi-lbl">Comisión a pagar</div>
+        ${g.isPilar ? `<div style="font-size:11px;color:#15803d;font-weight:600;margin-top:2px">+ Sueldo = ${fmtMoney(g.totalCobrar)}</div>` : ''}
+      </div>
+    </div>
+
+    ${statusHtml}
+
+    <div id="${gId}" style="display:none;margin-top:14px">
+      <div style="overflow-x:auto;border-radius:8px;border:1.5px solid var(--gray-200)">
+        <table style="width:100%;border-collapse:collapse;min-width:680px">
           <thead>
             <tr style="background:var(--gray-100)">
-              <th style="padding:11px 18px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-600);white-space:nowrap">Legajo</th>
-              <th style="padding:11px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-600)">Cliente</th>
-              <th style="padding:11px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-600)">Vendedora</th>
-              <th style="padding:11px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-600)">Salida</th>
-              <th style="padding:11px 14px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-600)">Total venta</th>
-              <th style="padding:11px 14px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-600)">Neto</th>
-              <th style="padding:11px 14px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#d97706">Rentabilidad</th>
-              <th style="padding:11px 18px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--red)">Comisión 25%</th>
+              <th style="padding:9px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-600)">Legajo</th>
+              <th style="padding:9px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-600)">Cliente</th>
+              <th style="padding:9px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-600)">Salida</th>
+              <th style="padding:9px 14px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-600)">Total</th>
+              <th style="padding:9px 14px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-600)">Neto</th>
+              <th style="padding:9px 14px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#d97706">Rentabilidad</th>
+              <th style="padding:9px 14px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--red)">Com. 25%</th>
             </tr>
           </thead>
           <tbody>
-            ${data.map(l => {
-                const userObj = Object.values(USERS).find(u => u.vendedora === l.vendedora || u.name === l.vendedora);
-                const col = userObj?.color || '#9E9898';
-                return `<tr style="border-bottom:1px solid var(--gray-100);cursor:pointer;transition:background .12s" onclick="openDetail('${l.fbKey}')" onmouseover="this.style.background='rgba(172,10,16,.02)'" onmouseout="this.style.background=''">
-                <td style="padding:12px 18px">
-                  <div class="td-legajo">#${l.num}</div>
-                  <div style="font-size:11px;color:var(--gray-400);margin-top:2px">${l.destino}</div>
-                </td>
-                <td style="padding:12px 14px;font-size:13.5px;font-weight:500">${l.cliente}</td>
-                <td style="padding:12px 14px">
-                  <div style="display:flex;align-items:center;gap:6px">
-                    <div style="width:20px;height:20px;border-radius:50%;background:${col};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:white;flex-shrink:0">${(userObj?.initials || l.vendedora?.substring(0, 2) || '?').toUpperCase()}</div>
-                    <span style="font-size:13px">${l.vendedora}</span>
-                  </div>
-                </td>
-                <td style="padding:12px 14px;font-size:13px;color:var(--gray-600)">${fmtDate(l.salida)}</td>
-                <td style="padding:12px 14px;text-align:right;font-size:13.5px;font-weight:600">${fmtMoney(l._tots.totalARS)}</td>
-                <td style="padding:12px 14px;text-align:right;font-size:13px;color:var(--gray-600)">${fmtMoney(l._tots.netoARS)}</td>
-                <td style="padding:12px 14px;text-align:right;font-size:13.5px;font-weight:700;color:#d97706">${fmtMoney(l._rentARS)}</td>
-                <td style="padding:12px 18px;text-align:right;font-size:14px;font-weight:700;color:var(--red)">${fmtMoney(l._comARS)}</td>
-              </tr>`;
-            }).join('')}
+            ${g.legajos.map(l => `
+            <tr style="border-bottom:1px solid var(--gray-100);cursor:pointer;transition:background .12s"
+                onclick="openDetail('${l.fbKey}')"
+                onmouseover="this.style.background='rgba(172,10,16,.02)'"
+                onmouseout="this.style.background=''">
+              <td style="padding:9px 14px"><div class="td-legajo">#${l.num}</div><div style="font-size:11px;color:var(--gray-400)">${l.destino}</div></td>
+              <td style="padding:9px 14px;font-size:13px;font-weight:500">${l.cliente}</td>
+              <td style="padding:9px 14px;font-size:12.5px;color:var(--gray-600)">${fmtDate(l.salida)}</td>
+              <td style="padding:9px 14px;text-align:right;font-size:13px;font-weight:600">${fmtMoney(l._tots.totalARS)}</td>
+              <td style="padding:9px 14px;text-align:right;font-size:12.5px;color:var(--gray-600)">${fmtMoney(l._tots.netoARS)}</td>
+              <td style="padding:9px 14px;text-align:right;font-size:13px;font-weight:700;color:#d97706">${fmtMoney(l._rentARS)}</td>
+              <td style="padding:9px 14px;text-align:right;font-size:13px;font-weight:700;color:var(--red)">${fmtMoney(l._comARS)}</td>
+            </tr>`).join('')}
           </tbody>
           <tfoot>
-            <tr style="background:var(--gray-100);border-top:2px solid var(--gray-200)">
-              <td colspan="4" style="padding:12px 18px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-600)">Total (${data.length} legajo${data.length !== 1 ? 's' : ''})</td>
-              <td style="padding:12px 14px;text-align:right;font-size:13.5px;font-weight:700">${fmtMoney(totVenta)}</td>
-              <td style="padding:12px 14px;text-align:right;font-size:13px;font-weight:600;color:var(--gray-600)">—</td>
-              <td style="padding:12px 14px;text-align:right;font-size:14px;font-weight:700;color:#d97706">${fmtMoney(totRent)}</td>
-              <td style="padding:12px 18px;text-align:right;font-size:15px;font-weight:700;color:var(--red)">${fmtMoney(totCom)}</td>
+            <tr style="background:var(--gray-100);border-top:1.5px solid var(--gray-200)">
+              <td colspan="3" style="padding:9px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-600)">Total ${g.legajos.length} legajo${g.legajos.length !== 1 ? 's' : ''}</td>
+              <td style="padding:9px 14px;text-align:right;font-size:13px;font-weight:700">${fmtMoney(g.legajos.reduce((s,l)=>s+l._tots.totalARS,0))}</td>
+              <td style="padding:9px 14px;text-align:right;font-size:12.5px;color:var(--gray-600)">—</td>
+              <td style="padding:9px 14px;text-align:right;font-size:13px;font-weight:700;color:#d97706">${fmtMoney(g.rentARS)}</td>
+              <td style="padding:9px 14px;text-align:right;font-size:13px;font-weight:700;color:var(--red)">${fmtMoney(g.comGenerada)}</td>
             </tr>
           </tfoot>
         </table>
       </div>
-    </div>`;
+    </div>
+  </div>`;
+                });
+
+                html += `</div>`; // cierre com-mes-block
+            });
+
+            document.getElementById('comisionList').innerHTML = html;
         }
 
-        window.saveSueldos = function () {
-            toast('Sueldos actualizados', 'success');
-            renderComisiones();
-        };
-
+        window.saveSueldos = function () { renderComisiones(); };
+        // Exponer en window para que el onchange del HTML pueda llamarla (script es type="module")
+        window.renderComisiones = renderComisiones;
 
         /* ─── DASHBOARD PREMIUM RENDER ───────────────────────── */
         function renderDashPremium() {
@@ -3458,17 +3419,6 @@
       <div class="dash-kpi-lbl">Transf. pendientes</div>
     </div>`;
 
-            // Recent
-            const recent = [...data].sort((a, b) => b.ts - a.ts).slice(0, 6);
-            document.getElementById('recentTbody').innerHTML = recent.length
-                ? recent.map(l => `<tr onclick="openDetail('${l.fbKey}')">
-        <td><div class="td-legajo">${l.num}</div></td>
-        <td><div class="td-cliente">${l.cliente}</div></td>
-        <td>${l.destino}</td>
-        <td>${statusPill(l.estado)}</td>
-      </tr>`).join('')
-                : `<tr><td colspan="4"><div class="empty-state"><p>Sin legajos</p></div></td></tr>`;
-
             // Activity
             const acts = [...data].sort((a, b) => b.ts - a.ts).slice(0, 5);
             const actColors = { cotizado: '#818cf8', señado: '#fb923c', 'parcialmente pago': '#eab308', 'pago completo': '#22c55e', emitido: '#3b82f6', viajado: '#8b5cf6', cerrado: '#9E9898', anulado: '#f43f5e' };
@@ -3481,21 +3431,6 @@
     </div>
     <span class="status ${statusMap[l.estado] || 's-cotizado'}" style="font-size:10px">${l.estado}</span>
   </div>`).join('');
-
-            // Próximos en dash
-            const proxEl = document.getElementById('dashProximos');
-            const prox5 = data.filter(l => { const d = daysUntil(l.salida); return d != null && d >= 0 && d <= 30 && l.estado !== 'anulado' }).sort((a, b) => daysUntil(a.salida) - daysUntil(b.salida)).slice(0, 4);
-            if (proxEl) proxEl.innerHTML = prox5.length ? prox5.map(l => {
-                const d = daysUntil(l.salida); const c = d <= 3 ? '#AC0A10' : d <= 7 ? '#d97706' : '#15803d';
-                return `<div class="dash-activity-item" onclick="openDetail('${l.fbKey}')">
-      <div class="dash-activity-dot" style="background:${c}"></div>
-      <div>
-        <div class="dash-activity-text"><strong>${l.destino}</strong> · ${l.cliente}</div>
-        <div class="dash-activity-time">${l.num}</div>
-      </div>
-      <span style="font-size:12px;font-weight:700;color:${c}">${d === 0 ? 'HOY' : d === 1 ? 'MAÑ' : d + 'd'}</span>
-    </div>`;
-            }).join('') : `<div style="padding:16px 20px;font-size:13px;color:var(--gray-400)">Sin viajes próximos</div>`;
 
             // Alertas en dash
             const urgentes = data.filter(l => {
@@ -3560,6 +3495,10 @@
             document.getElementById('cotizFecha').value = new Date().toISOString().split('T')[0];
             document.getElementById('cotizVendedora').value = currentUser.vendedora || currentUser.name || 'Carolina';
             document.getElementById('cotizEstado').value = 'borrador';
+            document.getElementById('cotizFechaViaje').value = '';
+            document.getElementById('cotizPax').value = '';
+            document.getElementById('cotizPrecioTotal').value = '';
+            document.getElementById('cotizMoneda').value = 'USD';
             document.getElementById('cotizServicios').value = '';
             document.getElementById('cotizVuelos').value = '';
             document.getElementById('cotizCondiciones').value = 'Validez de la oferta: 48 horas. Precios sujetos a disponibilidad al momento de la reserva. No incluye gastos personales ni extras. Sujeto a condiciones de las aerolíneas y hoteles.';
@@ -3581,6 +3520,10 @@
             document.getElementById('cotizFecha').value = c.fecha || '';
             document.getElementById('cotizVendedora').value = c.vendedora || 'Carolina';
             document.getElementById('cotizEstado').value = c.estado || 'borrador';
+            document.getElementById('cotizFechaViaje').value = c.fechaViaje || '';
+            document.getElementById('cotizPax').value = c.pax || '';
+            document.getElementById('cotizPrecioTotal').value = c.precioTotal || '';
+            document.getElementById('cotizMoneda').value = c.moneda || 'USD';
             document.getElementById('cotizServicios').value = c.servicios || '';
             document.getElementById('cotizVuelos').value = c.vuelos || '';
             document.getElementById('cotizCondiciones').value = c.condiciones || '';
@@ -3675,6 +3618,10 @@
                 cliente, email, destino, fecha,
                 vendedora: document.getElementById('cotizVendedora').value,
                 estado: document.getElementById('cotizEstado').value,
+                fechaViaje: document.getElementById('cotizFechaViaje').value.trim(),
+                pax: document.getElementById('cotizPax').value.trim(),
+                precioTotal: document.getElementById('cotizPrecioTotal').value.trim(),
+                moneda: document.getElementById('cotizMoneda').value,
                 servicios,
                 vuelos: document.getElementById('cotizVuelos').value.trim(),
                 condiciones: document.getElementById('cotizCondiciones').value.trim(),
@@ -3860,6 +3807,13 @@
                         <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;font-weight:700">Destino</div>
                         <div style="font-size:20px;font-weight:800;color:#111;letter-spacing:-.5px">${c.destino}</div>
                     </div>
+                    <!-- Info extra -->
+                    ${(c.fechaViaje || c.pax || c.precioTotal) ? `
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:20px;background:#f8fafc;border-radius:10px;padding:14px 16px">
+                        ${c.fechaViaje ? `<div><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Fecha de viaje</div><div style="font-size:13.5px;font-weight:600">${c.fechaViaje}</div></div>` : ''}
+                        ${c.pax ? `<div><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Pasajeros</div><div style="font-size:13.5px;font-weight:600">${c.pax}</div></div>` : ''}
+                        ${c.precioTotal ? `<div><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Precio total</div><div style="font-size:15px;font-weight:700;color:#1d4ed8">${c.moneda || 'USD'} ${Number(c.precioTotal).toLocaleString('es-AR')}</div></div>` : ''}
+                    </div>` : ''}
                     <!-- Servicios -->
                     ${c.servicios ? `
                     <div style="margin-bottom:20px">
@@ -3930,31 +3884,42 @@
                 return;
             }
 
-            // Enviar con EmailJS
+            // Generar email + PDF
             const hoteles = normArr(c.hoteles);
-            const emailHTML = buildEmailHTML(c, hoteles);
+            const emailHTML = buildEmailBodyHTML(c, hoteles, ejsCfg);
+            let pdfBase64 = null;
             try {
-                // emailjs.send es global si el script está cargado
+                pdfBase64 = buildPDF(c, hoteles);
+                if (pdfBase64) {
+                    const a = document.createElement('a');
+                    a.href = 'data:application/pdf;base64,' + pdfBase64;
+                    a.download = `Cotizacion-LegendTravel-${c.cliente.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+                    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                }
+            } catch (pdfErr) { console.warn('PDF generation error:', pdfErr); }
+
+            try {
                 if (typeof emailjs === 'undefined') {
                     toast('EmailJS no está cargado. Verificá la configuración.', 'error'); return;
                 }
                 emailjs.init(ejsCfg.publicKey);
-                await emailjs.send(ejsCfg.serviceId, ejsCfg.templateId, {
-                    to_email: c.email,
-                    to_name: c.cliente,
-                    from_name: 'Legend Travel',
-                    destino: c.destino,
-                    fecha: fmtDate(c.fecha),
-                    vendedora: c.vendedora || '—',
-                    cotizacion_html: emailHTML,
-                    reply_to: ejsCfg.replyTo || '',
-                });
-                // Actualizar estado en Firebase
+                const params = {
+                    to_email: c.email, to_name: c.cliente, from_name: 'Legend Travel',
+                    destino: c.destino, fecha: fmtDate(c.fecha), vendedora: c.vendedora || '—',
+                    cotizacion_html: emailHTML, reply_to: ejsCfg.replyTo || '',
+                };
+                if (pdfBase64) {
+                    params.attachments = JSON.stringify([{
+                        name: `Cotizacion-LegendTravel-${c.cliente.replace(/[^a-zA-Z0-9 ]/g, '')}.pdf`,
+                        data: pdfBase64,
+                    }]);
+                }
+                await emailjs.send(ejsCfg.serviceId, ejsCfg.templateId, params);
                 const upd = { estado: 'enviada', tsEnviado: Date.now(), emailEnviado: c.email, tsModificado: Date.now() };
                 await update(ref(db, `cotizaciones/${fbKey}`), upd);
                 allCotizaciones[fbKey] = { ...c, ...upd };
                 renderCotizaciones();
-                toast(`Cotización enviada a ${c.email}`, 'success');
+                toast(`Cotización enviada a ${c.email}${pdfBase64 ? ' · PDF generado y descargado' : ''}`, 'success');
             } catch (e) {
                 console.error('EmailJS error:', e);
                 await update(ref(db, `cotizaciones/${fbKey}`), { estado: 'error', tsModificado: Date.now() });
@@ -3964,69 +3929,262 @@
             }
         };
 
-        function buildEmailHTML(c, hoteles) {
-            const hotelesSection = hoteles.length ? `
-                <h3 style="color:#1d4ed8;font-size:15px;margin:24px 0 12px">Opciones de hotelería</h3>
-                ${hoteles.map((h, i) => `
-                <div style="border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:12px">
-                    <div style="background:#1d4ed8;padding:10px 16px;color:white;font-weight:700">${h.nombre || 'Hotel ' + (i+1)} · ${'★'.repeat(parseInt(h.estrellas)||4)}</div>
-                    <div style="padding:14px 16px">
-                        <table style="width:100%;border-collapse:collapse;font-size:13px">
-                            <tr><td style="padding:4px 8px;color:#6b7280;width:40%">Régimen</td><td style="padding:4px 8px;font-weight:600">${h.regimen || '—'}</td></tr>
-                            <tr style="background:#f9fafb"><td style="padding:4px 8px;color:#6b7280">Habitación</td><td style="padding:4px 8px;font-weight:600">${h.habitacion || '—'}</td></tr>
-                            <tr><td style="padding:4px 8px;color:#6b7280">Noches</td><td style="padding:4px 8px;font-weight:600">${h.noches || '—'}</td></tr>
-                            <tr style="background:#f9fafb"><td style="padding:4px 8px;color:#6b7280">Precio</td><td style="padding:4px 8px;font-weight:700;color:#1d4ed8;font-size:15px">${h.moneda || 'USD'} ${Number(h.precio || 0).toLocaleString('es-AR')}</td></tr>
-                            ${h.ubicacion ? `<tr><td style="padding:4px 8px;color:#6b7280">Ubicación</td><td style="padding:4px 8px">${h.ubicacion}</td></tr>` : ''}
-                            ${h.beneficios ? `<tr style="background:#f9fafb"><td style="padding:4px 8px;color:#6b7280">Incluye</td><td style="padding:4px 8px">${h.beneficios}</td></tr>` : ''}
-                        </table>
-                        ${h.link ? `<a href="${h.link}" style="color:#1d4ed8;font-size:12px;margin-top:8px;display:block">Ver hotel →</a>` : ''}
-                    </div>
-                </div>`).join('')}` : '';
+        /* ─── PDF GENERATION ─────────────────────────────── */
+        function buildPDF(c, hoteles) {
+            if (!window.jspdf) return null;
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+            const BLUE = [29, 78, 216];
+            const DARK = [55, 65, 81];
+            const GRAY = [107, 114, 128];
+            const LGRAY = [249, 250, 251];
+            const BORDER = [229, 231, 235];
+            const pageW = 210;
+            const M = 18;
+            const CW = pageW - M * 2;
+            let y = 0;
+
+            const st = s => (s == null ? '' : String(s));
+
+            function nextPage(need = 20) {
+                if (y + need > 272) { doc.addPage(); y = 20; }
+            }
+
+            function sectionTitle(title) {
+                nextPage(16);
+                doc.setFillColor(239, 246, 255);
+                doc.rect(M, y - 4, CW, 9, 'F');
+                doc.setDrawColor(...BORDER);
+                doc.setLineWidth(0.2);
+                doc.rect(M, y - 4, CW, 9, 'S');
+                doc.setTextColor(...BLUE);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(8.5);
+                doc.text(title, M + 4, y + 2);
+                y += 10;
+            }
+
+            function bodyText(text) {
+                if (!text) return;
+                doc.setTextColor(...DARK);
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                const lines = doc.splitTextToSize(st(text), CW - 6);
+                nextPage(lines.length * 5 + 6);
+                doc.text(lines, M + 3, y);
+                y += lines.length * 5 + 8;
+            }
+
+            // HEADER
+            doc.setFillColor(...BLUE);
+            doc.rect(0, 0, pageW, 36, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(20);
+            doc.text('Legend Travel', M, 15);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9.5);
+            doc.text('Cotizacion de viaje', M, 25);
+            doc.text('Fecha: ' + fmtDate(c.fecha), pageW - M, 25, { align: 'right' });
+            y = 48;
+
+            // GREETING
+            doc.setTextColor(...BLUE);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(14);
+            doc.text('Estimado/a ' + st(c.cliente), M, y);
+            y += 7;
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10.5);
+            doc.setTextColor(...DARK);
+            doc.text('Propuesta para su viaje a: ' + st(c.destino), M, y);
+            y += 12;
+
+            // INFO GRID (2x2)
+            const infos = [
+                ['Asesora', c.vendedora || '—'],
+                ['Fecha de viaje', c.fechaViaje || '—'],
+                ['Pasajeros', c.pax || '—'],
+                ['Precio total', c.precioTotal ? (c.moneda || 'USD') + ' ' + st(c.precioTotal) : '—'],
+            ];
+            const colW2 = (CW - 6) / 2;
+            infos.forEach(([lbl, val], i) => {
+                const cx = M + (i % 2) * (colW2 + 6);
+                const cy = y + Math.floor(i / 2) * 16;
+                doc.setFillColor(...LGRAY);
+                doc.roundedRect(cx, cy - 5, colW2, 13, 1.5, 1.5, 'F');
+                doc.setTextColor(...GRAY);
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(7.5);
+                doc.text(lbl, cx + 4, cy);
+                doc.setTextColor(...DARK);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(10);
+                doc.text(st(val), cx + 4, cy + 6.5);
+            });
+            y += 38;
+
+            // DIVIDER
+            doc.setDrawColor(...BORDER);
+            doc.setLineWidth(0.3);
+            doc.line(M, y, pageW - M, y);
+            y += 10;
+
+            // SECTIONS
+            if (c.servicios) { sectionTitle('SERVICIOS INCLUIDOS'); bodyText(c.servicios); }
+            if (c.vuelos) { sectionTitle('DETALLE DE VUELOS'); bodyText(c.vuelos); }
+
+            // HOTELS
+            if (hoteles.length) {
+                sectionTitle('OPCIONES DE HOTELERIA');
+                hoteles.forEach((h, idx) => {
+                    nextPage(35);
+                    const hotelName = st(h.nombre || 'Hotel ' + (idx + 1));
+                    const stars = (parseInt(h.estrellas) || 4) + ' estrellas';
+                    const tableBody = [
+                        ['Regimen', st(h.regimen || '—')],
+                        ['Habitacion', st(h.habitacion || '—')],
+                        ['Noches', st(h.noches || '—')],
+                        ['Precio', (h.moneda || 'USD') + ' ' + Number(h.precio || 0).toLocaleString('es-AR')],
+                    ];
+                    if (h.ubicacion) tableBody.push(['Ubicacion', st(h.ubicacion)]);
+                    if (h.beneficios) tableBody.push(['Incluye', st(h.beneficios)]);
+                    if (h.obs) tableBody.push(['Observaciones', st(h.obs)]);
+                    if (h.link) tableBody.push(['Ver hotel', st(h.link)]);
+
+                    doc.autoTable({
+                        startY: y,
+                        margin: { left: M, right: M },
+                        head: [[`${hotelName}  (${stars})`, '']],
+                        body: tableBody,
+                        headStyles: {
+                            fillColor: BLUE, textColor: [255, 255, 255],
+                            fontStyle: 'bold', fontSize: 10,
+                            cellPadding: { top: 5, bottom: 5, left: 8, right: 5 },
+                        },
+                        bodyStyles: { fontSize: 9.5, textColor: DARK, cellPadding: 4 },
+                        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 38, textColor: GRAY, fillColor: LGRAY } },
+                        styles: { overflow: 'linebreak' },
+                        alternateRowStyles: { fillColor: [255, 255, 255] },
+                    });
+                    y = doc.lastAutoTable.finalY + 8;
+                });
+            }
+
+            if (c.condiciones) { sectionTitle('CONDICIONES GENERALES'); bodyText(c.condiciones); }
+            if (c.obs) { sectionTitle('OBSERVACIONES'); bodyText(c.obs); }
+
+            // FOOTER
+            nextPage(18);
+            doc.setFillColor(248, 250, 252);
+            doc.rect(0, y - 2, pageW, 22, 'F');
+            doc.setDrawColor(...BORDER);
+            doc.setLineWidth(0.3);
+            doc.line(0, y - 2, pageW, y - 2);
+            y += 5;
+            doc.setTextColor(...GRAY);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            doc.text('Legend Travel  -  Sistema de gestion comercial', pageW / 2, y, { align: 'center' });
+            y += 5;
+            doc.setTextColor(209, 213, 219);
+            doc.setFontSize(8);
+            doc.text('Esta cotizacion tiene validez de 48hs. Precios sujetos a disponibilidad.', pageW / 2, y, { align: 'center' });
+
+            return doc.output('datauristring').split(',')[1];
+        }
+
+        /* ─── EMAIL BODY (nuevo template personalizado) ──────── */
+        function buildEmailBodyHTML(c, hoteles, ejsCfg) {
+            function esc(s) {
+                if (s == null) return '';
+                return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            }
+            function nl(s) { return esc(s).replace(/\n/g, '<br>'); }
+
+            const hotelesLi = hoteles.map((h, i) => {
+                let line = `<strong>${esc(h.nombre || 'Hotel ' + (i + 1))}</strong>`;
+                if (h.estrellas) line += ` (${parseInt(h.estrellas) || 4} estrellas)`;
+                if (h.regimen) line += ` &mdash; ${esc(h.regimen)}`;
+                if (h.precio) line += ` &mdash; ${esc(h.moneda || 'USD')} ${Number(h.precio).toLocaleString('es-AR')}`;
+                if (h.link) line += ` &mdash; <a href="${esc(h.link)}" style="color:#1d4ed8;text-decoration:none">Ver hotel</a>`;
+                return `<li style="margin:5px 0;font-size:13.5px;color:#374151;line-height:1.6">${line}</li>`;
+            }).join('');
+
+            const phone = esc(ejsCfg?.phone || '');
+            const replyEmail = esc(ejsCfg?.replyTo || '');
+            const vendedora = esc(c.vendedora || 'Legend Travel');
+            const cliente = esc(c.cliente);
+            const destino = esc(c.destino);
+            const fechaViaje = esc(c.fechaViaje || '&mdash;');
+            const pax = esc(c.pax || '&mdash;');
+            const precioFmt = c.precioTotal
+                ? `${esc(c.moneda || 'USD')} ${Number(c.precioTotal).toLocaleString('es-AR')}`
+                : '&mdash;';
+
+            const liStyle = 'margin:6px 0;font-size:13.5px;color:#374151;line-height:1.6';
 
             return `<!DOCTYPE html>
-<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<html lang="es">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
 <div style="max-width:600px;margin:20px auto;background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08)">
-  <!-- Header -->
   <div style="background:#1d4ed8;padding:28px 32px">
     <div style="font-size:22px;font-weight:900;color:white;letter-spacing:-1px">Legend Travel</div>
-    <div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:4px;text-transform:uppercase;letter-spacing:.8px">Cotización de viaje</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:4px;text-transform:uppercase;letter-spacing:.8px">Cotizaci&oacute;n de viaje</div>
   </div>
-  <!-- Body -->
   <div style="padding:32px">
-    <p style="font-size:15px;color:#374151;margin:0 0 6px">Estimado/a <strong>${c.cliente}</strong>,</p>
-    <p style="font-size:13.5px;color:#6b7280;margin:0 0 24px;line-height:1.6">Nos complace presentarle la cotización para su viaje a <strong style="color:#1d4ed8">${c.destino}</strong>.</p>
+    <p style="font-size:15px;color:#374151;margin:0 0 12px">Estimado/a <strong>${cliente}</strong>,</p>
+    <p style="font-size:14px;color:#374151;margin:0 0 12px;line-height:1.6">Esperamos que te encuentres muy bien.</p>
+    <p style="font-size:14px;color:#374151;margin:0 0 24px;line-height:1.6">Te enviamos la cotizaci&oacute;n solicitada para tu pr&oacute;ximo viaje a <strong style="color:#1d4ed8">${destino}</strong>, con una propuesta dise&ntilde;ada en base a tus preferencias.</p>
 
-    <div style="background:#f8fafc;border-radius:8px;padding:14px 16px;margin-bottom:24px;font-size:13px;color:#374151">
-      <strong>Fecha de cotización:</strong> ${fmtDate(c.fecha)}<br>
-      <strong>Asesor/a:</strong> ${c.vendedora || '—'}
+    <div style="background:#f8fafc;border-radius:10px;padding:20px 24px;margin-bottom:24px">
+      <p style="font-size:13.5px;font-weight:700;color:#1d4ed8;margin:0 0 12px"><strong>Detalle de la propuesta:</strong></p>
+      <ul style="margin:0;padding-left:20px">
+        <li style="${liStyle}"><strong>Destino:</strong> ${destino}</li>
+        <li style="${liStyle}"><strong>Fecha de viaje:</strong> ${fechaViaje}</li>
+        <li style="${liStyle}"><strong>Cantidad de pasajeros:</strong> ${pax}</li>
+        ${c.servicios ? `<li style="${liStyle}"><strong>Servicios incluidos:</strong> ${nl(c.servicios)}</li>` : ''}
+        ${c.vuelos ? `<li style="${liStyle}"><strong>Vuelos:</strong> ${nl(c.vuelos)}</li>` : ''}
+        ${hoteles.length ? `<li style="${liStyle}"><strong>Opciones de hoteler&iacute;a:</strong><ul style="margin:6px 0 0;padding-left:16px">${hotelesLi}</ul></li>` : ''}
+      </ul>
     </div>
 
-    ${c.servicios ? `
-    <h3 style="color:#111;font-size:14px;margin:0 0 8px;text-transform:uppercase;letter-spacing:.5px">Servicios incluidos</h3>
-    <div style="background:#f0fdf4;border-left:3px solid #15803d;padding:12px 16px;border-radius:0 8px 8px 0;font-size:13.5px;line-height:1.7;color:#374151;margin-bottom:20px">${c.servicios.replace(/\n/g,'<br>')}</div>` : ''}
+    ${c.precioTotal ? `
+    <div style="background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:10px;padding:16px 20px;margin-bottom:24px">
+      <div style="font-size:15px;font-weight:700;color:#1d4ed8"><strong>Precio total del viaje: ${precioFmt}</strong></div>
+      <div style="font-size:12px;color:#6b7280;margin-top:4px">Moneda: ${esc(c.moneda || 'USD')}</div>
+    </div>` : ''}
 
-    ${c.vuelos ? `
-    <h3 style="color:#111;font-size:14px;margin:0 0 8px;text-transform:uppercase;letter-spacing:.5px">Detalle de vuelos</h3>
-    <div style="background:#f0f9ff;border-left:3px solid #0ea5e9;padding:12px 16px;border-radius:0 8px 8px 0;font-size:13.5px;line-height:1.7;color:#374151;margin-bottom:20px">${c.vuelos.replace(/\n/g,'<br>')}</div>` : ''}
+    <div style="border-top:1px solid #e5e7eb;padding-top:20px;margin-bottom:20px">
+      <p style="font-size:13px;font-weight:700;color:#374151;margin:0 0 10px">Condiciones generales:</p>
+      <ul style="margin:0;padding-left:20px">
+        <li style="margin:5px 0;font-size:13px;color:#6b7280;line-height:1.6">Tarifas sujetas a disponibilidad al momento de la confirmaci&oacute;n</li>
+        <li style="margin:5px 0;font-size:13px;color:#6b7280;line-height:1.6">Posibles variaciones en tarifas a&eacute;reas y hoteleras sin previo aviso</li>
+        <li style="margin:5px 0;font-size:13px;color:#6b7280;line-height:1.6">Para garantizar la reserva se requiere confirmaci&oacute;n y pago inicial</li>
+      </ul>
+    </div>
 
-    ${hotelesSection}
+    <p style="font-size:13.5px;color:#374151;margin:0 0 8px;line-height:1.6">Quedamos a disposici&oacute;n para ajustar cualquier detalle y ayudarte a encontrar la mejor opci&oacute;n para tu viaje.</p>
+    <p style="font-size:13.5px;color:#374151;margin:0 0 24px;line-height:1.6">Pod&eacute;s responder a este mail o contactarnos directamente para avanzar con la reserva.</p>
 
-    ${c.condiciones ? `
-    <h3 style="color:#111;font-size:14px;margin:20px 0 8px;text-transform:uppercase;letter-spacing:.5px">Condiciones generales</h3>
-    <div style="background:#fafafa;border:1px solid #e5e7eb;padding:12px 16px;border-radius:8px;font-size:12.5px;line-height:1.7;color:#6b7280">${c.condiciones.replace(/\n/g,'<br>')}</div>` : ''}
-
-    ${c.obs ? `<p style="font-size:13px;color:#374151;margin-top:20px"><strong>Nota:</strong> ${c.obs.replace(/\n/g,'<br>')}</p>` : ''}
-
-    <p style="font-size:13px;color:#374151;margin-top:24px;line-height:1.6">Ante cualquier consulta, no dude en contactarnos. Estamos a su disposición.</p>
-    <p style="font-size:13.5px;font-weight:600;margin-top:4px">El equipo de Legend Travel</p>
+    <div style="border-top:1px solid #e5e7eb;padding-top:18px">
+      <p style="margin:0;font-size:14px;color:#374151;line-height:2">
+        Saludos,<br>
+        <strong>${vendedora}</strong><br>
+        Legend Travel<br>
+        ${phone ? phone + '<br>' : ''}
+        ${replyEmail ? `<a href="mailto:${replyEmail}" style="color:#1d4ed8;text-decoration:none">${replyEmail}</a>` : ''}
+      </p>
+    </div>
   </div>
-  <!-- Footer -->
   <div style="background:#f8fafc;padding:16px 32px;border-top:1px solid #e5e7eb;text-align:center">
-    <div style="font-size:11.5px;color:#9ca3af">Legend Travel · Sistema de gestión comercial</div>
-    <div style="font-size:11px;color:#d1d5db;margin-top:4px">Esta cotización tiene validez de 48hs. Precios sujetos a disponibilidad.</div>
+    <div style="font-size:11.5px;color:#9ca3af">Legend Travel &middot; Sistema de gesti&oacute;n comercial</div>
+    <div style="font-size:11px;color:#d1d5db;margin-top:4px">El detalle completo se encuentra en el PDF adjunto. Precios sujetos a disponibilidad.</div>
   </div>
-</div></body></html>`;
+</div>
+</body></html>`;
         }
 
         /* ─── EMAILJS CONFIG (Ajustes) ──────────────────────── */
@@ -4035,11 +4193,12 @@
             const templateId = document.getElementById('ejs_templateId').value.trim();
             const publicKey = document.getElementById('ejs_publicKey').value.trim();
             const replyTo = document.getElementById('ejs_replyTo').value.trim();
+            const phone = document.getElementById('ejs_phone').value.trim();
             if (!serviceId || !templateId || !publicKey) {
                 toast('Completá Service ID, Template ID y Public Key', 'error'); return;
             }
             try {
-                await set(ref(db, 'config/emailjs'), { serviceId, templateId, publicKey, replyTo });
+                await set(ref(db, 'config/emailjs'), { serviceId, templateId, publicKey, replyTo, phone });
                 const msg = document.getElementById('emailjsSaveMsg');
                 if (msg) { msg.style.display = 'flex'; setTimeout(() => msg.style.display = 'none', 3000); }
                 updateEmailJSStatus({ serviceId, templateId, publicKey });
@@ -4057,6 +4216,7 @@
                     f('ejs_templateId', cfg.templateId);
                     f('ejs_publicKey', cfg.publicKey);
                     f('ejs_replyTo', cfg.replyTo);
+                    f('ejs_phone', cfg.phone);
                     updateEmailJSStatus(cfg);
                 } else {
                     updateEmailJSStatus(null);
@@ -4098,20 +4258,38 @@
             }
 
             const hoteles = normArr(c.hoteles);
-            const emailHTML = buildEmailHTML(c, hoteles);
+            const emailHTML = buildEmailBodyHTML(c, hoteles, ejsCfg);
+            let pdfBase64 = null;
+            try {
+                pdfBase64 = buildPDF(c, hoteles);
+                if (pdfBase64) {
+                    const a = document.createElement('a');
+                    a.href = 'data:application/pdf;base64,' + pdfBase64;
+                    a.download = `Cotizacion-LegendTravel-${c.cliente.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+                    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                }
+            } catch (pdfErr) { console.warn('PDF generation error:', pdfErr); }
+
             try {
                 if (typeof emailjs === 'undefined') { toast('EmailJS no está cargado. Verificá la configuración.', 'error'); return; }
                 emailjs.init(ejsCfg.publicKey);
-                await emailjs.send(ejsCfg.serviceId, ejsCfg.templateId, {
+                const params = {
                     to_email: c.email, to_name: c.cliente, from_name: 'Legend Travel',
                     destino: c.destino, fecha: fmtDate(c.fecha), vendedora: c.vendedora || '—',
                     cotizacion_html: emailHTML, reply_to: ejsCfg.replyTo || '',
-                });
+                };
+                if (pdfBase64) {
+                    params.attachments = JSON.stringify([{
+                        name: `Cotizacion-LegendTravel-${c.cliente.replace(/[^a-zA-Z0-9 ]/g, '')}.pdf`,
+                        data: pdfBase64,
+                    }]);
+                }
+                await emailjs.send(ejsCfg.serviceId, ejsCfg.templateId, params);
                 const upd = { estado: 'enviada', tsEnviado: Date.now(), emailEnviado: c.email, tsModificado: Date.now() };
                 await update(ref(db, `cotizaciones/${fbKey}`), upd);
                 allCotizaciones[fbKey] = { ...c, ...upd };
                 renderCotizaciones();
-                toast(`Cotización enviada a ${c.email}`, 'success');
+                toast(`Cotización enviada a ${c.email}${pdfBase64 ? ' · PDF generado y descargado' : ''}`, 'success');
                 if (btn) { btn.disabled = false; btn.style.background = '#15803d'; btn.innerHTML = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M5 13l4 4L19 7"/></svg> Enviado`; }
             } catch (e) {
                 console.error('EmailJS error:', e);
@@ -4124,6 +4302,17 @@
         };
 
         window.toast = toast;
+    </script>
+
+    <!-- Registro del Service Worker (PWA) -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('SW registrado:', reg.scope))
+                    .catch(err => console.warn('SW error:', err));
+            });
+        }
     </script>
 </body>
 
