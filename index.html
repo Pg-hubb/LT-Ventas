@@ -2882,8 +2882,13 @@
                 ts: Date.now(),
             };
             try {
-                await push(ref(db, 'transferencias'), obj);
+                const newRef = await push(ref(db, 'transferencias'), obj);
+                // Actualización optimista: mostrar inmediatamente sin esperar el listener
+                allTransf[newRef.key] = obj;
                 closeModal('modalTransf');
+                updateBadgeTransf();
+                renderTransferencias();
+                renderDashTransf();
                 toast(tipo === 'ingreso' ? 'Ingreso registrado — pendiente de confirmación' : 'Egreso registrado', 'success');
             } catch (e) { toast('Error al guardar', 'error'); }
             btn.disabled = false; btn.textContent = 'Guardar';
