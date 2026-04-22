@@ -1605,7 +1605,7 @@
             btn.disabled = true; btn.classList.add('loading');
             currentUser = { id: uid, ...USERS[uid] };
             localStorage.setItem('lt_session', uid);
-            try { await seedIfEmpty(); } catch (_) {}
+            seedIfEmpty().catch(() => {});
             initApp();
         };
 
@@ -2488,13 +2488,13 @@
                     const savedUid = localStorage.getItem('lt_session');
                     if (savedUid && USERS[savedUid]) {
                         currentUser = { id: savedUid, ...USERS[savedUid] };
-                        try { await seedIfEmpty(); } catch (_) {}
+                        seedIfEmpty().catch(() => {});
                         initApp();
                     } else {
                         document.getElementById('screen-login').classList.add('active');
                     }
                 }, 400);
-            }, 1800);
+            }, 800);
         });
 
         /* ─── AJUSTES: EMAIL ─────────────────────────────────── */
