@@ -1644,8 +1644,8 @@
             });
             setupPushNotifications();
             // Re-render inicial
-            setTimeout(() => { renderDashTransf(); renderTransferencias(); }, 2000);
-            // Auto-refresh cada 30s para iOS donde el listener no siempre dispara
+            setTimeout(() => { renderDashTransf(); renderTransferencias(); }, 1000);
+            // Auto-refresh cada 5s para iOS donde el listener no siempre dispara
             setInterval(async () => {
                 try {
                     const snap = await get(ref(db, 'transferencias'));
@@ -1655,6 +1655,18 @@
                     renderDashTransf();
                 } catch (_) {}
             }, 5000);
+            // Forzar recarga al volver a la app (cuando iOS pausa el WebSocket)
+            document.addEventListener('visibilitychange', async () => {
+                if (document.visibilityState === 'visible') {
+                    try {
+                        const snap = await get(ref(db, 'transferencias'));
+                        allTransf = snap.val() || {};
+                        updateBadgeTransf();
+                        renderTransferencias();
+                        renderDashTransf();
+                    } catch (_) {}
+                }
+            });
         }
 
         window.refreshData = async function () {
