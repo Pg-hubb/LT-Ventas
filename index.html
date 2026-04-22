@@ -1643,8 +1643,18 @@
                 document.getElementById('liveStatus').textContent = `${count} en línea`;
             });
             setupPushNotifications();
-            // Re-render dashboard después de 2s para asegurar que Firebase cargó los datos
+            // Re-render inicial
             setTimeout(() => { renderDashTransf(); renderTransferencias(); }, 2000);
+            // Auto-refresh cada 30s para iOS donde el listener no siempre dispara
+            setInterval(async () => {
+                try {
+                    const snap = await get(ref(db, 'transferencias'));
+                    allTransf = snap.val() || {};
+                    updateBadgeTransf();
+                    renderTransferencias();
+                    renderDashTransf();
+                } catch (_) {}
+            }, 30000);
         }
 
         window.refreshData = async function () {
