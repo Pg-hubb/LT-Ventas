@@ -1413,7 +1413,7 @@
 ═══════════════════════════════════════════════════════ -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, update, remove, get }
+        import { getDatabase, ref, set, push, onValue, update, remove, get, keepSynced }
             from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
         import { getMessaging, getToken, onMessage }
             from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
@@ -2818,6 +2818,8 @@
         }
 
         function startTransfListener() {
+            // Mantener sincronizado en iOS
+            try { keepSynced(ref(db, 'transferencias'), true); } catch (_) {}
             // Carga inicial inmediata con get() para no depender del timing del listener
             get(ref(db, 'transferencias')).then(snap => {
                 allTransf = snap.val() || {};
