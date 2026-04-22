@@ -1645,25 +1645,19 @@
             setupPushNotifications();
             // Re-render inicial
             setTimeout(() => { renderDashTransf(); renderTransferencias(); }, 1000);
-            // Auto-refresh cada 5s para iOS donde el listener no siempre dispara
+            // Auto-refresh cada 5s para iOS donde onValue no siempre dispara
             setInterval(async () => {
                 try {
                     const snap = await get(ref(db, 'transferencias'));
-                    allTransf = snap.val() || {};
-                    updateBadgeTransf();
-                    renderTransferencias();
-                    renderDashTransf();
+                    processTransfData(snap.val() || {});
                 } catch (_) {}
             }, 5000);
-            // Forzar recarga al volver a la app (cuando iOS pausa el WebSocket)
+            // Forzar recarga al volver a la app (iOS pausa el WebSocket en background)
             document.addEventListener('visibilitychange', async () => {
                 if (document.visibilityState === 'visible') {
                     try {
                         const snap = await get(ref(db, 'transferencias'));
-                        allTransf = snap.val() || {};
-                        updateBadgeTransf();
-                        renderTransferencias();
-                        renderDashTransf();
+                        processTransfData(snap.val() || {});
                     } catch (_) {}
                 }
             });
@@ -1672,10 +1666,7 @@
         window.refreshData = async function () {
             try {
                 const snap = await get(ref(db, 'transferencias'));
-                allTransf = snap.val() || {};
-                updateBadgeTransf();
-                renderTransferencias();
-                renderDashTransf();
+                processTransfData(snap.val() || {});
             } catch (_) {}
             renderAll();
         };
@@ -2807,9 +2798,34 @@
 
         /* ─── TRANSFERENCIAS REESTRUCTURADAS ─────────────────── */
         let allTransf = {};
+        let pendingTransf = {};       // optimistic entries not yet confirmed by Firebase
+        let knownTransfIds = new Set(); // to detect new transfers in both onValue and interval
         let currentTransfSection = 'ingresos';
         let filterIngreso = 'todas';
         let filterEgreso = 'todas';
+
+        function processTransfData(fresh) {
+            // Detect new transfers and notify (works from both onValue and setInterval)
+            Object.keys(fresh).forEach(id => {
+                if (knownTransfIds.size > 0 && !knownTransfIds.has(id)) {
+                    const t = fresh[id];
+                    const creadaPor = t.vendedora || '';
+                    if (currentUser && creadaPor !== (currentUser.vendedora || currentUser.name)) {
+                        try { notifyNewTransfer(t); } catch (_) {}
+                    }
+                }
+                knownTransfIds.add(id);
+            });
+            // Preserve optimistic entries not yet confirmed by Firebase
+            Object.entries(pendingTransf).forEach(([key, val]) => {
+                if (fresh[key]) delete pendingTransf[key];
+                else fresh[key] = val;
+            });
+            allTransf = fresh;
+            updateBadgeTransf();
+            renderTransferencias();
+            renderDashTransf();
+        }
 
         function notifyNewTransfer(t) {
             const tipo    = t.tipo === 'ingreso' ? 'Ingreso' : 'Egreso';
@@ -2830,38 +2846,11 @@
         }
 
         function startTransfListener() {
-            // Carga inicial inmediata con get() para no depender del timing del listener
             get(ref(db, 'transferencias')).then(snap => {
-                allTransf = snap.val() || {};
-                updateBadgeTransf();
-                renderTransferencias();
-                renderDashTransf();
+                processTransfData(snap.val() || {});
             }).catch(() => {});
-
-            // Listener en tiempo real para cambios posteriores
-            let knownIds = null;
             onValue(ref(db, 'transferencias'), snap => {
-                const data   = snap.val() || {};
-                const newIds = Object.keys(data);
-
-                if (knownIds !== null) {
-                    try {
-                        const added = newIds.filter(id => !knownIds.includes(id));
-                        added.forEach(id => {
-                            const t = data[id];
-                            const creadaPor = t.vendedora || '';
-                            if (currentUser && creadaPor !== (currentUser.vendedora || currentUser.name)) {
-                                notifyNewTransfer(t);
-                            }
-                        });
-                    } catch (e) { console.warn('Notif error:', e); }
-                }
-
-                knownIds  = newIds;
-                allTransf = data;
-                updateBadgeTransf();
-                renderTransferencias();
-                renderDashTransf();
+                processTransfData(snap.val() || {});
             });
         }
 
@@ -2930,7 +2919,7 @@
             };
             try {
                 const newRef = await push(ref(db, 'transferencias'), obj);
-                // Actualización optimista: mostrar inmediatamente sin esperar el listener
+                pendingTransf[newRef.key] = obj; // preserve until Firebase confirms
                 allTransf[newRef.key] = obj;
                 closeModal('modalTransf');
                 updateBadgeTransf();
