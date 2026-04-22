@@ -425,7 +425,7 @@
                     <div class="live-dot" id="liveDot"></div>
                     <span id="liveStatus">En vivo</span>
                 </div>
-                <button class="topbar-btn secondary" onclick="renderAll()">
+                <button class="topbar-btn secondary" onclick="refreshData()">
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path
                             d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -1646,6 +1646,17 @@
             // Re-render dashboard después de 2s para asegurar que Firebase cargó los datos
             setTimeout(() => { renderDashTransf(); renderTransferencias(); }, 2000);
         }
+
+        window.refreshData = async function () {
+            try {
+                const snap = await get(ref(db, 'transferencias'));
+                allTransf = snap.val() || {};
+                updateBadgeTransf();
+                renderTransferencias();
+                renderDashTransf();
+            } catch (_) {}
+            renderAll();
+        };
 
         window.doLogout = function () {
             remove(ref(db, `presencia/${currentUser.id}`));
